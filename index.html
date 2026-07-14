@@ -491,6 +491,9 @@ const ROWH = R * Math.sqrt(3);
 const TOP = 100;
 const BALL_R = R * 0.80;
 const SPEED = 660;
+const AIM_SENS = 0.58;               // nişan hassasiyeti: 1 = ham parmak açısı, düşükse daha kontrollü
+const AIM_MAX_ANGLE = 66 * Math.PI / 180; // dikeyden en fazla sapma (aşırı yatay atışı engeller)
+const AIM_MIN_PULL = 30;             // nişana başlamak için gereken en az çekme mesafesi
 const MAX_LEVEL = 100;           // yolculuk: 100 bölüm, eşit artan zorluk
 const THEME_COIN = 600;          // kozmetik altın fiyatı
 const AD_COINS = 40;             // reklam başına altın
@@ -1385,8 +1388,12 @@ function bindInput() {
     G.pointer = toLogical(e);
     const dx = G.anchor.x - G.pointer.x, dy = G.anchor.y - G.pointer.y;
     const len = Math.hypot(dx, dy);
-    // daha uzun çekme eşiği + ham vektör; yumuşatma update() içinde
-    G.aimRaw = (len > 22 && dy < -len * 0.18) ? { x: dx / len, y: dy / len } : null;
+    if (len < AIM_MIN_PULL || dy > -len * 0.12) { G.aimRaw = null; return; }
+    // parmağın dikeyden sapma açısı, hassasiyet çarpanıyla ölçeklenir ve sınırlanır —
+    // ham parmak hareketini birebir izlemek yerine kontrollü, öngörülebilir bir yay verir
+    const rawAngle = Math.atan2(dx, -dy); // dikeyden açı: + sağa, - sola
+    const scaled = clamp(rawAngle * AIM_SENS, -AIM_MAX_ANGLE, AIM_MAX_ANGLE);
+    G.aimRaw = { x: Math.sin(scaled), y: -Math.cos(scaled) };
   });
   const release = e => {
     if (!G.aiming) return;
@@ -1413,7 +1420,7 @@ function traceAim(dir) {
       if ((p.x - x) ** 2 + (p.y - y) ** 2 < (2 * BALL_R * 0.86) ** 2) { collided = true; break; }
     }
     if (collided) { hit = { x, y }; break; }
-    if (dist % 21 < step) pts.push({ x, y, d: dist });
+    if (dist % 24 < step) pts.push({ x, y, d: dist, vx, vy });
   }
   return { pts, hit };
 }
@@ -1425,7 +1432,7 @@ function update(dt, now) {
   // nişan yumuşatma — parmak titremesi süzülür, hat sakin akar
   if (G.aiming && G.aimRaw) {
     if (!G.aimVec) G.aimVec = { x: G.aimRaw.x, y: G.aimRaw.y };
-    const k = 1 - Math.exp(-dt * 9);
+    const k = 1 - Math.exp(-dt * 7.5);
     G.aimVec.x = lerp(G.aimVec.x, G.aimRaw.x, k);
     G.aimVec.y = lerp(G.aimVec.y, G.aimRaw.y, k);
     const L = Math.hypot(G.aimVec.x, G.aimVec.y) || 1;
@@ -1705,16 +1712,56 @@ function drawLauncher(now) {
 
   if (G.aiming && G.aimVec) {
     const { pts, hit } = traceAim(G.aimVec);
-    for (const p of pts) {
-      const a = clamp(1 - p.d / 1300, 0.12, 0.85);
-      ctx.fillStyle = hexToRgba(PALETTE[G.cur].c, a);
-      ctx.beginPath(); ctx.arc(p.x, p.y, 2.1, 0, TAU); ctx.fill();
-    }
+    const col = PALETTE[G.cur].c;
+
+    // ince, süzülen kılavuz çizgisi — noktaları bağlayan yumuşak bir zemin
+    ctx.save();
+    ctx.strokeStyle = hexToRgba(col, 0.16);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(LAUNCH.x, LAUNCH.y);
+    for (const p of pts) ctx.lineTo(p.x, p.y);
+    if (hit) ctx.lineTo(hit.x, hit.y);
+    ctx.stroke();
+    ctx.restore();
+
+    // yön gösteren, uzaklıkla incelen ok işaretleri (>>) — profesyonel nişan hissi
+    pts.forEach((p, i) => {
+      const a = clamp(1 - p.d / 1250, 0.1, 0.95);
+      const ang = Math.atan2(p.vy, p.vx);
+      const len2 = lerp(7, 4.5, clamp(p.d / 900, 0, 1));
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(ang);
+      ctx.strokeStyle = hexToRgba(col, a);
+      ctx.lineWidth = 1.8;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-len2 * 0.55, -len2); ctx.lineTo(len2 * 0.55, 0); ctx.lineTo(-len2 * 0.55, len2);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // varış noktası — kamera odak parantezli, nabız atan hedef reticle
     if (hit) {
-      ctx.strokeStyle = hexToRgba(PALETTE[G.cur].c, 0.5);
-      ctx.setLineDash([4, 5]); ctx.lineWidth = 1.4;
-      ctx.beginPath(); ctx.arc(hit.x, hit.y, BALL_R * 0.85, 0, TAU); ctx.stroke();
-      ctx.setLineDash([]);
+      const pulse = 1 + 0.08 * Math.sin(now * 0.006);
+      const rr = BALL_R * 0.95 * pulse;
+      const cl = rr * 0.34;
+      ctx.save();
+      ctx.strokeStyle = hexToRgba(col, 0.75);
+      ctx.lineWidth = 1.6;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = col; ctx.shadowBlur = 6;
+      [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => {
+        const cx = hit.x + sx * rr, cy = hit.y + sy * rr;
+        ctx.beginPath();
+        ctx.moveTo(cx - sx * cl, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy - sy * cl);
+        ctx.stroke();
+      });
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = hexToRgba(col, 0.85);
+      ctx.beginPath(); ctx.arc(hit.x, hit.y, 1.8, 0, TAU); ctx.fill();
+      ctx.restore();
     }
   }
 
