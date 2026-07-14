@@ -491,9 +491,8 @@ const ROWH = R * Math.sqrt(3);
 const TOP = 100;
 const BALL_R = R * 0.80;
 const SPEED = 660;
-const AIM_SENS = 0.58;               // nişan hassasiyeti: 1 = ham parmak açısı, düşükse daha kontrollü
-const AIM_MAX_ANGLE = 66 * Math.PI / 180; // dikeyden en fazla sapma (aşırı yatay atışı engeller)
-const AIM_MIN_PULL = 30;             // nişana başlamak için gereken en az çekme mesafesi
+const AIM_MAX_ANGLE = 80 * Math.PI / 180; // dikeyden en fazla sapma — geniş açı, alttan seke seke atış imkanı
+const AIM_DEADZONE = 10;             // fırlatıcının hemen üstünde geçersiz bölge (yön belirsizliğini önler)
 const MAX_LEVEL = 100;           // yolculuk: 100 bölüm, eşit artan zorluk
 const THEME_COIN = 600;          // kozmetik altın fiyatı
 const AD_COINS = 40;             // reklam başına altın
@@ -1363,12 +1362,19 @@ function toLogical(e) {
   const rect = canvas.getBoundingClientRect();
   return { x: (e.clientX - rect.left) / SC, y: (e.clientY - rect.top) / SC };
 }
+function updateAimFromPointer() {
+  const dx = G.pointer.x - LAUNCH.x, dy = G.pointer.y - LAUNCH.y;
+  if (dy > -AIM_DEADZONE) { G.aimRaw = null; return; } // fırlatıcının altı/çok yakını — geçersiz yön
+  const rawAngle = Math.atan2(dx, -dy); // dikeyden açı: + sağa, - sola
+  const clamped = clamp(rawAngle, -AIM_MAX_ANGLE, AIM_MAX_ANGLE);
+  G.aimRaw = { x: Math.sin(clamped), y: -Math.cos(clamped) };
+}
 function bindInput() {
   canvas.addEventListener('pointerdown', e => {
     Sfx.start();
     if (G.state !== 'playing' || G.fly) return;
     const p = toLogical(e);
-    // sıradaki topa dokunma: mevcut topla yer değiştir (sling başlatma)
+    // sıradaki topa dokunma: mevcut topla yer değiştir
     const nx = LAUNCH.x + NEXT_BALL.dx, ny = LAUNCH.y + NEXT_BALL.dy;
     if ((p.x - nx) ** 2 + (p.y - ny) ** 2 < NEXT_BALL.hitR ** 2) {
       const tmp = G.cur; G.cur = G.next; G.next = tmp;
@@ -1377,30 +1383,26 @@ function bindInput() {
       UI.refresh();
       return;
     }
+    // doğrudan hedefleme: parmağın dokunduğu HER YER anında nişan noktası olur —
+    // sapanı geriye çekmeye gerek yok, ok parmağın olduğu yöne çıkar
     G.aiming = true;
-    G.anchor = p;
-    G.pointer = { ...G.anchor };
+    G.pointer = p;
     G.aimRaw = null; G.aimVec = null;
+    updateAimFromPointer();
+    if (G.aimRaw) G.aimVec = { x: G.aimRaw.x, y: G.aimRaw.y }; // ilk temasta ok anında görünsün
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', e => {
     if (!G.aiming) return;
     G.pointer = toLogical(e);
-    const dx = G.anchor.x - G.pointer.x, dy = G.anchor.y - G.pointer.y;
-    const len = Math.hypot(dx, dy);
-    if (len < AIM_MIN_PULL || dy > -len * 0.12) { G.aimRaw = null; return; }
-    // parmağın dikeyden sapma açısı, hassasiyet çarpanıyla ölçeklenir ve sınırlanır —
-    // ham parmak hareketini birebir izlemek yerine kontrollü, öngörülebilir bir yay verir
-    const rawAngle = Math.atan2(dx, -dy); // dikeyden açı: + sağa, - sola
-    const scaled = clamp(rawAngle * AIM_SENS, -AIM_MAX_ANGLE, AIM_MAX_ANGLE);
-    G.aimRaw = { x: Math.sin(scaled), y: -Math.cos(scaled) };
+    updateAimFromPointer();
   });
   const release = e => {
     if (!G.aiming) return;
     G.aiming = false;
     const v = G.aimVec || G.aimRaw;
     if (v) launch(v);
-    G.aimVec = null; G.aimRaw = null; G.pointer = null; G.anchor = null;
+    G.aimVec = null; G.aimRaw = null; G.pointer = null;
   };
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', release);
@@ -1410,7 +1412,7 @@ function traceAim(dir) {
   let x = LAUNCH.x, y = LAUNCH.y, vx = dir.x, vy = dir.y;
   const pts = []; let dist = 0, hit = null;
   const step = 7;
-  while (y > TOP - R && dist < 1500) {
+  while (y > TOP - R && dist < 2200) {
     x += vx * step; y += vy * step; dist += step;
     if (x < R) { x = R; vx = -vx; }
     if (x > W - R) { x = W - R; vx = -vx; }
@@ -1432,7 +1434,7 @@ function update(dt, now) {
   // nişan yumuşatma — parmak titremesi süzülür, hat sakin akar
   if (G.aiming && G.aimRaw) {
     if (!G.aimVec) G.aimVec = { x: G.aimRaw.x, y: G.aimRaw.y };
-    const k = 1 - Math.exp(-dt * 7.5);
+    const k = 1 - Math.exp(-dt * 11);
     G.aimVec.x = lerp(G.aimVec.x, G.aimRaw.x, k);
     G.aimVec.y = lerp(G.aimVec.y, G.aimRaw.y, k);
     const L = Math.hypot(G.aimVec.x, G.aimVec.y) || 1;
@@ -1766,17 +1768,9 @@ function drawLauncher(now) {
   }
 
   let ox = 0, oy = 0;
-  if (G.aiming && G.pointer && G.anchor) {
-    const dx = G.pointer.x - G.anchor.x, dy = G.pointer.y - G.anchor.y;
-    const len = Math.hypot(dx, dy) || 1;
-    const pull = Math.min(len, 64) * 0.45;
-    ox = dx / len * pull; oy = dy / len * pull;
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(LAUNCH.x - ox * 0.6, LAUNCH.y - oy * 0.6);
-    ctx.lineTo(LAUNCH.x + ox, LAUNCH.y + oy);
-    ctx.stroke();
+  if (G.aiming && G.aimVec) {
+    const lean = 9; // sapan gerilmesi değil, "atışa hazır" hissi veren küçük bir eğilim
+    ox = G.aimVec.x * lean; oy = G.aimVec.y * lean;
   }
   if (!G.fly) {
     const puls = 1 + 0.03 * Math.sin(now * 0.002);
