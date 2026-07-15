@@ -594,7 +594,11 @@ const MAX_LEVEL = LEVELS_PER_WORLD * WORLD_COUNT; // 1000 bölüm, 10 dünya
 const THEME_COIN = 600;          // kozmetik altın fiyatı
 const AD_COINS = 40;             // reklam başına altın
 const JOKER_COST = 50;           // joker gücü altın fiyatı
-const FIXED_SHOTS = 15;          // her bölümde sabit atış hakkı
+const FIXED_SHOTS = 15;          // (artık kullanılmıyor — atış dinamik; referans olarak duruyor)
+
+/* ⚠️ TEST MODU — üretimde false yap.
+   true iken: tüm 1000 bölüm + tüm dünyalar + zen modu açık, bol altın. */
+const TEST_UNLOCK_ALL = true;
 
 /* 10 Dünya — her biri 100 bölüm, kendi teması ve kilometre taşı ödülü.
    bgId: o dünyada kullanılan arka plan (kalıcı olarak kazanılabilir).
@@ -632,6 +636,9 @@ const LANGS = {
     lblSection: 'bölüm', lblMode: 'mod', lblTarget: 'hedef', lblShots: 'atış', lblScore: 'skor', lblGold: 'altın', lblBest: 'rekor',
     zen: 'zen ∞', next: 'sıradaki', swapLabel: 'değiştir', shotsLeft: '➳ {n} atış kaldı',
     swapHint: '⇄ sıradaki topa dokun — yer değiştirir',
+    newIce: '❄️ Buzlu obje: yanında 2 patlama olunca kırılır',
+    newStone: '🪨 Taş blok: hiçbir renge uymaz — komşusu patlayınca düşer',
+    newChain: '🔗 Zincirli obje: sadece zincirleme patlamayla kırılır',
     menuSub: 'nefes al · nişan al · bırak',
     menuFoot: 'aynı renkleri birleştir — dalgayı izle',
     journey: '▷ &nbsp;Yolculuk <small>— Seviye {n}</small>',
@@ -699,6 +706,9 @@ const LANGS = {
     lblSection: 'level', lblMode: 'mode', lblTarget: 'goal', lblShots: 'shots', lblScore: 'score', lblGold: 'gold', lblBest: 'best',
     zen: 'zen ∞', next: 'next', swapLabel: 'swap', shotsLeft: '➳ {n} shots left',
     swapHint: '⇄ tap the next orb — they swap places',
+    newIce: '❄️ Ice orb: breaks after 2 nearby pops',
+    newStone: '🪨 Stone block: matches no color — falls when its neighbor pops',
+    newChain: '🔗 Chained orb: only a chain-clear breaks it',
     menuSub: 'breathe · aim · release',
     menuFoot: 'match the colors — watch the ripple',
     journey: '▷ &nbsp;Journey <small>— Level {n}</small>',
@@ -1039,12 +1049,12 @@ const G = {
   state: 'menu',
   mode: 'level',
   level: 1,
-  maxLevel: loadInt('zx_maxlevel', 1, 1, MAX_LEVEL + 1),
+  maxLevel: TEST_UNLOCK_ALL ? MAX_LEVEL : loadInt('zx_maxlevel', 1, 1, MAX_LEVEL + 1),
   shots: 0,
   score: 0, dispScore: 0,
-  coins: loadInt('zx_coins', 0, 0, 99999999),
+  coins: TEST_UNLOCK_ALL ? 99999 : loadInt('zx_coins', 0, 0, 99999999),
   best: loadInt('zx_best', 0, 0, 99999999),
-  zenUnlocked: store.get('zx_zen', false),
+  zenUnlocked: TEST_UNLOCK_ALL ? true : store.get('zx_zen', false),
   activePal: store.get('zx_pal', 'neon'),
   activeBg: store.get('zx_bg', 'night'),
   trial: null,
@@ -1089,40 +1099,69 @@ function neighborKeys(r, c) {
   return list.map(([rr, cc]) => key(rr, cc));
 }
 
-/* ---------- Seviye Üretimi: 100 bölüm, erken belirgin artan zorluk, sabit atış ---------- */
 /* ---------- Seviye Üretimi: 1000 bölüm, 10 dünya ----------
-   Zorluk iki katmanlı:
-   - Makro: ilk ~250 bölümde hızlı tırmanış (sıkılmasın), sonra yavaş ve sürekli artış.
-   - Mikro: her dünyanın içinde dalgalanma — düz bir plato hissi oluşmaz. */
+   - Makro: erken hızlı tırmanış, sonra sürekli artış.
+   - Dinamik atış: hedefe orantılı, dar marj (orta zorluk).
+   - Dünya-içi ritim: yuvarlak bölümler sıkı, aralarda nefes molası.
+   - Özel objeler: erken başlar, yoğunlaşır — asıl zorluk bunlar. */
 function makeLevel(n) {
   n = clamp(n, 1, MAX_LEVEL);
   const t = (n - 1) / (MAX_LEVEL - 1);
-  // güç eğrisi: erken hızlı, geç yavaş ama asla durmayan tırmanış
   const macro = Math.pow(t, 0.55);
-
-  // dünya içi dalgalanma: her 100'lük blokta hafif inişli çıkışlı ritim (nefes aldırır)
   const inWorld = ((n - 1) % LEVELS_PER_WORLD) / (LEVELS_PER_WORLD - 1);
   const wave = 0.06 * Math.sin(inWorld * Math.PI * 3);
-
   const d = clamp(macro + wave, 0, 1);
+  const w = worldOf(n);
+  const localT = inWorld;
 
   const rows = Math.round(lerp(5, 9, d));
   const colorCount = clamp(3 + Math.round(d * 3), 3, PALETTE.length); // 3 → 6 renk
-  const goal = Math.round(lerp(6, 26, d));
-  const shots = FIXED_SHOTS;
+  const goal = Math.round(lerp(8, 30, d)); // hedef yükseltildi
+
+  // DİNAMİK ATIŞ: hedefe orantılı, dar marj
+  const effPerShot = lerp(1.25, 1.6, d);   // beklenen verim (grup + zincir + joker)
+  const marginPct = lerp(0.35, 0.12, d);   // güvenlik marjı: erken cömert, geç sıkı
+  let shots = Math.round((goal / effPerShot) * (1 + marginPct));
+  if (n % 10 === 0) shots -= 1;            // yuvarlak bölümler sıkı
+  else if (n % 7 === 0) shots += 1;        // ara ara nefes molası
+  shots = Math.max(6, shots);
+
   const density = lerp(0.80, 0.96, d);
-  return { rows, colorCount, goal, shots, density };
+
+  // ÖZEL OBJELER: 1. dünyadan itibaren, ama dünya-1 içinde kademeli tanıtılır
+  // (ilk birkaç bölüm temiz kalsın, sonra sırayla buz → taş → zincir belirir)
+  const g = n - 1; // 0-tabanlı bölüm sırası
+  const iceGate   = g >= 3;   // ~4. bölümden itibaren buz
+  const stoneGate = g >= 8;   // ~9. bölümden itibaren taş
+  const chainGate = g >= 14;  // ~15. bölümden itibaren zincir
+  const ramp = clamp(localT * 1.8, 0.3, 1);
+  const ice   = iceGate   ? lerp(0.05, 0.24, clamp(w / 7, 0, 1)) * ramp : 0;
+  const stone = stoneGate ? lerp(0.04, 0.16, clamp(w / 6, 0, 1)) * ramp : 0;
+  const chain = chainGate ? lerp(0.04, 0.20, clamp(w / 5, 0, 1)) * ramp : 0;
+
+  return { rows, colorCount, goal, shots, density, ice, stone, chain };
 }
 
-function fillGrid(rows, colorCount, density) {
+function fillGrid(rows, colorCount, density, L) {
   G.grid.clear();
   const t0 = performance.now();
+  const ice = (L && L.ice) || 0, stone = (L && L.stone) || 0, chain = (L && L.chain) || 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c <= maxColFor(r); c++) {
       if (Math.random() > density) continue;
+      const born = t0 + 300 + r * 75 + c * 18;
+      const roll = Math.random();
+      // taş: renksiz kalıcı engel (üst satırlarda daha olası, tavanı tıkar)
+      if (roll < stone && r < rows - 1) {
+        G.grid.set(key(r, c), { r, c, idx: -1, type: 'stone', born });
+        continue;
+      }
       const idx = (Math.random() * colorCount) | 0;
-      // dalga dalga doğuş animasyonu: sol üstten sağ alta
-      G.grid.set(key(r, c), { r, c, idx, born: t0 + 300 + r * 75 + c * 18 });
+      const cell = { r, c, idx, born };
+      const roll2 = Math.random();
+      if (roll2 < ice) { cell.type = 'ice'; cell.hp = 2; }        // buzlu: 2 vuruş
+      else if (roll2 < ice + chain) { cell.type = 'chain'; }      // zincirli: sadece zincirleme kırar
+      G.grid.set(key(r, c), cell);
     }
   }
 }
@@ -1136,12 +1175,14 @@ function startLevel(n) {
   G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
   G.fly = null; G.pops = []; G.ripples = []; G.pendingPops = 0;
   G.resolveLock = false; G.curRainbow = false;
-  fillGrid(L.rows, L.colorCount, L.density);
+  fillGrid(L.rows, L.colorCount, L.density, L);
   G.targetIdx = (Math.random() * L.colorCount) | 0;
   G.targetGoal = L.goal; G.targetLeft = L.goal;
+  // sadece DOĞRUDAN temizlenebilir (normal, taş/buz/zincir olmayan) hedef hücreleri say
   let count = 0;
-  for (const b of G.grid.values()) if (b.idx === G.targetIdx) count++;
-  const others = [...G.grid.values()].filter(b => b.idx !== G.targetIdx);
+  for (const b of G.grid.values()) if (b.idx === G.targetIdx && !b.type) count++;
+  // takviye: normal & hedef-olmayan hücreleri hedef rengine çevir (taşa asla dokunma)
+  const others = [...G.grid.values()].filter(b => b.idx !== G.targetIdx && !b.type);
   while (count < L.goal + 2 && others.length) {
     const i = (Math.random() * others.length) | 0;
     others.splice(i, 1)[0].idx = G.targetIdx;
@@ -1152,6 +1193,18 @@ function startLevel(n) {
   UI.targetIntro();  // hedef sembol küçük bir törenle sahneye gelir
   // ⇄ değiştirmeyi hâlâ keşfetmemişse hatırlat (öğrenince kendiliğinden susar)
   if (!G.swapUsed) setTimeout(() => { if (!G.swapUsed && G.state === 'playing') UI.toast(T('swapHint')); }, 2600);
+  // yeni mekanik ilk kez sahnede mi? bir kez tanıt
+  const seen = store.get('zx_seen_mech', {});
+  let has = { ice: false, stone: false, chain: false };
+  for (const b of G.grid.values()) { if (b.type && has[b.type] === false) has[b.type] = true; }
+  const announce = [];
+  if (has.ice && !seen.ice) { seen.ice = true; announce.push('newIce'); }
+  if (has.stone && !seen.stone) { seen.stone = true; announce.push('newStone'); }
+  if (has.chain && !seen.chain) { seen.chain = true; announce.push('newChain'); }
+  if (announce.length) {
+    store.set('zx_seen_mech', seen);
+    announce.forEach((k, i) => setTimeout(() => { if (G.state === 'playing') UI.toast(T(k)); }, 3400 + i * 2600));
+  }
 }
 
 function startZen() {
@@ -1171,7 +1224,7 @@ function startZen() {
 
 function presentColors() {
   const s = new Set();
-  for (const b of G.grid.values()) s.add(b.idx);
+  for (const b of G.grid.values()) if (b.idx >= 0 && b.type !== 'stone') s.add(b.idx);
   if (G.mode === 'level' && G.targetLeft > 0 && s.has(G.targetIdx)) s.add(G.targetIdx);
   return s.size ? [...s] : PALETTE.map((_, i) => i);
 }
@@ -1287,9 +1340,14 @@ function spawnBurst(idx, x, y) {
   }
 }
 
+/* Bir grubu patlat. Özel obje kuralları:
+   - normal & zincirli (chain): aynı renkse gruba katılır ve birlikte patlar
+   - buzlu (ice): doğrudan tek başına patlamaz; ama bir zincir-temizliğin parçasıysa,
+     komşusu patlayınca 1 hasar alır (2 vuruşta kırılır)
+   - taş (stone): hiçbir renge uymaz, sadece desteksiz kalınca düşer */
 function popGroup(startKey, baseDelay) {
   const start = G.grid.get(startKey);
-  if (!start) return false;
+  if (!start || start.type === 'stone') return false;
   const idx = start.idx;
   const seen = new Set([startKey]);
   const q = [[startKey, 0]];
@@ -1299,24 +1357,84 @@ function popGroup(startKey, baseDelay) {
     order.push([k, d]);
     const [r, c] = k.split(',').map(Number);
     for (const nk of neighborKeys(r, c)) {
-      if (!seen.has(nk) && G.grid.has(nk) && G.grid.get(nk).idx === idx) {
+      if (seen.has(nk) || !G.grid.has(nk)) continue;
+      const nb = G.grid.get(nk);
+      // aynı renk VE (normal ya da zincirli) gruba katılır; taş/farklı renk katılmaz
+      if (nb.idx === idx && nb.type !== 'stone' && nb.type !== 'ice') {
         seen.add(nk); q.push([nk, d + 1]);
       }
     }
   }
   if (order.length < 2) return false;
   const now = performance.now();
+
+  // patlayan hücrelerin komşusundaki BUZLU objelere hasar ver (kırılırsa onlar da eriyir)
+  const iceHit = new Set();
+  for (const [k] of order) {
+    const [r, c] = k.split(',').map(Number);
+    for (const nk of neighborKeys(r, c)) {
+      const nb = G.grid.get(nk);
+      if (nb && nb.type === 'ice' && !iceHit.has(nk)) iceHit.add(nk);
+    }
+  }
+  let d0 = 0;
   for (const [k, d] of order) {
     const b = G.grid.get(k);
     G.grid.delete(k);
     b.popAt = now + baseDelay + d * 85;
     b.depth = d; b.popStarted = 0;
     G.pops.push(b); G.pendingPops++;
+    d0 = Math.max(d0, d);
+  }
+  // buzluları çatlat/kır
+  for (const nk of iceHit) {
+    const b = G.grid.get(nk);
+    if (!b) continue;
+    b.hp = (b.hp || 2) - 1;
+    b.crackT = now; // çatlama animasyonu
+    if (b.hp <= 0) {
+      G.grid.delete(nk);
+      b.popAt = now + baseDelay + (d0 + 1) * 85;
+      b.depth = d0 + 1; b.popStarted = 0;
+      G.pops.push(b); G.pendingPops++;
+    }
   }
   G.combo++;
   if (G.combo >= 2) UI.floatText(cellPos(start.r, start.c), 'zen ×' + G.combo);
   if (G.combo >= 3) spawnRipple(cellPos(start.r, start.c).x, cellPos(start.r, start.c).y, PALETTE[idx].c, true);
+  // patlamadan sonra desteksiz kalan taşları/objeleri düşür
+  setTimeout(dropUnsupported, baseDelay + 120);
   return true;
+}
+
+/* Tavana (en üst satıra) bağlı olmayan tüm objeler düşer — taşları temizlemenin tek yolu */
+function dropUnsupported() {
+  if (G.grid.size === 0) return;
+  const connected = new Set();
+  const q = [];
+  // en üst satırdaki her şey tavana bağlıdır
+  for (const [k, b] of G.grid) {
+    if (b.r === G.topRow) { connected.add(k); q.push(k); }
+  }
+  while (q.length) {
+    const k = q.pop();
+    const [r, c] = k.split(',').map(Number);
+    for (const nk of neighborKeys(r, c)) {
+      if (G.grid.has(nk) && !connected.has(nk)) { connected.add(nk); q.push(nk); }
+    }
+  }
+  const now = performance.now();
+  let fell = 0;
+  for (const [k, b] of [...G.grid]) {
+    if (!connected.has(k)) {
+      G.grid.delete(k);
+      b.popAt = now + fell * 30; b.depth = Math.min(fell, 6); b.popStarted = 0;
+      b.falling = true; // düşme efekti
+      G.pops.push(b); G.pendingPops++;
+      fell++;
+    }
+  }
+  if (fell > 0) checkResolutionSoon();
 }
 
 function attachFly() {
@@ -1338,14 +1456,14 @@ function attachFly() {
     const tried = new Set();
     for (const nk of neighborKeys(cell.r, cell.c)) {
       const nb = G.grid.get(nk);
-      if (!nb || nb === b || tried.has(nb.idx)) continue;
+      if (!nb || nb === b || nb.type === 'stone' || nb.type === 'ice' || tried.has(nb.idx)) continue;
       tried.add(nb.idx);
       const seen = new Set([nk]); const q = [nk];
       while (q.length) {
         const k2 = q.pop(); const [r0, c0] = k2.split(',').map(Number);
         for (const nk2 of neighborKeys(r0, c0)) {
           const b2 = G.grid.get(nk2);
-          if (b2 && b2 !== b && b2.idx === nb.idx && !seen.has(nk2)) { seen.add(nk2); q.push(nk2); }
+          if (b2 && b2 !== b && b2.type !== 'stone' && b2.type !== 'ice' && b2.idx === nb.idx && !seen.has(nk2)) { seen.add(nk2); q.push(nk2); }
         }
       }
       sizes.set(nb.idx, seen.size);
@@ -1536,6 +1654,77 @@ function drawShapeCore(cx, shape, x, y, r, color, alpha, glow, rot) {
 function drawShape(cx, idx, x, y, r, alpha, glow) {
   drawShapeCore(cx, PALETTE[idx].shape, x, y, r, PALETTE[idx].c, alpha, glow);
 }
+
+/* Taş — renksiz gri kaya, hiçbir renge uymaz, sadece desteksiz kalınca düşer */
+function drawStone(cx, x, y, r) {
+  cx.save();
+  cx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = -Math.PI / 2 + i * TAU / 6;
+    const rr = r * (0.9 + 0.08 * Math.sin(i * 2.1));
+    const px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr;
+    i ? cx.lineTo(px, py) : cx.moveTo(px, py);
+  }
+  cx.closePath();
+  cx.fillStyle = 'rgba(120,124,140,0.28)';
+  cx.fill();
+  cx.lineWidth = 2; cx.strokeStyle = 'rgba(150,155,175,0.7)';
+  cx.stroke();
+  // iç doku çizgileri
+  cx.strokeStyle = 'rgba(90,94,110,0.6)'; cx.lineWidth = 1;
+  cx.beginPath();
+  cx.moveTo(x - r * 0.3, y - r * 0.2); cx.lineTo(x + r * 0.1, y + r * 0.1);
+  cx.moveTo(x + r * 0.35, y - r * 0.35); cx.lineTo(x + r * 0.15, y - r * 0.05);
+  cx.stroke();
+  cx.restore();
+}
+
+/* Buzlu — renkli obje ama donmuş kabuk içinde; hasar aldıkça çatlar (2 vuruş) */
+function drawIce(cx, b, x, y, r, now) {
+  // içteki renkli sembol (soluk)
+  drawShapeCore(cx, PALETTE[b.idx].shape, x, y, r * 0.7, PALETTE[b.idx].c, 0.5, 6);
+  cx.save();
+  // buz kabuğu
+  cx.beginPath(); cx.arc(x, y, r, 0, TAU);
+  cx.fillStyle = 'rgba(200,235,255,0.16)';
+  cx.fill();
+  cx.lineWidth = 2; cx.strokeStyle = 'rgba(190,230,255,0.8)';
+  cx.shadowColor = 'rgba(190,230,255,0.6)'; cx.shadowBlur = 8;
+  cx.stroke();
+  cx.shadowBlur = 0;
+  // çatlaklar: hasarlıysa (hp=1) daha belirgin
+  const cracked = (b.hp || 2) <= 1;
+  cx.strokeStyle = 'rgba(255,255,255,' + (cracked ? 0.85 : 0.4) + ')';
+  cx.lineWidth = cracked ? 1.4 : 0.9;
+  cx.beginPath();
+  cx.moveTo(x, y - r * 0.7); cx.lineTo(x - r * 0.2, y); cx.lineTo(x + r * 0.15, y + r * 0.35);
+  if (cracked) { cx.moveTo(x - r * 0.2, y); cx.lineTo(x - r * 0.6, y + r * 0.2); cx.moveTo(x + r * 0.15, y + r * 0.35); cx.lineTo(x + r * 0.5, y + r * 0.55); }
+  cx.stroke();
+  // yeni çatlama parlaması
+  if (b.crackT && now - b.crackT < 300) {
+    const a = 1 - (now - b.crackT) / 300;
+    cx.strokeStyle = 'rgba(255,255,255,' + a + ')'; cx.lineWidth = 2;
+    cx.beginPath(); cx.arc(x, y, r * (1 + (1 - a) * 0.3), 0, TAU); cx.stroke();
+  }
+  cx.restore();
+}
+
+/* Zincirli — renkli obje, halka zincirle sarılı; sadece zincirleme temizlikle kırılır */
+function drawChainCell(cx, b, x, y, r, now) {
+  drawShapeCore(cx, PALETTE[b.idx].shape, x, y, r * 0.78, PALETTE[b.idx].c, 0.9, 8);
+  cx.save();
+  cx.strokeStyle = 'rgba(210,205,180,0.75)';
+  cx.lineWidth = 1.6;
+  const links = 8, rot = now * 0.0004;
+  for (let i = 0; i < links; i++) {
+    const a = rot + i * TAU / links;
+    const lx = x + Math.cos(a) * r * 0.92, ly = y + Math.sin(a) * r * 0.92;
+    cx.beginPath();
+    cx.ellipse(lx, ly, 3, 1.8, a, 0, TAU);
+    cx.stroke();
+  }
+  cx.restore();
+}
 function rainbowColor(now) { return 'hsl(' + ((now * 0.06) % 360).toFixed(0) + ',85%,75%)'; }
 
 /* ---------- Girdi — hassasiyet yumuşatmalı sapan ---------- */
@@ -1699,12 +1888,14 @@ function update(dt, now) {
       b.popStarted = now;
       const p = cellPos(b.r, b.c);
       b.px = p.x; b.py = p.y;
-      spawnRipple(p.x, p.y, PALETTE[b.idx].c, false);
-      spawnBurst(b.idx, p.x, p.y);
+      const isStone = b.type === 'stone' || b.idx < 0;
+      const col = isStone ? '#9AA0B5' : PALETTE[b.idx].c;
+      spawnRipple(p.x, p.y, col, false);
+      if (!isStone) spawnBurst(b.idx, p.x, p.y);
       Sfx.drop(b.depth);
-      vibrate(7);
+      vibrate(b.falling ? 3 : 7);
       G.score += 15 * Math.max(1, G.combo);
-      if (G.mode === 'level') {
+      if (G.mode === 'level' && !isStone) {
         if (b.idx === G.targetIdx && G.targetLeft > 0) G.targetLeft--;
         G.levelCoins++;
       }
@@ -1832,17 +2023,28 @@ function render(now) {
       else { const e = easeOutCubic(t); p = { x: lerp(b.ax, p.x, e), y: lerp(b.ay, p.y, e) }; }
     }
     const bob = Math.sin(now * 0.0011 + b.r * 1.7 + b.c * 0.9) * 1.3;
-    drawShape(ctx, b.idx, p.x, p.y + bob, BALL_R * 0.82 * scl, 0.96, 10);
+    const rr = BALL_R * 0.82 * scl;
+    if (b.type === 'stone') drawStone(ctx, p.x, p.y + bob, rr);
+    else if (b.type === 'ice') drawIce(ctx, b, p.x, p.y + bob, rr, now);
+    else if (b.type === 'chain') drawChainCell(ctx, b, p.x, p.y + bob, rr, now);
+    else drawShape(ctx, b.idx, p.x, p.y + bob, rr, 0.96, 10);
   }
 
   for (const b of G.pops) {
+    const isStone = b.type === 'stone' || b.idx < 0;
+    const drawOne = (x, y, r, alpha, glow) => {
+      if (isStone) drawStone(ctx, x, y, r);
+      else drawShapeCore(ctx, PALETTE[b.idx].shape, x, y, r, PALETTE[b.idx].c, alpha, glow);
+    };
     if (!b.popStarted) {
       const p = cellPos(b.r, b.c);
-      drawShape(ctx, b.idx, p.x, p.y, BALL_R * 0.82, 0.96, 10);
+      drawOne(p.x, p.y, BALL_R * 0.82, 0.96, 10);
     } else {
       const t = clamp((now - b.popStarted) / 430, 0, 1);
       const e = easeInOut(t);
-      drawShape(ctx, b.idx, b.px, b.py - e * 5, BALL_R * 0.82 * (1 - e), (1 - e) * 0.95, 16 * (1 - e) + 4);
+      // düşen objeler aşağı süzülür, patlayanlar küçülerek erir
+      const yOff = b.falling ? e * 40 : -e * 5;
+      drawOne(b.px, b.py + yOff, BALL_R * 0.82 * (1 - e * (b.falling ? 0.5 : 1)), (1 - e) * 0.95, 16 * (1 - e) + 4);
     }
   }
 
@@ -2454,7 +2656,7 @@ const UI = (() => {
     G.coins += bonus; saveCoins();
     const done = G.level;
     G.maxLevel = Math.max(G.maxLevel, done + 1);
-    store.set('zx_maxlevel', G.maxLevel);
+    if (!TEST_UNLOCK_ALL) store.set('zx_maxlevel', G.maxLevel);
     let extra = '';
     if (done >= 10 && !G.zenUnlocked) {
       G.zenUnlocked = true; store.set('zx_zen', true);
@@ -2499,7 +2701,7 @@ const UI = (() => {
     let extra = '';
     // dünyanın teması kalıcı olarak açılır — mağazadan almaya alternatif kazanım yolu
     if (W_.unlockBg) {
-      const owned = store.get('zx_owned', []);
+      const owned = TEST_UNLOCK_ALL ? Object.keys(SHOP.palettes).concat(Object.keys(SHOP.backgrounds)) : store.get('zx_owned', []);
       if (!owned.includes(W_.unlockBg)) {
         owned.push(W_.unlockBg);
         store.set('zx_owned', owned);
@@ -2609,7 +2811,7 @@ const UI = (() => {
 
   /* ---- mağaza ---- */
   function ownAndUse(kind, id) {
-    const owned = store.get('zx_owned', []);
+    const owned = TEST_UNLOCK_ALL ? Object.keys(SHOP.palettes).concat(Object.keys(SHOP.backgrounds)) : store.get('zx_owned', []);
     if (!owned.includes(id)) { owned.push(id); store.set('zx_owned', owned); }
     if (kind === 'pal') { G.activePal = id; store.set('zx_pal', id); }
     else { G.activeBg = id; store.set('zx_bg', id); }
@@ -2672,7 +2874,7 @@ const UI = (() => {
   }
   function buildShop() {
     el.shopList.innerHTML = '';
-    const owned = store.get('zx_owned', []);
+    const owned = TEST_UNLOCK_ALL ? Object.keys(SHOP.palettes).concat(Object.keys(SHOP.backgrounds)) : store.get('zx_owned', []);
     const sec = txt => { const h = document.createElement('div'); h.className = 'shopsec'; h.textContent = txt; el.shopList.appendChild(h); };
 
     // ücretsiz altın — reklam hunisi
