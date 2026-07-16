@@ -454,13 +454,28 @@
   #fx { position:absolute; inset:0; pointer-events:none; z-index:22; overflow:hidden; }
   .floatxt {
     position:absolute; transform:translate(-50%,-50%);
-    font-size:13px; font-weight:300; letter-spacing:0.28em;
-    color:var(--mint); text-shadow:0 0 12px rgba(125,240,192,0.6);
+    font-size:13px; font-weight:400; letter-spacing:0.28em;
+    color:var(--mint);
+    /* koyu dış hat: parçacık fırtınasında bile okunur */
+    text-shadow:
+      -1.5px -1.5px 0 rgba(0,0,0,0.9), 1.5px -1.5px 0 rgba(0,0,0,0.9),
+      -1.5px 1.5px 0 rgba(0,0,0,0.9), 1.5px 1.5px 0 rgba(0,0,0,0.9),
+      0 0 6px rgba(0,0,0,0.8), 0 0 14px rgba(125,240,192,0.55);
     animation: floatUp 1.4s ease-out forwards;
   }
+  .floatxt.c3 { font-size:15px; color:#7DF0C0;
+    text-shadow:-1.5px -1.5px 0 rgba(0,0,0,0.92),1.5px -1.5px 0 rgba(0,0,0,0.92),-1.5px 1.5px 0 rgba(0,0,0,0.92),1.5px 1.5px 0 rgba(0,0,0,0.92),0 0 7px rgba(0,0,0,0.85),0 0 16px rgba(125,240,192,0.7); }
+  .floatxt.c5 { font-size:18px; font-weight:500; color:#C9B8FF;
+    text-shadow:-2px -2px 0 rgba(0,0,0,0.94),2px -2px 0 rgba(0,0,0,0.94),-2px 2px 0 rgba(0,0,0,0.94),2px 2px 0 rgba(0,0,0,0.94),0 0 8px rgba(0,0,0,0.85),0 0 20px rgba(179,157,255,0.8); }
+  .floatxt.c7 { font-size:22px; font-weight:600; color:#FFD86B;
+    text-shadow:-2px -2px 0 rgba(0,0,0,0.95),2px -2px 0 rgba(0,0,0,0.95),-2px 2px 0 rgba(0,0,0,0.95),2px 2px 0 rgba(0,0,0,0.95),0 0 10px rgba(0,0,0,0.9),0 0 26px rgba(255,216,107,0.9); }
   .floatxt.bigpraise {
-    font-size:24px; font-weight:200; letter-spacing:0.4em;
-    color:#fff; text-shadow:0 0 18px rgba(var(--th-wash),0.9), 0 0 40px rgba(var(--th-wash),0.5);
+    font-size:24px; font-weight:300; letter-spacing:0.4em;
+    color:#fff;
+    text-shadow:
+      -2px -2px 0 rgba(0,0,0,0.9), 2px -2px 0 rgba(0,0,0,0.9),
+      -2px 2px 0 rgba(0,0,0,0.9), 2px 2px 0 rgba(0,0,0,0.9),
+      0 0 18px rgba(var(--th-wash),0.9), 0 0 40px rgba(var(--th-wash),0.5);
     animation: praiseIn 1.9s cubic-bezier(0.22,1,0.36,1) forwards;
   }
   @keyframes praiseIn {
@@ -763,6 +778,7 @@ const LANGS = {
     newIce: '❄️ Buzlu obje: yanında 2 patlama olunca kırılır',
     newStone: '🪨 Taş blok: hiçbir renge uymaz — komşusu patlayınca düşer',
     newChain: '🔗 Zincirli obje: sadece zincirleme patlamayla kırılır',
+    restLevel: '🍃 dinlenme bölümü — akışın tadını çıkar',
     praise: ['muhteşem ✦', 'akış içindesin', 'zen ustası', 'kusursuz', 'derin nefes ✦', 'mükemmel seri'],
     lvlHints: [
       '☝️ yukarı dokun: ok oraya bakar · aşağı çek: sapan gibi',
@@ -841,6 +857,7 @@ const LANGS = {
     newIce: '❄️ Ice orb: breaks after 2 nearby pops',
     newStone: '🪨 Stone block: matches no color — falls when its neighbor pops',
     newChain: '🔗 Chained orb: only a chain-clear breaks it',
+    restLevel: '🍃 rest level — enjoy the flow',
     praise: ['magnificent ✦', 'in the flow', 'zen master', 'flawless', 'deep breath ✦', 'perfect streak'],
     lvlHints: [
       '☝️ tap above: the arrow follows · pull below: slingshot',
@@ -1138,10 +1155,12 @@ const Sfx = (() => {
     o.start(t); o.stop(t + dur + 0.1);
   }
 
-  function drop(depth) {
+  function drop(depth, lift) {
     if (!ensure() || muted) return;
     const t = ac.currentTime;
-    const base = PENTA[Math.min(depth, PENTA.length - 1)] * toneMul;
+    // pitch shifting: zincirleme comboda her patlama yarım nota tırmanır — dopamin merdiveni
+    const liftMul = Math.pow(2, Math.min(lift || 0, 8) / 12);
+    const base = PENTA[Math.min(depth, PENTA.length - 1)] * toneMul * liftMul;
     const o = ac.createOscillator(); o.type = 'sine';
     o.frequency.setValueAtTime(base * 2.2, t);
     o.frequency.exponentialRampToValueAtTime(base * 0.8, t + 0.24);
@@ -1268,47 +1287,47 @@ function neighborKeys(r, c) {
   return list.map(([rr, cc]) => key(rr, cc));
 }
 
-/* ---------- Seviye Üretimi: 1000 bölüm, 10 dünya ----------
-   - Makro: erken hızlı tırmanış, sonra sürekli artış.
-   - Dinamik atış: hedefe orantılı, dar marj (orta zorluk).
-   - Dünya-içi ritim: yuvarlak bölümler sıkı, aralarda nefes molası.
-   - Özel objeler: erken başlar, yoğunlaşır — asıl zorluk bunlar. */
+/* ---------- Seviye Üretimi: dünya = zorluk basamağı ----------
+   Her dünya kendi zorluk platosudur: yeni dünya = gerçek bir sıçrama,
+   dünya içinde ritimli ama sabit seviye. Her 13. bölüm "dinlenme".
+   Marjlar dar: kusursuz oynamayan ara sıra jokere uzanır (ama adil kalır). */
 function makeLevel(n) {
   n = clamp(n, 1, MAX_LEVEL);
-  const t = (n - 1) / (MAX_LEVEL - 1);
-  const macro = Math.pow(t, 0.55);
-  const inWorld = ((n - 1) % LEVELS_PER_WORLD) / (LEVELS_PER_WORLD - 1);
-  const wave = 0.06 * Math.sin(inWorld * Math.PI * 3);
-  const d = clamp(macro + wave, 0, 1);
   const w = worldOf(n);
-  const localT = inWorld;
+  const inWorld = ((n - 1) % LEVELS_PER_WORLD) / (LEVELS_PER_WORLD - 1);
+
+  // dünya bazlı zorluk basamağı (0..1) + dünya içi hafif dalga
+  const dW = w / (WORLD_COUNT - 1);
+  const softStart = w === 0 ? lerp(-0.07, 0, clamp(inWorld * 4, 0, 1)) : 0; // ilk bölümler öğretici
+  const d = clamp(dW + 0.045 * Math.sin(inWorld * Math.PI * 4) + softStart, 0, 1);
 
   const rows = Math.round(lerp(5, 9, d));
-  const colorCount = clamp(3 + Math.round(d * 3), 3, PALETTE.length); // 3 → 6 renk
-  const goal = Math.round(lerp(8, 30, d)); // hedef yükseltildi
+  const colorCount = clamp(3 + Math.round(d * 3), 3, PALETTE.length);
+  const goal = Math.round(lerp(9, 30, d));
 
-  // DİNAMİK ATIŞ: hedefe orantılı, dar marj
-  const effPerShot = lerp(1.25, 1.6, d);   // beklenen verim (grup + zincir + joker)
-  const marginPct = lerp(0.26, 0.07, d);   // güvenlik marjı sıkılaştırıldı (~+1 atış)
-  let shots = Math.round((goal / effPerShot) * (1 + marginPct));
-  if (n % 10 === 0) shots -= 1;            // yuvarlak bölümler sıkı
-  else if (n % 7 === 0) shots += 1;        // ara ara nefes molası
-  shots = Math.max(6, shots);
+  // dar marj: erken %16, geç %4 — hatanı fark edersin ama tekrar denemek istersin
+  const effPerShot = lerp(1.3, 1.75, d);
+  const marginPct = lerp(0.16, 0.04, d);
+
+  // ritim: her 13. bölüm dinlenme (bol atış), her 10. sıkı (joker cazibesi)
+  const rest = n % 13 === 0 && n % 10 !== 0;
+  let rhythm = 0;
+  if (rest) rhythm = 3;
+  else if (n % 10 === 0) rhythm = -2;
+  else if (n % 7 === 0) rhythm = 1;
+
+  let shots = Math.max(6, Math.round((goal / effPerShot) * (1 + marginPct)) + rhythm);
 
   const density = lerp(0.80, 0.96, d);
 
-  // ÖZEL OBJELER: 1. dünyadan itibaren, ama dünya-1 içinde kademeli tanıtılır
-  // (ilk birkaç bölüm temiz kalsın, sonra sırayla buz → taş → zincir belirir)
-  const g = n - 1; // 0-tabanlı bölüm sırası
-  const iceGate   = g >= 3;   // ~4. bölümden itibaren buz
-  const stoneGate = g >= 8;   // ~9. bölümden itibaren taş
-  const chainGate = g >= 14;  // ~15. bölümden itibaren zincir
-  const ramp = clamp(localT * 1.8, 0.3, 1);
-  const ice   = iceGate   ? lerp(0.05, 0.24, clamp(w / 7, 0, 1)) * ramp : 0;
-  const stone = stoneGate ? lerp(0.04, 0.16, clamp(w / 6, 0, 1)) * ramp : 0;
-  const chain = chainGate ? lerp(0.04, 0.20, clamp(w / 5, 0, 1)) * ramp : 0;
+  // özel objeler: dünya-1'de kademeli tanıtım, sonra zorluk basamağıyla yoğunlaşır
+  const g = n - 1;
+  const ramp = clamp(inWorld * 1.8, 0.35, 1);
+  const ice   = g >= 3  ? lerp(0.06, 0.26, d) * ramp : 0;
+  const stone = g >= 8  ? lerp(0.05, 0.17, d) * ramp : 0;
+  const chain = g >= 14 ? lerp(0.05, 0.22, d) * ramp : 0;
 
-  return { rows, colorCount, goal, shots, density, ice, stone, chain };
+  return { rows, colorCount, goal, shots, density, ice, stone, chain, effPerShot, marginPct, rhythm, rest };
 }
 
 function fillGrid(rows, colorCount, density, L) {
@@ -1342,13 +1361,7 @@ function startLevel(n) {
   // Kısa ekranlarda (uygulama içi önizleme vb.) 9 satır bariyerin altına sarkıyor
   // ve top yapışacak yer bulamıyordu — satır sayısını ekrana göre sınırla.
   const maxRows = Math.max(4, Math.floor((H - 258 - TOP - R - BALL_R) / ROWH));
-  if (L.rows > maxRows) {
-    const ratio = maxRows / L.rows;
-    L.rows = maxRows;
-    // daha az satır = daha az obje; hedef ve atışları orantıla ki denge bozulmasın
-    L.goal = Math.max(6, Math.round(L.goal * (0.75 + 0.25 * ratio)));
-    L.shots = Math.max(6, Math.round(L.shots * (0.78 + 0.22 * ratio)));
-  }
+  if (L.rows > maxRows) L.rows = maxRows; // hedef/atış, tahta dolduktan sonra tek yerden dengelenir
   G.mode = 'level'; G.state = 'playing';
   G.themeWorld = worldOf(n); applyThemes(); // dünya kimliği: palet + arka plan + müzik
   G.level = n; G.shots = L.shots;
@@ -1358,20 +1371,35 @@ function startLevel(n) {
   G.resolveLock = false; G.curRainbow = false;
   fillGrid(L.rows, L.colorCount, L.density, L);
   G.targetIdx = (Math.random() * L.colorCount) | 0;
+  // HEDEF BOLLUĞU DÜZELTMESİ: hedef, temizlenebilir objelerin ~%42'sini geçemez —
+  // "tek atışla hedefin yarısı gitti" durumu yapısal olarak biter
+  const normalCells = [...G.grid.values()].filter(b => !b.type);
+  L.goal = Math.min(L.goal, Math.max(6, Math.floor(normalCells.length * 0.42)));
+  // atışları GÜNCEL hedefe göre yeniden hesapla (dar marj korunur)
+  L.shots = Math.max(6, Math.round((L.goal / L.effPerShot) * (1 + L.marginPct)) + (L.rhythm || 0));
+  G.shots = L.shots;
   G.targetGoal = L.goal; G.targetLeft = L.goal;
-  // sadece DOĞRUDAN temizlenebilir (normal, taş/buz/zincir olmayan) hedef hücreleri say
+
   let count = 0;
-  for (const b of G.grid.values()) if (b.idx === G.targetIdx && !b.type) count++;
-  // takviye: normal & hedef-olmayan hücreleri hedef rengine çevir (taşa asla dokunma)
-  const others = [...G.grid.values()].filter(b => b.idx !== G.targetIdx && !b.type);
-  while (count < L.goal + 2 && others.length) {
-    const i = (Math.random() * others.length) | 0;
-    others.splice(i, 1)[0].idx = G.targetIdx;
+  for (const b of normalCells) if (b.idx === G.targetIdx) count++;
+  // takviye: hedefe komşu OLMAYAN hücreleri tercih et — hedefler tahtaya DAĞILIR,
+  // dev tek-atımlık kümeler oluşmaz
+  const isTargetCell = b => b && b.idx === G.targetIdx && !b.type;
+  const others = normalCells.filter(b => b.idx !== G.targetIdx);
+  const scored = others.map(b => {
+    let adj = 0;
+    for (const nk of neighborKeys(b.r, b.c)) if (isTargetCell(G.grid.get(nk))) adj++;
+    return { b, adj, jit: Math.random() };
+  }).sort((a, z) => a.adj - z.adj || a.jit - z.jit); // önce izole hücreler
+  let si = 0;
+  while (count < L.goal + 1 && si < scored.length) {
+    scored[si++].b.idx = G.targetIdx;
     count++;
   }
   refillQueue(true);
   UI.enterGame();
   UI.targetIntro();  // hedef sembol küçük bir törenle sahneye gelir
+  if (L.rest) setTimeout(() => { if (G.state === 'playing') UI.toast(T('restLevel')); }, 2200);
   // İlk 5 bölüm: sıkmadan, bölüm başına tek eğitim ipucu (bir kez gösterilir)
   const hints = (LANGS[LANG] || LANGS.tr).lvlHints || [];
   const hintsSeen = store.get('zx_hints_seen', []);
@@ -1443,7 +1471,7 @@ function pickColor(avoid) {
   // 2) Hedef rengi ağırlığı — ama sadece seri kesiciden geçen havuz içinde
   if (G.mode === 'level' && opts.includes(G.targetIdx)) {
     const nearEnd = G.targetLeft > 0 && G.targetLeft <= 2;
-    const boost = nearEnd ? 0.55 : 0.22; // düşürüldü: efektif oran zaten bunun çok üstüne çıkıyordu
+    const boost = nearEnd ? 0.45 : 0.16; // hedef top artık nadiren bedava gelir
     if (Math.random() < boost) choice = G.targetIdx;
   }
 
@@ -1615,7 +1643,7 @@ function popGroup(startKey, baseDelay) {
   }
   G.combo++;
   const cp = cellPos(start.r, start.c);
-  if (G.combo >= 2) UI.floatText(cp, 'zen ×' + G.combo);
+  if (G.combo >= 2) UI.floatText(cp, 'zen ×' + G.combo, false, G.combo);
   if (G.combo >= 3) spawnRipple(cp.x, cp.y, PALETTE[idx].c, true);
   comboFx(G.combo, cp, order.length);
   // patlamadan sonra desteksiz kalan taşları/objeleri düşür
@@ -1684,7 +1712,7 @@ function attachFly() {
     return;
   }
   const p = cellPos(cell.r, cell.c);
-  const b = { r: cell.r, c: cell.c, idx: f.idx, ax: f.x, ay: f.y, settleT0: performance.now(), settleDur: 170 };
+  const b = { r: cell.r, c: cell.c, idx: f.idx, ax: f.x, ay: f.y, settleT0: performance.now(), settleDur: 170, squashT0: performance.now() };
   G.grid.set(key(cell.r, cell.c), b);
   // ◈ joker: en büyük komşu grubun rengine bürünür; boyut eşitliğinde hedef renge öncelik verir
   if (f.rainbow) {
@@ -2195,7 +2223,7 @@ function update(dt, now) {
       const col = isStone ? '#9AA0B5' : PALETTE[b.idx].c;
       spawnRipple(p.x, p.y, col, false);
       if (!isStone) spawnBurst(b.idx, p.x, p.y);
-      Sfx.drop(b.depth);
+      Sfx.drop(b.depth, Math.max(0, G.combo - 1));
       vibrate(b.falling ? 3 : 7);
       G.score += 15 * Math.max(1, G.combo);
       if (G.mode === 'level' && !isStone) {
@@ -2338,10 +2366,28 @@ function render(now) {
     }
     const bob = Math.sin(now * 0.0011 + b.r * 1.7 + b.c * 0.9) * 1.3;
     const rr = BALL_R * 0.82 * scl;
-    if (b.type === 'stone') drawStone(ctx, p.x, p.y + bob, rr);
-    else if (b.type === 'ice') drawIce(ctx, b, p.x, p.y + bob, rr, now);
-    else if (b.type === 'chain') drawChainCell(ctx, b, p.x, p.y + bob, rr, now);
-    else drawShape(ctx, b.idx, p.x, p.y + bob, rr, 0.96, 10);
+    // çarpma basılması: yeni yerleşen top bir an ezilir, yaylanarak toparlanır
+    let sq = 0;
+    if (b.squashT0) {
+      const st = (now - b.squashT0) / 190;
+      if (st >= 1) b.squashT0 = 0;
+      else sq = (1 - st) * (1 - st);
+    }
+    if (sq > 0.01) {
+      ctx.save();
+      ctx.translate(p.x, p.y + bob);
+      ctx.scale(1 + 0.24 * sq, 1 - 0.2 * sq);
+      if (b.type === 'stone') drawStone(ctx, 0, 0, rr);
+      else if (b.type === 'ice') drawIce(ctx, b, 0, 0, rr, now);
+      else if (b.type === 'chain') drawChainCell(ctx, b, 0, 0, rr, now);
+      else drawShape(ctx, b.idx, 0, 0, rr, 0.96, 10);
+      ctx.restore();
+    } else {
+      if (b.type === 'stone') drawStone(ctx, p.x, p.y + bob, rr);
+      else if (b.type === 'ice') drawIce(ctx, b, p.x, p.y + bob, rr, now);
+      else if (b.type === 'chain') drawChainCell(ctx, b, p.x, p.y + bob, rr, now);
+      else drawShape(ctx, b.idx, p.x, p.y + bob, rr, 0.96, 10);
+    }
   }
 
   for (const b of G.pops) {
@@ -2407,8 +2453,14 @@ function render(now) {
         : hexToRgba(PALETTE[G.fly.idx].c, a);
       ctx.beginPath(); ctx.arc(t.x, t.y, BALL_R * 0.3 * (i + 1) / G.trail.length + 1, 0, TAU); ctx.fill();
     });
-    if (rb) drawShapeCore(ctx, 'joker', G.fly.x, G.fly.y, BALL_R * 0.82, rainbowColor(now), 1, 18);
-    else drawShape(ctx, G.fly.idx, G.fly.x, G.fly.y, BALL_R * 0.82, 1, 16);
+    // squash & stretch: top hız yönünde uzar (×1.22), yanlardan daralır (×0.82)
+    ctx.save();
+    ctx.translate(G.fly.x, G.fly.y);
+    ctx.rotate(Math.atan2(G.fly.vy, G.fly.vx));
+    ctx.scale(1.22, 0.82);
+    if (rb) drawShapeCore(ctx, 'joker', 0, 0, BALL_R * 0.82, rainbowColor(now), 1, 18);
+    else drawShape(ctx, G.fly.idx, 0, 0, BALL_R * 0.82, 1, 16);
+    ctx.restore();
   }
 
   // nefes alan vinyet — kenarlar usulca kararıp açılır, tema rengiyle boyanır
@@ -2579,8 +2631,10 @@ let lastT = 0;
    rAF zinciri ASLA kopmaz — kare atlanır, oyun akmaya devam eder. */
 let loopErrAt = 0;
 function loop(t) {
-  const dt = Math.min((t - lastT) / 1000, 0.033);
+  let dt = Math.min((t - lastT) / 1000, 0.033);
   lastT = t;
+  // ağır çekim: SON top havadayken zaman %35'e yavaşlar — kıl payı anı sinematikleşir
+  if (G.state === 'playing' && G.mode === 'level' && G.shots === 0 && G.fly) dt *= 0.35;
   try {
     update(dt, t);
     render(t);
@@ -3315,14 +3369,21 @@ const UI = (() => {
   }
 
   /* ---- yüzen yazı & toast ---- */
-  function floatText(pos, txt, big) {
+  function floatText(pos, txt, big, tier) {
     const d = document.createElement('div');
-    d.className = 'floatxt' + (big ? ' bigpraise' : '');
+    let cls = 'floatxt';
+    if (big) cls += ' bigpraise';
+    else if (tier >= 7) cls += ' c7';
+    else if (tier >= 5) cls += ' c5';
+    else if (tier >= 3) cls += ' c3';
+    d.className = cls;
     d.textContent = txt;
     d.style.left = pos.x * SC + 'px';
     d.style.top = pos.y * SC + 'px';
+    const life = big ? 1900 : tier >= 7 ? 2100 : tier >= 5 ? 1800 : 1400;
+    d.style.animationDuration = (life / 1000) + 's';
     el.fx.appendChild(d);
-    setTimeout(() => d.remove(), big ? 1900 : 1400);
+    setTimeout(() => d.remove(), life);
   }
   function toast(txt) {
     const d = document.createElement('div');
