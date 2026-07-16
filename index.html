@@ -289,12 +289,33 @@
     from { transform:translate(-50%,-36%) scale(0.5); opacity:0; }
     to   { transform:translate(-50%,-50%) scale(1); opacity:var(--o,1); }
   }
-  .mapnode.done { border-color:rgba(125,240,192,0.45); color:var(--mint); background:rgba(14,22,19,0.92); }
-  .mapnode.cur { border-color:var(--mint); color:#fff; box-shadow:0 0 20px rgba(125,240,192,0.25); }
+  .mapnode.done {
+    border-color:rgba(var(--th-a1),0.5); color:rgb(var(--th-a1));
+    background:rgba(14,22,19,0.92);
+    animation: nodeIn 0.55s cubic-bezier(0.34,1.3,0.64,1) both, nodeBreathe 5s ease-in-out infinite;
+  }
+  @keyframes nodeBreathe {
+    0%,100% { box-shadow:0 0 0 rgba(var(--th-a1),0); }
+    50% { box-shadow:0 0 12px rgba(var(--th-a1),0.22); }
+  }
+  .mapnode.cur {
+    border-color:rgb(var(--th-a1)); color:#fff;
+    box-shadow:0 0 24px rgba(var(--th-a1),0.4);
+    animation: nodeIn 0.55s cubic-bezier(0.34,1.3,0.64,1) both, curPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes curPulse {
+    0%,100% { box-shadow:0 0 16px rgba(var(--th-a1),0.3); }
+    50% { box-shadow:0 0 30px rgba(var(--th-a1),0.55); }
+  }
   .mapnode.cur::after {
     content:''; position:absolute; inset:-1px; border-radius:50%;
-    border:1px solid rgba(125,240,192,0.8);
+    border:1px solid rgba(var(--th-a1),0.85);
     animation: nring 2.6s ease-out infinite;
+  }
+  .mapnode.cur::before {
+    content:''; position:absolute; inset:-1px; border-radius:50%;
+    border:1px solid rgba(var(--th-a1),0.5);
+    animation: nring 2.6s ease-out 1.3s infinite;
   }
   @keyframes nring { from { transform:scale(1); opacity:0.8; } to { transform:scale(2.15); opacity:0; } }
   .mapnode.lock { --o:0.32; cursor:default; }
@@ -371,9 +392,42 @@
     background:rgba(3,4,6,0.62);
     backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
   }
+  #modal::before {
+    content:''; position:absolute; left:50%; top:44%;
+    width:60px; height:60px; border-radius:50%;
+    border:2px solid rgba(var(--th-a1),0.7);
+    transform:translate(-50%,-50%);
+    animation: modalBloom 1.1s cubic-bezier(0.22,1,0.36,1) forwards;
+    pointer-events:none;
+  }
+  #modal::after {
+    content:''; position:absolute; left:50%; top:44%;
+    width:60px; height:60px; border-radius:50%;
+    border:1.5px solid rgba(var(--th-a2),0.55);
+    transform:translate(-50%,-50%);
+    animation: modalBloom 1.3s cubic-bezier(0.22,1,0.36,1) 0.15s forwards;
+    pointer-events:none;
+  }
+  @keyframes modalBloom {
+    from { transform:translate(-50%,-50%) scale(0.4); opacity:1; }
+    to   { transform:translate(-50%,-50%) scale(11); opacity:0; }
+  }
   .card {
     width:min(80%, 292px); padding:26px 22px 18px; text-align:center;
     border:1px solid var(--line); border-radius:22px; background:rgba(10,12,17,0.94);
+    animation: cardPop 0.55s cubic-bezier(0.34,1.45,0.64,1) both;
+  }
+  @keyframes cardPop {
+    0% { opacity:0; transform:scale(0.82) translateY(14px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+  }
+  .card h2 {
+    animation: titleGlow 2.6s ease-in-out 0.4s infinite;
+  }
+  @keyframes titleGlow {
+    0%,100% { text-shadow:0 0 0 rgba(var(--th-a1),0); }
+    50% { text-shadow:0 0 16px rgba(var(--th-a1),0.65); }
+  }
     animation: cardIn 0.45s cubic-bezier(0.22,1,0.36,1);
   }
   @keyframes cardIn { from { transform:scale(0.92) translateY(10px); opacity:0; } to { transform:none; opacity:1; } }
@@ -403,6 +457,18 @@
     font-size:13px; font-weight:300; letter-spacing:0.28em;
     color:var(--mint); text-shadow:0 0 12px rgba(125,240,192,0.6);
     animation: floatUp 1.4s ease-out forwards;
+  }
+  .floatxt.bigpraise {
+    font-size:24px; font-weight:200; letter-spacing:0.4em;
+    color:#fff; text-shadow:0 0 18px rgba(var(--th-wash),0.9), 0 0 40px rgba(var(--th-wash),0.5);
+    animation: praiseIn 1.9s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes praiseIn {
+    0% { opacity:0; transform:translate(-50%,-50%) scale(0.6); filter:blur(4px); }
+    18% { opacity:1; transform:translate(-50%,-50%) scale(1.06); filter:blur(0); }
+    30% { transform:translate(-50%,-50%) scale(1); }
+    75% { opacity:1; }
+    100% { opacity:0; transform:translate(-50%,-62%) scale(1.02); }
   }
   @keyframes floatUp {
     0% { opacity:0; transform:translate(-50%,-50%) scale(0.8); }
@@ -619,6 +685,64 @@ const worldOf = lvl => clamp(Math.floor((lvl - 1) / LEVELS_PER_WORLD), 0, WORLD_
 const worldStart = w => w * LEVELS_PER_WORLD + 1;
 const worldEnd = w => (w + 1) * LEVELS_PER_WORLD;
 
+/* ---------- Dünya Kimlikleri ----------
+   Her dünyanın SABİT kimliği: palet + arka plan + müzik tonu.
+   Bölüm oynarken bu kimlik geçerlidir; mağaza kozmetikleri Zen/menüde çalışır.
+   tone: ambiyans kök notası çarpanı (110Hz'e göre transpoze) */
+const WA = (c, x, y, r, ph, a) => ({ c, x, y, r, sp: 0.00006, ph, a });
+const WORLD_THEMES = [
+  { // 1 · Sabah Sisi — puslu, yumuşak yeşil-gri
+    palette: ['#9FE8C0', '#F0A8C7', '#A8B9F0', '#7DD8E8', '#F0DCA8', '#E89E9E'],
+    bg: { base: '10,14,13', wash: '140,220,180', particle: { kind: 'stars', color: '200,240,220' },
+      aurora: [WA('125,240,192', .25, .2, .62, 0, .08), WA('180,230,200', .75, .5, .66, 2, .07), WA('140,216,255', .4, .8, .55, 4, .06)] },
+    tone: 1.0 },
+  { // 2 · Gölge Vadisi — loş mücevher tonları
+    palette: ['#5FE8A8', '#E85F9E', '#9E5FE8', '#5F9EE8', '#E8C05F', '#E86F6F'],
+    bg: { base: '13,10,20', wash: '150,110,220', particle: { kind: 'swirl', color: '190,160,240' },
+      aurora: [WA('150,110,220', .3, .3, .7, 0, .1), WA('90,90,180', .72, .6, .6, 2, .08), WA('60,50,110', .5, .9, .5, 4, .07)] },
+    tone: 0.891 },
+  { // 3 · Derin Sular — su altı, kum ve mercan vurgulu
+    palette: ['#2EE8C0', '#4F8FFF', '#E8D89E', '#2E6FD8', '#8FF2E8', '#F09EB9'],
+    bg: { base: '4,18,26', wash: '60,180,230', particle: { kind: 'bubbles', color: '140,225,240' },
+      aurora: [WA('60,180,230', .5, .4, .72, 0, .1), WA('40,110,200', .25, .8, .6, 2, .09), WA('110,230,200', .8, .7, .5, 4, .07)] },
+    tone: 0.841 },
+  { // 4 · Yıldız Tozu — kozmik menekşe & altın yıldız
+    palette: ['#C89EFF', '#FF9EE8', '#9EB9FF', '#E85FD0', '#7DF0FF', '#FFE89E'],
+    bg: { base: '20,10,32', wash: '210,140,255', particle: { kind: 'swirl', color: '230,190,255' },
+      aurora: [WA('190,140,255', .3, .25, .72, 0, .11), WA('255,150,220', .72, .55, .6, 2, .09), WA('140,150,255', .5, .88, .52, 4, .08)] },
+    tone: 1.122 },
+  { // 5 · Şafak Yolu — turuncu-gül şafağı
+    palette: ['#FFB05C', '#FF5C8F', '#FFE08F', '#C06BFF', '#FF8FB9', '#8FC7FF'],
+    bg: { base: '32,14,10', wash: '255,150,90', particle: { kind: 'petals', color: '255,190,150' },
+      aurora: [WA('255,170,110', .5, .92, .78, 0, .12), WA('255,130,150', .3, .72, .6, 2, .1), WA('150,170,255', .72, .15, .5, 4, .06)] },
+    tone: 1.189 },
+  { // 6 · Sessiz Bahçe — bahar yeşili & çiçek
+    palette: ['#6FE86F', '#FFA8C7', '#C7E85F', '#4FC7A8', '#E8B9FF', '#FFD88F'],
+    bg: { base: '8,18,10', wash: '130,230,140', particle: { kind: 'petals', color: '210,255,200' },
+      aurora: [WA('120,230,130', .3, .25, .7, 0, .1), WA('200,255,160', .72, .6, .58, 2, .08), WA('255,190,220', .5, .88, .5, 4, .07)] },
+    tone: 1.059 },
+  { // 7 · Mercan Rüyası — tropik mercan & turkuaz
+    palette: ['#FF7E6B', '#2EE8D0', '#FFB35C', '#FF5C9E', '#7DE8FF', '#FFE87D'],
+    bg: { base: '22,8,14', wash: '255,120,110', particle: { kind: 'bubbles', color: '255,190,170' },
+      aurora: [WA('255,120,110', .35, .3, .7, 0, .11), WA('50,220,200', .72, .62, .58, 2, .09), WA('255,180,90', .5, .9, .5, 4, .08)] },
+    tone: 1.26 },
+  { // 8 · Mor Ufuk — menekşe & magenta ufku
+    palette: ['#A84FFF', '#FF4FC0', '#7D8FFF', '#E0A8FF', '#FF8FA8', '#5CE0E8'],
+    bg: { base: '16,8,26', wash: '200,90,255', particle: { kind: 'swirl', color: '225,160,255' },
+      aurora: [WA('190,90,255', .3, .3, .72, 0, .12), WA('255,90,190', .72, .58, .6, 2, .09), WA('110,130,255', .5, .9, .52, 4, .08)] },
+    tone: 0.943 },
+  { // 9 · Ateş Çiçeği — kor & altın; yükselen köz zerreleri
+    palette: ['#FF4F33', '#FFAD33', '#FF338F', '#FFE04F', '#C74FFF', '#5CB9FF'],
+    bg: { base: '26,8,6', wash: '255,110,60', particle: { kind: 'stars', color: '255,170,110' },
+      aurora: [WA('255,110,60', .5, .85, .78, 0, .13), WA('255,60,90', .28, .5, .6, 2, .1), WA('255,190,80', .75, .3, .5, 4, .08)] },
+    tone: 1.335 },
+  { // 10 · Sonsuz Zirve — buz beyazı & zirve altını
+    palette: ['#F0F8FF', '#5CC7FF', '#FFD05C', '#9EB9FF', '#D0A8FF', '#8FE8D0'],
+    bg: { base: '10,14,24', wash: '190,220,255', particle: { kind: 'stars', color: '235,245,255' },
+      aurora: [WA('190,220,255', .5, .2, .72, 0, .11), WA('130,180,255', .28, .6, .6, 2, .09), WA('255,215,120', .75, .8, .5, 4, .07)] },
+    tone: 1.498 },
+];
+
 /* Pastel neon palet — 6 sembol (artı elendi) */
 const PALETTE = [
   { c: '#7DF0C0', shape: 'star'     },
@@ -639,6 +763,14 @@ const LANGS = {
     newIce: '❄️ Buzlu obje: yanında 2 patlama olunca kırılır',
     newStone: '🪨 Taş blok: hiçbir renge uymaz — komşusu patlayınca düşer',
     newChain: '🔗 Zincirli obje: sadece zincirleme patlamayla kırılır',
+    praise: ['muhteşem ✦', 'akış içindesin', 'zen ustası', 'kusursuz', 'derin nefes ✦', 'mükemmel seri'],
+    lvlHints: [
+      '☝️ yukarı dokun: ok oraya bakar · aşağı çek: sapan gibi',
+      '◎ üstteki hedef sembolden bu kadar eritmen gerek',
+      '➳ atışların sınırlı — duvardan sektirmeyi dene',
+      '⇄ elindeki topu sıradakiyle değiştirebilirsin',
+      '◈ joker her renge uyar — dara düşünce kullan',
+    ],
     menuSub: 'nefes al · nişan al · bırak',
     menuFoot: 'aynı renkleri birleştir — dalgayı izle',
     journey: '▷ &nbsp;Yolculuk <small>— Seviye {n}</small>',
@@ -709,6 +841,14 @@ const LANGS = {
     newIce: '❄️ Ice orb: breaks after 2 nearby pops',
     newStone: '🪨 Stone block: matches no color — falls when its neighbor pops',
     newChain: '🔗 Chained orb: only a chain-clear breaks it',
+    praise: ['magnificent ✦', 'in the flow', 'zen master', 'flawless', 'deep breath ✦', 'perfect streak'],
+    lvlHints: [
+      '☝️ tap above: the arrow follows · pull below: slingshot',
+      '◎ melt this many of the target symbol shown above',
+      '➳ shots are limited — try bouncing off walls',
+      '⇄ you can swap your orb with the next one',
+      '◈ the joker matches any color — save it for trouble',
+    ],
     menuSub: 'breathe · aim · release',
     menuFoot: 'match the colors — watch the ripple',
     journey: '▷ &nbsp;Journey <small>— Level {n}</small>',
@@ -793,10 +933,11 @@ function WN(i) { return ((LANGS[LANG] || LANGS.tr).worldNames || LANGS.tr.worldN
 /* ---------- Mağaza Kataloğu ---------- */
 const SHOP = {
   palettes: {
-    neon:   { free: true, colors: null }, // varsayılan: yeşil/pembe/mor/mavi/turuncu/kırmızı karışık neon
-    sakura: { colors: ['#FF6FB0', '#FFA3D2', '#E85FE0', '#FF8FC7', '#C74FE8', '#FFC1E3'] }, // tamamen pembe-fuşya ailesi
-    ocean:  { colors: ['#2ED9E8', '#4FA8FF', '#1FE0C0', '#3D7DFF', '#5FF0E0', '#2E8FE8'] }, // tamamen mavi-turkuaz ailesi
-    sunset: { colors: ['#FF7A3D', '#FF4D6D', '#FFB13D', '#C43DFF', '#FF3D8F', '#FF9A3D'] }, // tamamen turuncu-kızıl-mor ailesi
+    neon:   { free: true, colors: null }, // varsayılan: dengeli neon karışım
+    // her palet bir ruh taşır ama 6 renk birbirinden NET ayrılır (oynanabilirlik önce gelir)
+    sakura: { colors: ['#FF6FB0', '#B9E85F', '#C74FE8', '#FF9E5C', '#5FC7E8', '#FFE08F'] }, // pembe ruh + net kontrast
+    ocean:  { colors: ['#2EE8C0', '#4F8FFF', '#E8D89E', '#F06F8F', '#8FF2E8', '#B98FFF'] }, // su ruhu + kum/mercan çıpaları
+    sunset: { colors: ['#FF7A3D', '#FF4D6D', '#FFD84F', '#C43DFF', '#4FC7B9', '#FF9EC7'] }, // gün batımı + serin çıpa
   },
   backgrounds: {
     night: {
@@ -846,14 +987,20 @@ let CUR_AURORA = SHOP.backgrounds.night.aurora;
 let CUR_BASE = SHOP.backgrounds.night.base;
 let CUR_PARTICLE = SHOP.backgrounds.night.particle;
 let CUR_WASH = SHOP.backgrounds.night.wash;
+let CUR_ACCENT = '#7DF0C0';
+/* Tema önceliği: deneme (trial) > dünya kimliği (bölüm oynarken) > satın alınan tema.
+   Mağaza kozmetikleri Zen modu ve menülerde geçerlidir; her dünya kendi kimliğiyle gelir. */
 function applyThemes() {
-  const palId = (G.trial && G.trial.kind === 'pal') ? G.trial.id : G.activePal;
-  const bgId  = (G.trial && G.trial.kind === 'bg')  ? G.trial.id : G.activeBg;
-  const pal = SHOP.palettes[palId] || SHOP.palettes.neon;
-  const cols = pal.colors || BASE_COLORS;
+  const wt = (G.themeWorld != null) ? WORLD_THEMES[G.themeWorld] : null;
+  let cols = null, bg = null;
+  if (G.trial && G.trial.kind === 'pal') cols = (SHOP.palettes[G.trial.id] || {}).colors;
+  if (G.trial && G.trial.kind === 'bg')  bg = SHOP.backgrounds[G.trial.id];
+  if (!cols) cols = wt ? wt.palette : ((SHOP.palettes[G.activePal] || {}).colors || BASE_COLORS);
+  if (!bg)   bg = wt ? wt.bg : (SHOP.backgrounds[G.activeBg] || SHOP.backgrounds.night);
   PALETTE.forEach((p, i) => { p.c = cols[i]; });
-  const bg = SHOP.backgrounds[bgId] || SHOP.backgrounds.night;
   CUR_AURORA = bg.aurora; CUR_BASE = bg.base; CUR_PARTICLE = bg.particle; CUR_WASH = bg.wash;
+  CUR_ACCENT = wt ? WORLDS[G.themeWorld].accent : '#7DF0C0';
+  if (typeof Sfx !== 'undefined' && Sfx.setTone) Sfx.setTone(wt ? wt.tone : 1);
   if (typeof initDust === 'function') initDust();
   // ekrandaki HER katman (menü/harita/mağaza dahil) tema değişimini anında yansıtsın
   try {
@@ -869,6 +1016,8 @@ function applyThemes() {
 /* ---------- Ses Motoru — daha da sakin (v3) ---------- */
 const Sfx = (() => {
   let ac = null, master = null, ambGain = null, delaySend = null, muted = false, started = false;
+  let toneMul = 1;               // dünya tonu (kök nota transpozesi)
+  const droneNodes = [];         // dron osilatörleri (ton geçişi için saklanır)
   const PENTA = [220, 261.63, 293.66, 329.63, 392, 440, 523.25];
 
   function ensure() {
@@ -919,10 +1068,11 @@ const Sfx = (() => {
     wind.start(); lfo.start();
 
     // derin dron + cam parıltısı
-    [[110, 0.008], [110.7, 0.008], [220.4, 0.003]].forEach(([f, v]) => {
-      const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+    [[55, 0.006], [110, 0.008], [110.7, 0.008], [220.4, 0.003]].forEach(([f, v]) => {
+      const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f * toneMul;
       const g = ac.createGain(); g.gain.value = v;
       o.connect(g); g.connect(ambGain); o.start();
+      droneNodes.push({ o, f });
     });
 
     // uzun, kadifemsi pad dalgaları — ~20 sn'de bir iki notalık akor süzülür
@@ -930,21 +1080,36 @@ const Sfx = (() => {
       if (!ac) return;
       setTimeout(() => {
         if (ac && !muted) {
-          const root = pickArr([110, 130.81, 146.83, 164.81]);
+          const root = pickArr([110, 130.81, 146.83, 164.81]) * toneMul;
           padSwell(root); padSwell(root * 1.5);
+          if (Math.random() < 0.6) setTimeout(() => padSwell(root * 1.189), 2200); // yumuşak 3'lü — sıcak akor
         }
         padLoop();
-      }, rnd(19000, 32000));
+      }, rnd(13000, 24000));
     })();
 
     // seyrek, uzaklarda süzülen piyano
     (function pianoLoop() {
       if (!ac) return;
       setTimeout(() => {
-        if (ac && !muted) softNote(pickArr(PENTA) / 2, 0.026, 5.4);
+        if (ac && !muted) softNote(pickArr(PENTA) * toneMul / 2, 0.026, 5.4);
         pianoLoop();
       }, rnd(9000, 17000));
     })();
+  }
+
+  /* dünya tonu: kök notayı transpoze eder — dronlar yumuşakça kayar, yeni notalar yeni tonda doğar */
+  function setTone(mul) {
+    toneMul = mul || 1;
+    if (!ac || !droneNodes.length) return;
+    const t = ac.currentTime;
+    droneNodes.forEach(({ o, f }) => {
+      try {
+        o.frequency.cancelScheduledValues(t);
+        o.frequency.setValueAtTime(o.frequency.value, t);
+        o.frequency.linearRampToValueAtTime(f * toneMul, t + 2.5);
+      } catch (e) {}
+    });
   }
 
   /* uzun atak/uzun bırakışlı pad — okyanus dalgası gibi kabarıp iner */
@@ -976,7 +1141,7 @@ const Sfx = (() => {
   function drop(depth) {
     if (!ensure() || muted) return;
     const t = ac.currentTime;
-    const base = PENTA[Math.min(depth, PENTA.length - 1)];
+    const base = PENTA[Math.min(depth, PENTA.length - 1)] * toneMul;
     const o = ac.createOscillator(); o.type = 'sine';
     o.frequency.setValueAtTime(base * 2.2, t);
     o.frequency.exponentialRampToValueAtTime(base * 0.8, t + 0.24);
@@ -1041,7 +1206,7 @@ const Sfx = (() => {
     return muted;
   }
 
-  return { start: () => { ensure(); startAmbient(); }, drop, whoosh, click, softNote, levelUp, toggleMute, isMuted: () => muted };
+  return { start: () => { ensure(); startAmbient(); }, drop, whoosh, click, softNote, levelUp, setTone, toggleMute, isMuted: () => muted };
 })();
 
 /* ---------- Oyun Durumu ---------- */
@@ -1080,6 +1245,10 @@ const G = {
   viewWorld: 0,          // haritada görüntülenen dünya
   lastColors: [],        // RNG seri kesici geçmişi
   slingMode: false,      // sapan modu (parmak fırlatıcının altında) mı?
+  themeWorld: null,      // aktif dünya kimliği (null = satın alınan tema geçerli)
+  shake: 0, shakeT0: 0,  // ekran sarsıntısı gücü ve başlangıcı
+  flash: 0, flashT0: 0,  // combo flaşı
+  hueWave: 0,            // yüksek combo renk dalgası (bitiş zamanı)
   swapUsed: store.get('zx_swapused', false), // oyuncu değiştirmeyi öğrendi mi?
 };
 
@@ -1120,7 +1289,7 @@ function makeLevel(n) {
 
   // DİNAMİK ATIŞ: hedefe orantılı, dar marj
   const effPerShot = lerp(1.25, 1.6, d);   // beklenen verim (grup + zincir + joker)
-  const marginPct = lerp(0.35, 0.12, d);   // güvenlik marjı: erken cömert, geç sıkı
+  const marginPct = lerp(0.26, 0.07, d);   // güvenlik marjı sıkılaştırıldı (~+1 atış)
   let shots = Math.round((goal / effPerShot) * (1 + marginPct));
   if (n % 10 === 0) shots -= 1;            // yuvarlak bölümler sıkı
   else if (n % 7 === 0) shots += 1;        // ara ara nefes molası
@@ -1169,7 +1338,19 @@ function fillGrid(rows, colorCount, density, L) {
 function startLevel(n) {
   if (n > MAX_LEVEL) { UI.journeyDone(); return; }
   const L = makeLevel(n);
+  // KÖK ÇÖZÜM: tahta, cihazın oynanabilir alanına sığmalı.
+  // Kısa ekranlarda (uygulama içi önizleme vb.) 9 satır bariyerin altına sarkıyor
+  // ve top yapışacak yer bulamıyordu — satır sayısını ekrana göre sınırla.
+  const maxRows = Math.max(4, Math.floor((H - 258 - TOP - R - BALL_R) / ROWH));
+  if (L.rows > maxRows) {
+    const ratio = maxRows / L.rows;
+    L.rows = maxRows;
+    // daha az satır = daha az obje; hedef ve atışları orantıla ki denge bozulmasın
+    L.goal = Math.max(6, Math.round(L.goal * (0.75 + 0.25 * ratio)));
+    L.shots = Math.max(6, Math.round(L.shots * (0.78 + 0.22 * ratio)));
+  }
   G.mode = 'level'; G.state = 'playing';
+  G.themeWorld = worldOf(n); applyThemes(); // dünya kimliği: palet + arka plan + müzik
   G.level = n; G.shots = L.shots;
   G.score = 0; G.dispScore = 0; G.combo = 0; G.levelCoins = 0;
   G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
@@ -1191,8 +1372,16 @@ function startLevel(n) {
   refillQueue(true);
   UI.enterGame();
   UI.targetIntro();  // hedef sembol küçük bir törenle sahneye gelir
-  // ⇄ değiştirmeyi hâlâ keşfetmemişse hatırlat (öğrenince kendiliğinden susar)
-  if (!G.swapUsed) setTimeout(() => { if (!G.swapUsed && G.state === 'playing') UI.toast(T('swapHint')); }, 2600);
+  // İlk 5 bölüm: sıkmadan, bölüm başına tek eğitim ipucu (bir kez gösterilir)
+  const hints = (LANGS[LANG] || LANGS.tr).lvlHints || [];
+  const hintsSeen = store.get('zx_hints_seen', []);
+  if (n <= hints.length && !hintsSeen.includes(n)) {
+    hintsSeen.push(n); store.set('zx_hints_seen', hintsSeen);
+    setTimeout(() => { if (G.state === 'playing') UI.toast(hints[n - 1]); }, 2400);
+  } else if (!G.swapUsed) {
+    // ⇄ değiştirmeyi hâlâ keşfetmemişse hatırlat (öğrenince kendiliğinden susar)
+    setTimeout(() => { if (!G.swapUsed && G.state === 'playing') UI.toast(T('swapHint')); }, 2600);
+  }
   // yeni mekanik ilk kez sahnede mi? bir kez tanıt
   const seen = store.get('zx_seen_mech', {});
   let has = { ice: false, stone: false, chain: false };
@@ -1209,6 +1398,7 @@ function startLevel(n) {
 
 function startZen() {
   G.mode = 'zen'; G.state = 'playing';
+  G.themeWorld = null;
   G.trial = null; applyThemes();
   G.score = 0; G.dispScore = 0; G.combo = 0;
   G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
@@ -1288,7 +1478,7 @@ function findSnapCell(x, y) {
     for (let c = 0; c <= maxColFor(r); c++) {
       if (G.grid.has(key(r, c))) continue;
       const p = cellPos(r, c);
-      if (p.y > H - 258) continue;
+      if (p.y > LAUNCH.y - BALL_R * 3) continue; // bariyer fırlatıcıya göreli — ekrandan bağımsız
       if (r !== minRow) {
         let touch = false;
         for (const nk of neighborKeys(r, c)) if (G.grid.has(nk)) { touch = true; break; }
@@ -1337,6 +1527,30 @@ function spawnBurst(idx, x, y) {
       size: rnd(s.size[0], s.size[1]), t0: now, life: rnd(s.life[0], s.life[1]),
       fade: s.fade,
     });
+  }
+}
+
+/* ---------- Combo Kutlaması ----------
+   Büyük an = büyük his. Kademeli: sarsıntı → flash → övgü → renk dalgası.
+   Grup büyüklüğü de sayılır: 6+ objelik tek patlama da kutlanır. */
+function comboFx(combo, pos, groupSize) {
+  const now = performance.now();
+  const big = Math.max(combo, groupSize >= 8 ? 4 : groupSize >= 6 ? 3 : 1);
+  if (big >= 2) { G.shake = Math.min(3 + big * 1.6, 12); G.shakeT0 = now; }
+  if (big >= 3) {
+    spawnRipple(pos.x, pos.y, CUR_ACCENT, true);
+    G.flash = Math.min(0.10 + big * 0.03, 0.22); G.flashT0 = now;
+  }
+  if (big >= 4) {
+    G.hueWave = now + 1200; // ~1.2 sn boyunca tüm semboller renk dalgasında yüzer
+    const words = (LANGS[LANG] || LANGS.tr).praise;
+    UI.floatText({ x: W / 2, y: H * 0.34 }, pickArr(words), true);
+    for (let i = 0; i < 14; i++) {
+      spawnBurst((Math.random() * PALETTE.length) | 0,
+        pos.x + rnd(-60, 60), pos.y + rnd(-40, 40));
+    }
+    Sfx.softNote(660, 0.05, 2.2); Sfx.softNote(880, 0.04, 2.4); Sfx.softNote(1320, 0.025, 2.8);
+    vibrate(24);
   }
 }
 
@@ -1400,8 +1614,10 @@ function popGroup(startKey, baseDelay) {
     }
   }
   G.combo++;
-  if (G.combo >= 2) UI.floatText(cellPos(start.r, start.c), 'zen ×' + G.combo);
-  if (G.combo >= 3) spawnRipple(cellPos(start.r, start.c).x, cellPos(start.r, start.c).y, PALETTE[idx].c, true);
+  const cp = cellPos(start.r, start.c);
+  if (G.combo >= 2) UI.floatText(cp, 'zen ×' + G.combo);
+  if (G.combo >= 3) spawnRipple(cp.x, cp.y, PALETTE[idx].c, true);
+  comboFx(G.combo, cp, order.length);
   // patlamadan sonra desteksiz kalan taşları/objeleri düşür
   setTimeout(dropUnsupported, baseDelay + 120);
   return true;
@@ -1439,9 +1655,30 @@ function dropUnsupported() {
 
 function attachFly() {
   const f = G.fly; G.fly = null; G.trail.length = 0;
-  const cell = findSnapCell(f.x, f.y);
+  let cell = findSnapCell(f.x, f.y);
   if (!cell) {
-    spawnRipple(f.x, f.y, PALETTE[f.idx].c, false);
+    // emniyet: yakın pencere boşsa TÜM tahtada en yakın geçerli boş hücreyi ara —
+    // atış asla boşa gitmez, top her koşulda bir yere yerleşir
+    let best = null, bd = Infinity;
+    const maxR = G.topRow + Math.ceil((LAUNCH.y - BALL_R * 3 - TOP) / ROWH);
+    for (let r = G.topRow; r <= maxR; r++) {
+      for (let c = 0; c <= maxColFor(r); c++) {
+        if (G.grid.has(key(r, c))) continue;
+        const p = cellPos(r, c);
+        if (p.y > LAUNCH.y - BALL_R * 3) continue;
+        if (r !== G.topRow) {
+          let touch = false;
+          for (const nk of neighborKeys(r, c)) if (G.grid.has(nk)) { touch = true; break; }
+          if (!touch) continue;
+        }
+        const d = (p.x - f.x) ** 2 + (p.y - f.y) ** 2;
+        if (d < bd) { bd = d; best = { r, c }; }
+      }
+    }
+    cell = best;
+  }
+  if (!cell) {
+    spawnRipple(f.x, f.y, PALETTE[f.idx] ? PALETTE[f.idx].c : '#FFFFFF', false);
     Sfx.drop(0);
     checkResolutionSoon();
     return;
@@ -1487,13 +1724,29 @@ function attachFly() {
 }
 
 /* ---------- Zen: yeni satır ---------- */
+/* Zen zorluk eğrisi: skor yükseldikçe yeni satırlar sertleşir —
+   buz/taş/zincir belirir ve yoğunlaşır. Yüksek skor gerçekten hak edilir. */
+function zenTier() { return clamp(Math.floor(G.score / 800), 0, 8); } // ~her 800 puanda bir kademe
 function addZenRow() {
   G.topRow -= 1;
   const r = G.topRow;
   const t0 = performance.now();
+  const tier = zenTier();
+  const ice = tier >= 1 ? Math.min(0.05 + tier * 0.025, 0.24) : 0;
+  const stone = tier >= 2 ? Math.min(0.03 + tier * 0.02, 0.16) : 0;
+  const chain = tier >= 3 ? Math.min(0.03 + tier * 0.022, 0.2) : 0;
   for (let c = 0; c <= maxColFor(r); c++) {
     if (Math.random() > 0.9) continue;
-    G.grid.set(key(r, c), { r, c, idx: (Math.random() * PALETTE.length) | 0, born: t0 + 120 + c * 26 });
+    const roll = Math.random();
+    if (roll < stone) {
+      G.grid.set(key(r, c), { r, c, idx: -1, type: 'stone', born: t0 + 120 + c * 26 });
+      continue;
+    }
+    const cell = { r, c, idx: (Math.random() * PALETTE.length) | 0, born: t0 + 120 + c * 26 };
+    const roll2 = Math.random();
+    if (roll2 < ice) { cell.type = 'ice'; cell.hp = 2; }
+    else if (roll2 < ice + chain) cell.type = 'chain';
+    G.grid.set(key(r, c), cell);
   }
   G.scrollTarget += ROWH;
   for (const b of G.grid.values()) {
@@ -1505,6 +1758,8 @@ function addZenRow() {
     }
   }
 }
+/* iniş temposu da kademeyle hızlanır: 5 atış → 4 → 3 */
+function zenDropEvery() { return zenTier() >= 6 ? 3 : zenTier() >= 3 ? 4 : 5; }
 
 /* ---------- Tur sonucu ---------- */
 function checkResolutionSoon() { setTimeout(checkResolution, 60); }
@@ -1527,8 +1782,15 @@ function checkResolution() {
 /* ---------- Bölüm kutlaması — patlamadan farklı, çok daha görkemli ---------- */
 function celebrateLevel() {
   const cx = W / 2, cy = H * 0.42;
+  const nowMs = performance.now();
+  // dalga dalga halka: hedef rengi → beyaz → dünya vurgusu
   spawnRipple(cx, cy, PALETTE[G.targetIdx].c, true);
   setTimeout(() => spawnRipple(cx, cy, '#FFFFFF', true), 180);
+  setTimeout(() => spawnRipple(cx, cy, CUR_ACCENT, true), 380);
+  // kutlama duyuları: yumuşak sarsıntı + flash + renk dalgası
+  G.shake = 7; G.shakeT0 = nowMs;
+  G.flash = 0.16; G.flashT0 = nowMs;
+  G.hueWave = nowMs + 1400;
   // hedef sembolden dairesel konfeti patlaması — spawnBurst'ten daha geniş ve yavaş
   const shape = PALETTE[G.targetIdx].shape, color = PALETTE[G.targetIdx].c, now = performance.now();
   for (let i = 0; i < 22; i++) {
@@ -1551,6 +1813,16 @@ function celebrateLevel() {
       size: rnd(2, 3.6), t0: now + i * 60, life: rnd(1400, 2000), fade: 'twinkle',
     });
   }
+  // üçüncü perde: tüm paletten gecikmeli yıldız seli — kutlama tek vuruşta bitmez, kabarır
+  for (let i = 0; i < 26; i++) {
+    const pi = i % PALETTE.length;
+    G.bursts.push({
+      kind: 'p', shape: PALETTE[pi].shape, color: PALETTE[pi].c,
+      x: rnd(W * 0.05, W * 0.95), y: rnd(-40, -8), vx: rnd(-24, 24), vy: rnd(50, 110),
+      grav: 60, rot: rnd(0, TAU), vr: rnd(-6, 6),
+      size: rnd(2.2, 4.6), t0: now + 500 + i * 55, life: rnd(1600, 2400), fade: 'twinkle',
+    });
+  }
   Sfx.levelUp();
   vibrate([10, 30, 10, 30, 18]);
 }
@@ -1561,7 +1833,7 @@ function launch(dir) {
     G.shots--;
   } else {
     G.zenShots++;
-    if (G.zenShots % 5 === 0) G.zenRowPending = true;
+    if (G.zenShots % zenDropEvery() === 0) G.zenRowPending = true;
   }
   G.fly = { x: LAUNCH.x, y: LAUNCH.y, vx: dir.x * SPEED, vy: dir.y * SPEED, idx: G.cur, rainbow: G.curRainbow };
   G.curRainbow = false;
@@ -1651,8 +1923,35 @@ function drawShapeCore(cx, shape, x, y, r, color, alpha, glow, rot) {
   cx.beginPath(); cx.arc(x, y, 1.8, 0, TAU); cx.fill();
   cx.restore();
 }
+/* hue kaydırma: hex rengi HSL uzayında döndürür (combo renk dalgası için) */
+function hueShift(hex, deg) {
+  const n = parseInt(hex.slice(1), 16);
+  let r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let h = 0, s = 0;
+  const l = (mx + mn) / 2;
+  if (mx !== mn) {
+    const d = mx - mn;
+    s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    h = mx === r ? ((g - b) / d + (g < b ? 6 : 0)) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h /= 6;
+  }
+  h = (h + deg / 360) % 1; if (h < 0) h += 1;
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const f = t => { t = ((t % 1) + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 1 / 2 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+  const to = v => Math.round(v * 255).toString(16).padStart(2, '0');
+  return '#' + to(f(h + 1 / 3)) + to(f(h)) + to(f(h - 1 / 3));
+}
+
 function drawShape(cx, idx, x, y, r, alpha, glow) {
-  drawShapeCore(cx, PALETTE[idx].shape, x, y, r, PALETTE[idx].c, alpha, glow);
+  let c = PALETTE[idx].c;
+  // yüksek combo renk dalgası: renkler tahtada soldan sağa süzülen bir kaymayla ışıldar
+  const nowMs = performance.now();
+  if (G.hueWave > nowMs) {
+    const rem = (G.hueWave - nowMs) / 1200;           // 1 → 0 sönüm
+    const deg = Math.sin(nowMs * 0.004 + x * 0.02) * 70 * rem;
+    c = hueShift(c, deg);
+  }
+  drawShapeCore(cx, PALETTE[idx].shape, x, y, r, c, alpha, glow);
 }
 
 /* Taş — renksiz gri kaya, hiçbir renge uymaz, sadece desteksiz kalınca düşer */
@@ -1861,6 +2160,10 @@ function update(dt, now) {
 
   if (G.fly) {
     const f = G.fly;
+    // bekçi: top 5 sn'den uzun uçuyorsa (her ne sebeple olursa olsun) zorla yapıştır —
+    // "top kayboldu, atış boşa gitti" durumu yapısal olarak imkânsız
+    if (!f.bornAt) f.bornAt = now;
+    if (now - f.bornAt > 5000) { attachFly(); return; }
     const sub = 3;
     for (let s = 0; s < sub && G.fly; s++) {
       f.x += f.vx * dt / sub;
@@ -1977,11 +2280,22 @@ function drawThemeParticles(now) {
 }
 
 function render(now) {
-  ctx.setTransform(SC * DPR, 0, 0, SC * DPR, 0, 0);
-  ctx.clearRect(0, 0, W, H);
+  // combo sarsıntısı: 0.45 sn'de sönümlenen, yumuşak yaylı titreşim
+  let shx = 0, shy = 0;
+  if (G.shake > 0.2) {
+    const st = (now - G.shakeT0) / 450;
+    if (st >= 1) G.shake = 0;
+    else {
+      const amp = G.shake * (1 - st) * (1 - st);
+      shx = Math.sin(now * 0.09) * amp;
+      shy = Math.cos(now * 0.117) * amp * 0.7;
+    }
+  }
+  ctx.setTransform(SC * DPR, 0, 0, SC * DPR, shx * SC * DPR, shy * SC * DPR);
+  ctx.clearRect(-20, -20, W + 40, H + 40);
   // tema tabanı — arka plan değişimini anında ve belirgin kılar
   ctx.fillStyle = 'rgb(' + (CUR_BASE || '5,5,8') + ')';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(-20, -20, W + 40, H + 40);
 
   // her zaman görünen üst/alt renk bantları — tahta ne kadar dolu olursa olsun
   // tema değişimi ilk bakışta fark edilsin
@@ -2104,11 +2418,21 @@ function render(now) {
   ctx.fillStyle = vg;
   ctx.fillRect(0, 0, W, H);
 
+  // combo flaşı: 0.35 sn'de sönen, vurgu renginde yumuşak parlama
+  if (G.flash > 0.005) {
+    const ft = (now - G.flashT0) / 350;
+    if (ft >= 1) G.flash = 0;
+    else {
+      ctx.fillStyle = hexToRgba(CUR_ACCENT, G.flash * (1 - ft));
+      ctx.fillRect(-20, -20, W + 40, H + 40);
+    }
+  }
+
   if (G.state === 'playing') drawLauncher(now);
 }
 
 function drawLauncher(now) {
-  ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+  ctx.strokeStyle = hexToRgba(CUR_ACCENT, 0.22);
   ctx.lineWidth = 1.4;
   ctx.beginPath(); ctx.arc(LAUNCH.x, LAUNCH.y, BALL_R * 1.5, 0, TAU); ctx.stroke();
 
@@ -2118,7 +2442,7 @@ function drawLauncher(now) {
 
     // ince, süzülen kılavuz çizgisi — noktaları bağlayan yumuşak bir zemin
     ctx.save();
-    ctx.strokeStyle = hexToRgba(col, 0.16);
+    ctx.strokeStyle = hexToRgba(CUR_ACCENT, 0.20);
     ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.moveTo(LAUNCH.x, LAUNCH.y);
@@ -2239,7 +2563,8 @@ function drawLauncher(now) {
     ctx.textAlign = 'center';
     ctx.fillText(T('shotsLeft', { n: G.shots }), LAUNCH.x, LAUNCH.y + 54);
   } else if (G.mode === 'zen') {
-    const untilDrop = 5 - (mod(G.zenShots, 5));
+    const de = zenDropEvery();
+    const untilDrop = de - (mod(G.zenShots, de));
     const soon = untilDrop <= 1;
     ctx.fillStyle = soon ? 'rgba(255,158,210,0.9)' : 'rgba(255,255,255,0.4)';
     ctx.font = '300 12.5px system-ui, sans-serif';
@@ -2250,11 +2575,23 @@ function drawLauncher(now) {
 
 /* ---------- Ana Döngü ---------- */
 let lastT = 0;
+/* Kendini toparlayan oyun döngüsü: tek bir karede hata olsa bile
+   rAF zinciri ASLA kopmaz — kare atlanır, oyun akmaya devam eder. */
+let loopErrAt = 0;
 function loop(t) {
   const dt = Math.min((t - lastT) / 1000, 0.033);
   lastT = t;
-  update(dt, t);
-  render(t);
+  try {
+    update(dt, t);
+    render(t);
+  } catch (e) {
+    // aynı hatayı spam'lemeden bildir (test modunda görünür — ekran görüntüsüyle raporlanabilir)
+    if (TEST_UNLOCK_ALL && t - loopErrAt > 4000 && typeof UI !== 'undefined' && UI.toast) {
+      loopErrAt = t;
+      try { UI.toast('⚠ ' + (e.message || e).toString().slice(0, 80)); } catch (e2) {}
+    }
+    try { console.error('frame error:', e); } catch (e2) {}
+  }
   requestAnimationFrame(loop);
 }
 
@@ -2481,6 +2818,7 @@ const UI = (() => {
   }
   function showMenu() {
     G.state = 'menu';
+    G.themeWorld = null; applyThemes();
     endTrial();
     ['hud', 'joker', 'map', 'shop', 'tut', 'worlds'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
@@ -2512,17 +2850,28 @@ const UI = (() => {
     const flowPts = pts.slice(0, Math.max(1, doneInWorld));
     const flowPath = flowPts.map((p, i) => (i ? 'L' : 'M') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
     const dur = Math.max(6, flowPts.length * 0.7);
+    const mkLight = (r, del, durMul, op) =>
+      '<circle r="' + r + '" fill="' + acc + '" style="filter:drop-shadow(0 0 ' + (r * 2) + 'px ' + acc + ')">' +
+      '  <animateMotion dur="' + (dur * durMul) + 's" begin="' + del + 's" repeatCount="indefinite" rotate="auto">' +
+      '    <mpath href="#flowPathRef" xlink:href="#flowPathRef"/>' +
+      '  </animateMotion>' +
+      '  <animate attributeName="opacity" values="0;' + op + ';' + op + ';0" keyTimes="0;0.06;0.92;1" dur="' + (dur * durMul) + 's" begin="' + del + 's" repeatCount="indefinite"/>' +
+      '</circle>';
     el.mapSvg.innerHTML =
       '<polyline points="' + toStr(pts) + '" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2" stroke-dasharray="1 9" stroke-linecap="round"/>' +
       (flowPts.length > 1 ?
-        '<polyline class="flow" points="' + toStr(flowPts) + '" fill="none" stroke="' + acc + '" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="1 9" stroke-linecap="round"/>' +
+        // tamamlanan yol: nabız gibi akan çizgi (dash kayması)
+        '<polyline points="' + toStr(flowPts) + '" fill="none" stroke="' + acc + '" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="1 9" stroke-linecap="round">' +
+        '  <animate attributeName="stroke-dashoffset" from="0" to="-40" dur="3.2s" repeatCount="indefinite"/>' +
+        '</polyline>' +
         '<path id="flowPathRef" d="' + flowPath + '" fill="none" stroke="none"/>' +
-        '<circle r="4" fill="' + acc + '" style="filter:drop-shadow(0 0 6px ' + acc + ')">' +
-        '  <animateMotion dur="' + dur + 's" repeatCount="indefinite" rotate="auto">' +
-        '    <mpath href="#flowPathRef" xlink:href="#flowPathRef"/>' +
-        '  </animateMotion>' +
-        '  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.06;0.92;1" dur="' + dur + 's" repeatCount="indefinite"/>' +
-        '</circle>' : '');
+        // kuyruklu ana ışık: iki soluk iz + parlak baş (kuyruklu yıldız hissi)
+        mkLight(2, 0.28, 1, 0.28) +
+        mkLight(3, 0.14, 1, 0.5) +
+        mkLight(4.5, 0, 1, 1) +
+        // ikinci, daha yavaş yoldaş ışık — haritaya derinlik katar
+        mkLight(2.5, dur * 0.45, 1.6, 0.55)
+        : '');
     const curLvl = clamp(G.maxLevel, first, last);
     let curY = pts[0].y;
     if (G.maxLevel > last) curY = pts[pts.length - 1].y; // dünya tamamen bitmişse sonunu göster
@@ -2550,6 +2899,7 @@ const UI = (() => {
     if (typeof w === 'number') G.viewWorld = clamp(w, 0, WORLD_COUNT - 1);
     else if (G.mode === 'level' && G.level) G.viewWorld = worldOf(G.level); // oynanan bölümün dünyası
     else G.viewWorld = worldOf(Math.min(G.maxLevel, MAX_LEVEL));
+    G.themeWorld = G.viewWorld; applyThemes(); // harita, dünyasının renklerine bürünür
     ['hud', 'joker', 'menu', 'shop', 'tut', 'worlds'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
     hideModal();
@@ -2567,7 +2917,7 @@ const UI = (() => {
       const doneCount = clamp(G.maxLevel - first, 0, LEVELS_PER_WORLD);
       const unlocked = worldUnlocked(w);
       const acc = WORLDS[w].accent;
-      const bg = SHOP.backgrounds[WORLDS[w].bgId] || SHOP.backgrounds.night;
+      const bg = WORLD_THEMES[w].bg;
 
       const card = document.createElement('div');
       card.className = 'worldcard' + (unlocked ? '' : ' locked');
@@ -2607,6 +2957,7 @@ const UI = (() => {
   }
   function showWorlds() {
     G.state = 'menu';
+    G.themeWorld = null; applyThemes();
     endTrial();
     ['hud', 'joker', 'menu', 'map', 'shop', 'tut'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
@@ -2944,6 +3295,7 @@ const UI = (() => {
   }
   function showShop() {
     G.state = 'menu';
+    G.themeWorld = null; applyThemes();
     endTrial();
     ['hud', 'joker', 'menu', 'map', 'tut', 'worlds'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
@@ -2963,14 +3315,14 @@ const UI = (() => {
   }
 
   /* ---- yüzen yazı & toast ---- */
-  function floatText(pos, txt) {
+  function floatText(pos, txt, big) {
     const d = document.createElement('div');
-    d.className = 'floatxt';
+    d.className = 'floatxt' + (big ? ' bigpraise' : '');
     d.textContent = txt;
     d.style.left = pos.x * SC + 'px';
     d.style.top = pos.y * SC + 'px';
     el.fx.appendChild(d);
-    setTimeout(() => d.remove(), 1400);
+    setTimeout(() => d.remove(), big ? 1900 : 1400);
   }
   function toast(txt) {
     const d = document.createElement('div');
