@@ -180,6 +180,28 @@
   #mLevelBtn { border-color:rgba(125,240,192,0.4); box-shadow:0 0 22px rgba(125,240,192,0.09) inset, 0 0 18px rgba(125,240,192,0.06); }
   #mZenBtn.locked { color:var(--dim); }
   #howBtn { background:none; border:none; color:var(--dim); font-size:11px; letter-spacing:0.14em; cursor:pointer; margin-top:8px; padding:8px; }
+  /* ---------- Günlük Lotus ---------- */
+  #lotus {
+    position:absolute; right:16px; bottom:52px; cursor:pointer;
+    opacity:0.35; filter:grayscale(0.6); transform:scale(0.8);
+    transition:opacity 0.6s, filter 0.6s, transform 0.6s;
+  }
+  #lotus svg .petals path { fill:rgba(255,158,210,0.5); stroke:rgba(255,255,255,0.35); stroke-width:1; }
+  #lotus svg .core { fill:#FFD86B; }
+  #lotus.bloom {
+    opacity:1; filter:none; transform:scale(1);
+    animation: lotusBreath 3.2s ease-in-out infinite;
+  }
+  #lotus.bloom svg { filter:drop-shadow(0 0 12px rgba(255,158,210,0.7)); }
+  #lotus.bloom svg .petals path { fill:rgba(255,158,210,0.85); }
+  @keyframes lotusBreath { 0%,100% { transform:scale(1); } 50% { transform:scale(1.09); } }
+  #lotus.bloom::after {
+    content:''; position:absolute; inset:-6px; border-radius:50%;
+    border:1px solid rgba(255,216,107,0.6);
+    animation: nring 2.4s ease-out infinite;
+  }
+  /* ---------- Bonsai ---------- */
+  #bonsai { position:absolute; left:10px; bottom:44px; pointer-events:none; opacity:0.9; }
   #langBtn {
     position:absolute; top:max(14px, env(safe-area-inset-top)); right:14px;
     width:46px; height:30px; border-radius:999px;
@@ -434,6 +456,12 @@
   .card h2 { font-size:15px; font-weight:300; letter-spacing:0.3em; color:var(--mint); margin-bottom:12px; text-transform:lowercase; }
   .mbody p { font-size:12.5px; color:var(--dim); letter-spacing:0.05em; margin:5px 0; }
   .mbody .big { font-size:36px; font-weight:200; color:#fff; letter-spacing:0.04em; margin:10px 0; }
+  .haiku {
+    font-style:italic; font-size:11.5px; line-height:1.85;
+    color:rgba(255,255,255,0.5); letter-spacing:0.06em;
+    margin:10px 0 4px; padding:8px 0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
   .coinbreak { margin:2px 0 8px; }
   .coinbreak p { font-size:11.5px; color:rgba(255,255,255,0.4); margin:2px 0; }
   .mbody .glowline { color:var(--lav); text-shadow:0 0 14px rgba(179,157,255,0.5); font-size:13px; margin-top:10px; }
@@ -578,6 +606,19 @@
       <button class="mainbtn" id="mShopBtn">◇ &nbsp;Mağaza</button>
       <button id="howBtn">❓ nasıl oynanır</button>
       <div class="menufoot" id="menuFoot">aynı renkleri birleştir — dalgayı izle</div>
+      <div id="bonsai" aria-hidden="true"></div>
+      <div id="lotus" aria-label="günlük lotus">
+        <svg viewBox="0 0 60 48" width="52" height="42">
+          <g class="petals">
+            <path d="M30 40 C18 34 14 22 18 12 C26 18 30 26 30 40Z"/>
+            <path d="M30 40 C42 34 46 22 42 12 C34 18 30 26 30 40Z"/>
+            <path d="M30 40 C22 30 22 16 30 6 C38 16 38 30 30 40Z"/>
+            <path d="M30 40 C12 36 6 28 6 20 C16 20 24 26 30 40Z"/>
+            <path d="M30 40 C48 36 54 28 54 20 C44 20 36 26 30 40Z"/>
+          </g>
+          <circle class="core" cx="30" cy="30" r="4"/>
+        </svg>
+      </div>
     </div>
 
     <div id="splash">
@@ -666,6 +707,10 @@ const ROWH = R * Math.sqrt(3);
 const TOP = 100;
 const BALL_R = R * 0.80;
 const SPEED = 660;
+const BREATH_MS = 4200;              // nefes döngüsü süresi
+const PERFECT_WINDOW = 0.86;         // nefes değeri bunun üstündeyken bırakılan atış "mükemmel"
+/* 0..1 nefes değeri: yavaşça dolar (nefes al), tepede kısa durur, iner (ver) */
+function breathVal(now) { return 0.5 + 0.5 * Math.sin((now % BREATH_MS) / BREATH_MS * TAU - Math.PI / 2); }
 const AIM_MAX_ANGLE = 80 * Math.PI / 180; // dikeyden en fazla sapma — geniş açı, alttan seke seke atış imkanı
 const AIM_DEADZONE = 10;             // fırlatıcı hizasındaki geçersiz bölge (yön belirsizliğini önler)
 const AIM_MIN_PULL = 26;             // sapan modunda nişan için gereken en az çekme mesafesi
@@ -779,6 +824,18 @@ const LANGS = {
     newStone: '🪨 Taş blok: hiçbir renge uymaz — komşusu patlayınca düşer',
     newChain: '🔗 Zincirli obje: sadece zincirleme patlamayla kırılır',
     restLevel: '🍃 dinlenme bölümü — akışın tadını çıkar',
+    haikus: [
+      'sis usulca kalkar<br>ilk ışık yaprağa değer<br>yol yeni başlar',
+      'gölgede sessiz<br>vadi nefesini tutar<br>ay taşa dokunur',
+      'derinde akıntı<br>balıklar rüya görür<br>su hep hatırlar',
+      'yıldız tozu düşer<br>avucunda gece parlar<br>evren bir nefes',
+      'şafak sökerken<br>turuncu bir dua yükselir<br>gökyüzü ısınır',
+      'bahçede rüzgar<br>çiçekler adını bilir<br>sükût yeşerir',
+      'mercan dallanır<br>renkler suda dans eder<br>rüya derindir',
+      'mor ufka doğru<br>son bulut da eriyip gider<br>akşam genişler',
+      'kor çiçek açar<br>ateş kendi küllerinden<br>yeniden doğar',
+      'zirvede sessizlik<br>bulutların üstünde sen<br>yol tamamlandı',
+    ],
     praise: ['muhteşem ✦', 'akış içindesin', 'zen ustası', 'kusursuz', 'derin nefes ✦', 'mükemmel seri'],
     lvlHints: [
       '☝️ yukarı dokun: ok oraya bakar · aşağı çek: sapan gibi',
@@ -839,6 +896,10 @@ const LANGS = {
     confirm: 'Onayla', cancel: 'Vazgeç', boughtToast: '✦ {name} artık senin',
     gotCoins: '+{n} ⬡ ✦',
     daily: '🎁 günlük sükunet hediyesi +30 ⬡',
+    lotusClaim: '🪷 lotus açtı — +{n} ⬡ (seri: {s} gün)',
+    lotusReady: 'lotus senin için açtı — dokun',
+    lotusDone: 'lotus yarın yeniden açacak',
+    perfectShot: 'mükemmel atış ✦',
     breathTxt: 'nefes al · nefes ver',
     tiSub: 'hedefi temizle',
     tutS1: 'parmağını basılı tut ve <b>geriye çek</b> — bıraktığında top yukarı süzülür',
@@ -858,6 +919,18 @@ const LANGS = {
     newStone: '🪨 Stone block: matches no color — falls when its neighbor pops',
     newChain: '🔗 Chained orb: only a chain-clear breaks it',
     restLevel: '🍃 rest level — enjoy the flow',
+    haikus: [
+      'mist gently lifting<br>first light touches a green leaf<br>the road begins here',
+      'silent in shadow<br>the valley holds its own breath<br>moon rests on the stone',
+      'currents in the deep<br>fish are dreaming in silver<br>water remembers',
+      'stardust drifting down<br>the night glows inside your palm<br>the cosmos, one breath',
+      'as the dawn breaks through<br>an orange prayer rises up<br>the whole sky grows warm',
+      'wind in the garden<br>every flower knows your name<br>stillness turns to green',
+      'coral branches out<br>colors dance beneath the waves<br>the dream deepens here',
+      'toward violet skies<br>the last cloud dissolves away<br>evening opens wide',
+      'an ember blossoms<br>fire from its own ashes<br>is born once again',
+      'silence at the peak<br>you stand above the clouds now<br>the journey is whole',
+    ],
     praise: ['magnificent ✦', 'in the flow', 'zen master', 'flawless', 'deep breath ✦', 'perfect streak'],
     lvlHints: [
       '☝️ tap above: the arrow follows · pull below: slingshot',
@@ -918,6 +991,10 @@ const LANGS = {
     confirm: 'Confirm', cancel: 'Cancel', boughtToast: '✦ {name} is yours',
     gotCoins: '+{n} ⬡ ✦',
     daily: '🎁 daily calm gift +30 ⬡',
+    lotusClaim: '🪷 the lotus bloomed — +{n} ⬡ (streak: {s} days)',
+    lotusReady: 'the lotus bloomed for you — tap it',
+    lotusDone: 'the lotus will bloom again tomorrow',
+    perfectShot: 'perfect shot ✦',
     breathTxt: 'breathe in · breathe out',
     tiSub: 'clear the goal',
     tutS1: 'hold your finger down and <b>pull back</b> — release, and the orb glides upward',
@@ -1743,7 +1820,27 @@ function attachFly() {
     if (bestIdx != null) b.idx = bestIdx;
   }
   const popped = popGroup(key(cell.r, cell.c), 160);
-  if (!popped) { G.combo = 0; Sfx.softNote(180, 0.045, 0.5); vibrate(4); }
+  // ✦ mükemmel atış: çarpma noktasında geniş patlama — komşular renk fark etmeksizin erir
+  let blasted = 0;
+  if (f.perfect) {
+    const nowP = performance.now();
+    for (const nk of neighborKeys(cell.r, cell.c)) {
+      const nb = G.grid.get(nk);
+      if (!nb || nb.type === 'stone') continue;
+      G.grid.delete(nk);
+      nb.popAt = nowP + 220 + blasted * 60;
+      nb.depth = 1 + blasted; nb.popStarted = 0;
+      G.pops.push(nb); G.pendingPops++;
+      blasted++;
+    }
+    if (blasted > 0) {
+      spawnRipple(p.x, p.y, '#FFD86B', true);
+      UI.floatText(p, T('perfectShot'), false, 7);
+      if (!popped) G.combo++; // mükemmel patlama zinciri düşürmez
+      setTimeout(dropUnsupported, 380);
+    }
+  }
+  if (!popped && !blasted) { G.combo = 0; Sfx.softNote(180, 0.045, 0.5); vibrate(4); }
   if (G.mode === 'zen' && !popped && p.y + BALL_R > H - 252) {
     G.resolveLock = true;
     setTimeout(() => UI.zenOver(), 500);
@@ -1863,10 +1960,12 @@ function launch(dir) {
     G.zenShots++;
     if (G.zenShots % zenDropEvery() === 0) G.zenRowPending = true;
   }
-  G.fly = { x: LAUNCH.x, y: LAUNCH.y, vx: dir.x * SPEED, vy: dir.y * SPEED, idx: G.cur, rainbow: G.curRainbow };
+  const perfect = breathVal(performance.now()) >= PERFECT_WINDOW;
+  G.fly = { x: LAUNCH.x, y: LAUNCH.y, vx: dir.x * SPEED, vy: dir.y * SPEED, idx: G.cur, rainbow: G.curRainbow, perfect };
   G.curRainbow = false;
   refillQueue(false);
   Sfx.whoosh();
+  if (perfect) { Sfx.softNote(1046.5, 0.06, 1.6); spawnRipple(LAUNCH.x, LAUNCH.y, '#FFD86B', false); }
   UI.refresh();
 }
 
@@ -2484,9 +2583,15 @@ function render(now) {
 }
 
 function drawLauncher(now) {
-  ctx.strokeStyle = hexToRgba(CUR_ACCENT, 0.22);
-  ctx.lineWidth = 1.4;
-  ctx.beginPath(); ctx.arc(LAUNCH.x, LAUNCH.y, BALL_R * 1.5, 0, TAU); ctx.stroke();
+  // nefes halkası: döngüyle şişer/söner; tepe penceresinde altın ışır — "mükemmel atış" anı
+  const bv = breathVal(now);
+  const inWin = bv >= PERFECT_WINDOW;
+  const ringR = BALL_R * (1.28 + 0.5 * bv);
+  ctx.strokeStyle = inWin ? 'rgba(255,216,107,' + (0.5 + 0.3 * Math.sin(now * 0.02)) + ')' : hexToRgba(CUR_ACCENT, 0.16 + 0.18 * bv);
+  ctx.lineWidth = inWin ? 2 : 1.4;
+  if (inWin) { ctx.save(); ctx.shadowColor = '#FFD86B'; ctx.shadowBlur = 10; }
+  ctx.beginPath(); ctx.arc(LAUNCH.x, LAUNCH.y, ringR, 0, TAU); ctx.stroke();
+  if (inWin) ctx.restore();
 
   if (G.aiming && G.aimVec) {
     const { pts, hit } = traceAim(G.aimVec);
@@ -2694,6 +2799,8 @@ const UI = (() => {
       Sfx.click();
     });
     el.mLevelBtn.addEventListener('click', () => { Sfx.start(); Sfx.click(); showWorlds(); });
+    const lotusEl = $('lotus');
+    if (lotusEl) lotusEl.addEventListener('click', () => { Sfx.start(); claimLotus(); });
     el.mShopBtn.addEventListener('click', () => { Sfx.start(); Sfx.click(); showShop(); });
     el.howBtn.addEventListener('click', () => { Sfx.start(); Sfx.click(); showTutorial(false); });
     el.langBtn.addEventListener('click', () => {
@@ -2741,14 +2848,69 @@ const UI = (() => {
     else { showMenu(); dailyGift(); }
   }
 
-  /* ---- günlük sükunet hediyesi ---- */
-  function dailyGift() {
+  /* ---- günlük sükunet hediyesi: menüde açan lotus ---- */
+  function dailyAvailable() {
+    return store.get('zx_day', '') !== new Date().toISOString().slice(0, 10);
+  }
+  function claimLotus() {
+    if (!dailyAvailable()) return;
     const today = new Date().toISOString().slice(0, 10);
-    if (store.get('zx_day', '') !== today) {
-      store.set('zx_day', today);
-      G.coins += 30; saveCoins();
-      setTimeout(() => toast(T('daily')), 900);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    let streak = store.get('zx_day_streak', 0);
+    streak = (store.get('zx_day', '') === yesterday) ? streak + 1 : 1;
+    store.set('zx_day', today); store.set('zx_day_streak', streak);
+    const reward = 30 + Math.min(streak - 1, 6) * 5; // seri büyüdükçe 30→60
+    G.coins += reward; saveCoins();
+    Sfx.levelUp(); vibrate(18);
+    toast(T('lotusClaim', { n: reward, s: streak }));
+    updateLotus();
+    buildBonsai();
+  }
+  function updateLotus() {
+    const el2 = $('lotus');
+    if (!el2) return;
+    const open = dailyAvailable();
+    el2.classList.toggle('bloom', open);
+    el2.title = open ? T('lotusReady') : T('lotusDone');
+  }
+  function dailyGift() { updateLotus(); }
+
+  /* ---- 🌳 Bonsai: ilerlemeyle büyüyen prosedürel ağaç ----
+     Deterministik tohum: ağaç her açılışta AYNI görünür, sadece büyür.
+     Büyüme = tamamlanan dünya sayısı; çiçekler = zen rekoru kademeleri. */
+  function buildBonsai() {
+    const holder = $('bonsai');
+    if (!holder) return;
+    const worlds = clamp(Math.floor((G.maxLevel - 1) / LEVELS_PER_WORLD), 0, WORLD_COUNT);
+    const depth = 2 + Math.min(worlds, 6);            // dal derinliği: 2 → 8
+    const blooms = G.best >= 6000 ? 3 : G.best >= 3000 ? 2 : G.best >= 1000 ? 1 : 0;
+    let seed = 1903;
+    const rand = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+    const paths = [], flowers = [], leaves = [];
+    function branch(x, y, ang, len, d) {
+      if (d <= 0 || len < 2.5) {
+        if (blooms > 0 && rand() < 0.16 * blooms) flowers.push([x, y]);
+        else if (d <= 0) leaves.push([x, y]);
+        return;
+      }
+      const x2 = x + Math.cos(ang) * len, y2 = y - Math.sin(ang) * len;
+      paths.push('M' + x.toFixed(1) + ',' + y.toFixed(1) + ' L' + x2.toFixed(1) + ',' + y2.toFixed(1) + '|' + Math.max(0.7, d * 0.55).toFixed(1));
+      const forks = d >= depth - 1 ? 2 : (rand() < 0.35 ? 3 : 2);
+      for (let i = 0; i < forks; i++) {
+        branch(x2, y2, ang + (rand() - 0.5) * 1.5 + (i - (forks - 1) / 2) * 0.55, len * (0.62 + rand() * 0.16), d - 1);
+      }
     }
+    branch(34, 62, Math.PI / 2 + 0.12, 15, depth);
+    const svg = ['<svg viewBox="0 0 68 70" width="86" height="88">'];
+    svg.push('<ellipse cx="34" cy="64" rx="17" ry="4.5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>');
+    for (const p of paths) {
+      const [dstr, wstr] = p.split('|');
+      svg.push('<path d="' + dstr + '" stroke="rgba(200,180,160,0.75)" stroke-width="' + wstr + '" stroke-linecap="round" fill="none"/>');
+    }
+    for (const [x, y] of leaves) svg.push('<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="1.7" fill="rgba(125,240,192,0.55)"/>');
+    for (const [x, y] of flowers) svg.push('<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2.1" fill="rgba(255,158,210,0.9)"/>');
+    svg.push('</svg>');
+    holder.innerHTML = svg.join('');
   }
 
   /* ---- eğitim ---- */
@@ -2873,6 +3035,7 @@ const UI = (() => {
   function showMenu() {
     G.state = 'menu';
     G.themeWorld = null; applyThemes();
+    updateLotus();
     endTrial();
     ['hud', 'joker', 'map', 'shop', 'tut', 'worlds'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
@@ -3127,7 +3290,9 @@ const UI = (() => {
       return;
     }
 
+    const hk = ((LANGS[LANG] || LANGS.tr).haikus || [])[w];
     const body = '<p>' + T('milestoneBody', { w: WN(w) }) + '</p>' +
+      (hk ? '<p class="haiku">' + hk + '</p>' : '') +
       '<p class="big">+' + (total + W_.reward) + ' ⬡</p>' +
       '<div class="coinbreak">' +
       '<p>' + T('fromOrbs', { a: G.levelCoins }) + '</p>' +
