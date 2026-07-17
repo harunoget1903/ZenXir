@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -204,8 +203,6 @@
     border:1px solid rgba(255,216,107,0.6);
     animation: nring 2.4s ease-out infinite;
   }
-  /* ---------- Bonsai ---------- */
-  #bonsai { position:absolute; left:10px; bottom:44px; pointer-events:none; opacity:0.9; }
   #langBtn {
     position:absolute; top:max(14px, env(safe-area-inset-top)); right:14px;
     width:46px; height:30px; border-radius:999px;
@@ -231,6 +228,38 @@
   .tutbtns { display:flex; flex-direction:column; gap:4px; align-items:center; }
   #tutNext { text-align:center; width:190px; }
   #tutSkip { background:none; border:none; color:var(--dim); font-size:11px; letter-spacing:0.2em; cursor:pointer; padding:10px; }
+
+  /* ---------- 🎓 Koç (etkileşimli rehber) ---------- */
+  #coach {
+    position:absolute; left:0; right:0; bottom:150px; z-index:18;
+    display:flex; justify-content:center; pointer-events:none;
+  }
+  .coachcard {
+    max-width:82%; padding:13px 16px 11px;
+    background:rgba(12,15,22,0.96);
+    border:1px solid rgba(var(--th-a1),0.55); border-radius:16px;
+    box-shadow:0 0 24px rgba(var(--th-a1),0.22), 0 6px 22px rgba(0,0,0,0.5);
+    pointer-events:auto;
+    animation: coachIn 0.45s cubic-bezier(0.34,1.3,0.64,1) both;
+  }
+  @keyframes coachIn { from { opacity:0; transform:translateY(14px) scale(0.94); } to { opacity:1; transform:none; } }
+  #coachTxt { font-size:12.5px; line-height:1.65; color:rgba(255,255,255,0.92); letter-spacing:0.03em; }
+  #coachTxt b { color:rgb(var(--th-a1)); font-weight:600; }
+  #coachBtn {
+    margin-top:9px; padding:7px 14px; width:100%;
+    background:rgba(var(--th-a1),0.14); color:rgb(var(--th-a1));
+    border:1px solid rgba(var(--th-a1),0.5); border-radius:10px;
+    font-size:11.5px; letter-spacing:0.14em; cursor:pointer;
+  }
+  .chip.spot {
+    border-color:rgb(var(--th-a1)) !important;
+    animation: chipSpot 1.2s ease-in-out infinite;
+    position:relative; z-index:19;
+  }
+  @keyframes chipSpot {
+    0%,100% { box-shadow:0 0 0 rgba(var(--th-a1),0); transform:scale(1); }
+    50% { box-shadow:0 0 16px rgba(var(--th-a1),0.75); transform:scale(1.07); }
+  }
 
   /* ---------- Zen Bahçesi ---------- */
   #gardenOverlay {
@@ -562,11 +591,11 @@
       <div class="spacer"></div>
       <div class="chip" id="chipShots"><span class="lbl" id="shotLbl">atış</span><span class="val" id="shotsVal">10</span></div>
       <div class="chip" id="chipScore"><span class="lbl" id="scoreLbl">skor</span><span class="val" id="scoreVal">0</span></div>
-      <div class="chip" id="chipCoins"><span class="lbl" id="goldLbl">altın</span><span class="val" id="coinsVal">⬡ 0</span></div>
+      <div class="chip" id="chipCoins"><span class="lbl" id="goldLbl">inci</span><span class="val" id="coinsVal">❖ 0</span></div>
       <button class="iconbtn" id="btnMute" aria-label="Ses">♪</button>
     </div>
 
-    <button id="jokerBtn" class="hidden">◈ joker <small>50⬡</small></button>
+    <button id="jokerBtn" class="hidden">◈ joker <small>50❖</small></button>
 
     <div id="targetIntro" class="hidden">
       <canvas id="tiCanvas"></canvas>
@@ -578,7 +607,7 @@
       <div class="maphead">
         <button class="iconbtn" id="gardenBack" aria-label="Geri">←</button>
         <span id="gardenTitleTxt">zen bahçesi</span>
-        <span class="mapcoins"><span id="gardenStonesTxt">⬢ 0</span>&nbsp;&nbsp;<span id="gardenSeedsTxt">✧ 0</span></span>
+        <span class="mapcoins"><span id="gardenStonesTxt">⬢ 0</span>&nbsp;&nbsp;<span id="gardenSeedsTxt">✧ 0</span>&nbsp;&nbsp;<button class="iconbtn" id="gardenHelp" aria-label="Yardım">?</button></span>
       </div>
       <div id="gardenWrap"><canvas id="gardenCanvas"></canvas></div>
       <div id="gardenHintTxt">parmağınla kumu tırmıkla</div>
@@ -588,7 +617,7 @@
       <div class="maphead">
         <button class="iconbtn" id="worldsBack" aria-label="Geri">←</button>
         <span id="worldsTitleTxt">dünyalar</span>
-        <span class="mapcoins" id="worldCoins">⬡ 0</span>
+        <span class="mapcoins" id="worldCoins">❖ 0</span>
       </div>
       <div id="worldScroll"><div id="worldList"></div></div>
     </div>
@@ -598,7 +627,7 @@
       <div class="maphead">
         <button class="iconbtn" id="mapBack" aria-label="Geri">←</button>
         <span id="mapTitleTxt">yolculuk</span>
-        <span class="mapcoins" id="mapCoins">⬡ 0</span>
+        <span class="mapcoins" id="mapCoins">❖ 0</span>
       </div>
       <div id="mapScroll"><svg id="mapSvg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg><div id="mapNodes"></div></div>
     </div>
@@ -607,7 +636,7 @@
       <div class="maphead">
         <button class="iconbtn" id="shopBack" aria-label="Geri">←</button>
         <span id="shopTitleTxt">mağaza</span>
-        <span class="mapcoins" id="shopCoins">⬡ 0</span>
+        <span class="mapcoins" id="shopCoins">❖ 0</span>
       </div>
       <div id="shopScroll"><div id="shopList"></div></div>
     </div>
@@ -635,7 +664,6 @@
       <button class="mainbtn" id="mGardenBtn">⛩ &nbsp;Zen Bahçesi</button>
       <button id="howBtn">❓ nasıl oynanır</button>
       <div class="menufoot" id="menuFoot">aynı renkleri birleştir — dalgayı izle</div>
-      <div id="bonsai" aria-hidden="true"></div>
       <div id="lotus" aria-label="günlük lotus">
         <svg viewBox="0 0 60 48" width="52" height="42">
           <g class="petals">
@@ -665,6 +693,12 @@
 
     <div id="modal" class="hidden"></div>
     <div id="fx"></div>
+    <div id="coach" class="hidden">
+      <div class="coachcard">
+        <div id="coachTxt"></div>
+        <button id="coachBtn">devam →</button>
+      </div>
+    </div>
   </div>
 
 <script>
@@ -737,7 +771,7 @@ const TOP = 100;
 const BALL_R = R * 0.80;
 const SPEED = 660;
 const BREATH_MS = 4200;              // nefes döngüsü süresi
-const PERFECT_WINDOW = 0.92;         // nefes değeri bunun üstündeyken bırakılan atış "mükemmel"
+const PERFECT_WINDOW = 0.95;         // nefes değeri bunun üstündeyken bırakılan atış "mükemmel"
 /* 0..1 nefes değeri: yavaşça dolar (nefes al), tepede kısa durur, iner (ver) */
 function breathVal(now) { return 0.5 + 0.5 * Math.sin((now % BREATH_MS) / BREATH_MS * TAU - Math.PI / 2); }
 /* rüzgar alanı: y'ye bağlı yanal ivme — hem uçuş hem nişan aynı formülü kullanır */
@@ -750,7 +784,7 @@ const WORLD_COUNT = 10;
 const MAX_LEVEL = LEVELS_PER_WORLD * WORLD_COUNT; // 1000 bölüm, 10 dünya
 const THEME_COIN = 600;          // kozmetik altın fiyatı
 const AD_COINS = 40;             // reklam başına altın
-const JOKER_COST = 50;           // joker gücü altın fiyatı
+const JOKER_COST = 100;          // joker gücü inci fiyatı
 const FIXED_SHOTS = 15;          // (artık kullanılmıyor — atış dinamik; referans olarak duruyor)
 
 /* ⚠️ TEST MODU — üretimde false yap.
@@ -848,7 +882,7 @@ const BASE_COLORS = PALETTE.map(p => p.c);
 /* ---------- Dil (i18n) — TR + EN ---------- */
 const LANGS = {
   tr: {
-    lblSection: 'bölüm', lblMode: 'mod', lblTarget: 'hedef', lblShots: 'atış', lblScore: 'skor', lblGold: 'altın', lblBest: 'rekor',
+    lblSection: 'bölüm', lblMode: 'mod', lblTarget: 'hedef', lblShots: 'atış', lblScore: 'skor', lblGold: 'inci', lblBest: 'rekor',
     zen: 'zen ∞', next: 'sıradaki', swapLabel: 'değiştir', shotsLeft: '➳ {n} atış kaldı',
     swapHint: '⇄ sıradaki topa dokun — yer değiştirir',
     newIce: '❄️ Buzlu obje: yanında 2 patlama olunca kırılır',
@@ -885,19 +919,19 @@ const LANGS = {
     tapHint: 'devam etmek için dokun',
     zenLockToast: 'Zen Modu, Seviye 10 tamamlanınca açılır',
     devUnlock: '🌙 sabırlı parmaklar… zen modu açıldı',
-    needGold: '⬡ {n} altın gerekli',
+    needGold: '❖ {n} altın gerekli',
     jokerReady: '◈ joker hazır — her renge uyum sağlar',
-    joker: '◈ joker <small>50⬡</small>', jokerSet: '◈ hazır',
+    joker: '◈ joker <small>100❖</small>', jokerSet: '◈ hazır',
     pause: 'mola', breathe: 'derin bir nefes al…',
     resume: 'Devam et', restartBtn: 'Yeniden başlat', mapBtn: 'Harita', menuBtn: 'Menü',
     lvlTitle: 'seviye {n} ✦', mindCalm: 'zihin duruldu',
-    fromOrbs: 'objelerden  +{a} ⬡',
-    fromBonus: 'bitirme bonusu  +{b} ⬡',
+    fromOrbs: 'objelerden  +{a} ❖',
+    fromBonus: 'bitirme bonusu  +{b} ❖',
     zenUnlockedLine: '∞ Zen Modu açıldı',
     continueBtn: 'Devam →',
     outTitle: 'atışlar bitti', outBody: 'hedefe <b>{n}</b> {s} kaldı',
     adShots: '▶ &nbsp;Reklam izle <small>+3 atış</small>',
-    buyShots: '⬡ 30 &nbsp;ile +3 atış', retry: 'Yeniden dene',
+    buyShots: '❖ 30 &nbsp;ile +3 atış', retry: 'Yeniden dene',
     adTitle: 'reklam', adSim: 'simülasyon…', shotsGrant: '+3 atış ✦',
     zenOverTitle: 'zen sona erdi', newRec: '♛ yeni rekor ♛', bestIs: 'en iyi: ♛ {n}',
     adCont: '▶ &nbsp;Reklam izle <small>— skoru koru, devam et</small>',
@@ -916,18 +950,18 @@ const LANGS = {
     doneBody: '1000 bölümün hepsi duruldu.<br>artık akış senin: zen modu.',
     zenGo: '∞ Zen Moduna geç',
     shopTitle: 'mağaza',
-    freeGold: 'ücretsiz altın', adCoins: '▶ &nbsp;Reklam izle <small>+{n} ⬡</small>',
+    freeGold: 'ücretsiz inci', adCoins: '▶ &nbsp;Reklam izle <small>+{n} ❖</small>',
     packs: 'altın paketleri', palettes: 'paletler', backgrounds: 'arka planlar',
     tryBtn: 'Dene', buyBtn: '₺49,99', activeTag: 'aktif', useBtn: 'Kullan',
     trialToast: 'deneme başladı — beğenirsen alabilirsin',
     trialLine: '◈ tema denemesi',
     buyTitle: 'satın alma',
     buyBody: '{name}<br><b>{p}</b><br><small>ödeme simülasyonu — prototip</small>',
-    coinBody: '{name}<br><b>⬡ {n}</b>',
+    coinBody: '{name}<br><b>❖ {n}</b>',
     confirm: 'Onayla', cancel: 'Vazgeç', boughtToast: '✦ {name} artık senin',
-    gotCoins: '+{n} ⬡ ✦',
-    daily: '🎁 günlük sükunet hediyesi +30 ⬡',
-    lotusClaim: '🪷 lotus açtı — +{n} ⬡ (seri: {s} gün)',
+    gotCoins: '+{n} ❖ ✦',
+    daily: '🎁 günlük sükunet hediyesi +30 ❖',
+    lotusClaim: '🪷 lotus açtı — +{n} ❖ (seri: {s} gün)',
     lotusReady: 'lotus senin için açtı — dokun',
     lotusDone: 'lotus yarın yeniden açacak',
     perfectShot: 'mükemmel atış ✦',
@@ -939,19 +973,40 @@ const LANGS = {
     gardenHint: 'parmağınla kumu tırmıkla',
     gardenStones: '⬢ {n}', gardenSeeds: '✧ {n}',
     shareBtn: 'paylaş',
+    coachNext: 'devam →',
+    lvlWon: 'bölüm tamam ✦',
+    treeName: 'ruh ağacı',
+    g4a: '🖐 Burası <b>zen bahçen</b>. Parmağını kumda gezdir — tırmık izlerin ışır, kum fısıldar.',
+    g4b: '🌳 Ortadaki <b>Ruh Ağacı</b>: her dünya bitirdiğinde dallanır. Günlük ödülün hazırsa dallarında <b>lotuslar açar</b> — ağaca dokun, topla.',
+    g4c: '⬢ Soldaki <b>anı taşları</b>: bir bölümü hiç boşa atış yapmadan bitirince kazanılır. Parayla alınamaz.',
+    g4d: '✧ <b>Ateş böcekleri</b>: oyunda 4x+ combo yaptığında düşen ışık tohumlarından doğar. Gece daha parlaktır.',
+    g4e: '🐟 Sağ alttaki <b>koi göleti</b>: zen modunda her 2000 rekor puanı yeni bir koi getirir. Parmağını yaklaştır — sana yüzerler.',
+    lotusTree: '🪷 ağaç lotus verdi — +{n} ❖',
+    g1a: '◎ Bu senin <b>HEDEFİN</b>: yukarıdaki sembolden <b>{n} tane</b> patlatmalısın. Sayaç <b>0\'a inince</b> bölüm biter!',
+    g1b: '➳ Bu da <b>atış hakkın: {s}</b>. Sınırlı! Her atış en az bir grup patlatmalı.',
+    g1c: '✨ Şimdi sen: <b>parlayan gruba</b> dokun ve bırak — aynı renkler birlikte erir.',
+    g1d: 'Gördün mü? Hedef sayacı <b>azaldı</b>. 0\'a indir, bölüm senindir 🌊',
+    g1e: '⇄ Son bir şey: sağdaki <b>sıradaki topa dokun</b> — elindekiyle yer değişir. Dene!',
+    g2a: '✦ Fırlatıcı halkası nefes alıyor — <b>ALTIN parladığı anda</b> bırakırsan atışın <b>mükemmel</b> olur: iniş noktasındaki tüm komşular patlar.',
+    g2b: '◈ Sıkışırsan alttaki <b>joker</b> düğmesi (100❖): top her renge uyum sağlar.',
+    g3a: '⬢ Ustalık ipucu: bölümü <b>hiç boşa atış yapmadan</b> bitir → <b>anı taşı</b> kazan. Parayla alınamaz, bahçende sergilenir.',
+    g3b: '✧ 4x ve üzeri combo → <b>ışık tohumu</b> düşer → zen bahçende ateş böceğine dönüşür. Bahçen seninle büyür 🐟',
+    gWaste: '💭 Bu atış <b>boşa gitti</b> — top, aynı renkten en az <b>2\'li bir gruba</b> değmeli ki patlasın.',
     breathTxt: 'nefes al · nefes ver',
-    tiSub: 'hedefi temizle',
-    tutS1: 'parmağını basılı tut ve <b>geriye çek</b> — bıraktığında top yukarı süzülür',
-    tutS2: 'topu <b>aynı sembole</b> değdir; grup, su dalgasıyla huzurla erir',
-    tutS3: 'her bölümün bir <b>hedefi</b> var — belirtilen sembolden yeterince temizle, atışların sınırlı',
-    tutS4: '⇄ sağdaki <b>sıradaki top</b>a dokunarak elindeki topla yer değiştirebilirsin',
-    tutS5: '10. bölümde <b>zen modu</b> açılır: sınırsız akış, tek amaç rekor ♛',
+    tiSub: 'bu sembolden {n} tane patlat — sayacı 0\'a düşür',
+    tutS1: '☝ yukarı dokun: ok oraya bakar · aşağı çekersen <b>sapan</b> gibi çalışır',
+    tutS2: '◎ üstteki <b>HEDEF</b> sayacını gör — o sembolden o kadar patlat, <b>0\'a düşünce bölüm biter</b>',
+    tutS3: '➳ <b>atış hakkın sınırlı</b> — her top değerli; duvardan sektirmeyi dene',
+    tutS4: '⇄ sıradaki topa dokun — elindekiyle <b>yer değiştirir</b>',
+    tutS5: '◈ <b>joker</b> her renge uyar (100❖) — sıkışınca kurtarır',
+    tutS6: '✦ fırlatıcı halkası <b>altın parladığında</b> bırak → mükemmel atış: komşular renk fark etmeksizin patlar',
+    tutS7: '⛩ <b>zen bahçen</b> seninle yaşar: kusursuz bölüm → ⬢ anı taşı · 4x combo → ✧ ateş böceği · rekor → 🐟 koi',
     tutNext: 'İleri', tutStart: 'Başla', tutSkip: 'geç',
     shapes: ['yıldız', 'daire', 'altıgen', 'üçgen', 'elmas', 'kare'],
     themeNames: { neon: 'Neon', sakura: 'Sakura', ocean: 'Okyanus', sunset: 'Günbatımı', night: 'Gece', nebula: 'Nebula', dawn: 'Şafak', deep: 'Derin Deniz' },
   },
   en: {
-    lblSection: 'level', lblMode: 'mode', lblTarget: 'goal', lblShots: 'shots', lblScore: 'score', lblGold: 'gold', lblBest: 'best',
+    lblSection: 'level', lblMode: 'mode', lblTarget: 'goal', lblShots: 'shots', lblScore: 'score', lblGold: 'pearls', lblBest: 'best',
     zen: 'zen ∞', next: 'next', swapLabel: 'swap', shotsLeft: '➳ {n} shots left',
     swapHint: '⇄ tap the next orb — they swap places',
     newIce: '❄️ Ice orb: breaks after 2 nearby pops',
@@ -988,19 +1043,19 @@ const LANGS = {
     tapHint: 'tap to continue',
     zenLockToast: 'Zen Mode unlocks after Level 10',
     devUnlock: '🌙 patient fingers… zen unlocked',
-    needGold: '⬡ {n} gold needed',
+    needGold: '❖ {n} gold needed',
     jokerReady: '◈ wildcard ready — matches any color',
-    joker: '◈ wildcard <small>50⬡</small>', jokerSet: '◈ ready',
+    joker: '◈ wildcard <small>100❖</small>', jokerSet: '◈ ready',
     pause: 'pause', breathe: 'take a deep breath…',
     resume: 'Resume', restartBtn: 'Restart', mapBtn: 'Map', menuBtn: 'Menu',
     lvlTitle: 'level {n} ✦', mindCalm: 'the mind is still',
-    fromOrbs: 'from orbs  +{a} ⬡',
-    fromBonus: 'clear bonus  +{b} ⬡',
+    fromOrbs: 'from orbs  +{a} ❖',
+    fromBonus: 'clear bonus  +{b} ❖',
     zenUnlockedLine: '∞ Zen Mode unlocked',
     continueBtn: 'Continue →',
     outTitle: 'out of shots', outBody: '<b>{n}</b> {s} left to clear',
     adShots: '▶ &nbsp;Watch ad <small>+3 shots</small>',
-    buyShots: '+3 shots for ⬡ 30', retry: 'Try again',
+    buyShots: '+3 shots for ❖ 30', retry: 'Try again',
     adTitle: 'ad', adSim: 'simulation…', shotsGrant: '+3 shots ✦',
     zenOverTitle: 'zen has ended', newRec: '♛ new record ♛', bestIs: 'best: ♛ {n}',
     adCont: '▶ &nbsp;Watch ad <small>— keep score, continue</small>',
@@ -1019,18 +1074,18 @@ const LANGS = {
     doneBody: 'all 1000 levels are still.<br>the flow is yours now: zen mode.',
     zenGo: '∞ Enter Zen Mode',
     shopTitle: 'shop',
-    freeGold: 'free gold', adCoins: '▶ &nbsp;Watch ad <small>+{n} ⬡</small>',
+    freeGold: 'free pearls', adCoins: '▶ &nbsp;Watch ad <small>+{n} ❖</small>',
     packs: 'gold packs', palettes: 'palettes', backgrounds: 'backgrounds',
     tryBtn: 'Try', buyBtn: '₺49.99', activeTag: 'active', useBtn: 'Use',
     trialToast: 'trial started — buy it if you love it',
     trialLine: '◈ theme trial',
     buyTitle: 'purchase',
     buyBody: '{name}<br><b>{p}</b><br><small>payment simulation — prototype</small>',
-    coinBody: '{name}<br><b>⬡ {n}</b>',
+    coinBody: '{name}<br><b>❖ {n}</b>',
     confirm: 'Confirm', cancel: 'Cancel', boughtToast: '✦ {name} is yours',
-    gotCoins: '+{n} ⬡ ✦',
-    daily: '🎁 daily calm gift +30 ⬡',
-    lotusClaim: '🪷 the lotus bloomed — +{n} ⬡ (streak: {s} days)',
+    gotCoins: '+{n} ❖ ✦',
+    daily: '🎁 daily calm gift +30 ❖',
+    lotusClaim: '🪷 the lotus bloomed — +{n} ❖ (streak: {s} days)',
     lotusReady: 'the lotus bloomed for you — tap it',
     lotusDone: 'the lotus will bloom again tomorrow',
     perfectShot: 'perfect shot ✦',
@@ -1042,13 +1097,34 @@ const LANGS = {
     gardenHint: 'rake the sand with your finger',
     gardenStones: '⬢ {n}', gardenSeeds: '✧ {n}',
     shareBtn: 'share',
+    coachNext: 'next →',
+    lvlWon: 'level complete ✦',
+    treeName: 'spirit tree',
+    g4a: '🖐 This is your <b>zen garden</b>. Glide your finger through the sand — your rake trails glow, the sand whispers.',
+    g4b: '🌳 The <b>Spirit Tree</b> in the center branches out with every world you finish. When your daily gift is ready, <b>lotuses bloom</b> on it — tap the tree to collect.',
+    g4c: '⬢ The <b>memory stones</b> on the left: earned by finishing a level with zero wasted shots. They cannot be bought.',
+    g4d: '✧ <b>Fireflies</b> are born from light seeds dropped by 4x+ combos in the game. They shine brighter at night.',
+    g4e: '🐟 The <b>koi pond</b>: every 2000 points of zen record brings a new koi. Bring your finger close — they swim to you.',
+    lotusTree: '🪷 the tree gave a lotus — +{n} ❖',
+    g1a: '◎ This is your <b>TARGET</b>: pop <b>{n}</b> of the symbol above. When the counter hits <b>0</b>, you win the level!',
+    g1b: '➳ And these are your <b>shots: {s}</b>. Limited! Make every one count.',
+    g1c: '✨ Your turn: tap the <b>glowing group</b> and release — matching colors melt together.',
+    g1d: 'See? The target counter <b>went down</b>. Bring it to 0 and the level is yours 🌊',
+    g1e: '⇄ One more: <b>tap the next orb</b> on the right — it swaps with yours. Try it!',
+    g2a: '✦ The launcher ring breathes — release <b>when it glows GOLD</b> for a <b>perfect shot</b>: every neighbor at the landing point pops.',
+    g2b: '◈ Stuck? The <b>joker</b> button below (100❖): it matches any color.',
+    g3a: '⬢ Mastery tip: finish a level with <b>no wasted shots</b> → earn a <b>memory stone</b>. It can\'t be bought — it lives in your garden.',
+    g3b: '✧ Combos of 4x+ drop a <b>light seed</b> → it becomes a firefly in your zen garden. Your garden grows with you 🐟',
+    gWaste: '💭 That shot was <b>wasted</b> — the orb must touch a group of at least <b>2 matching</b> symbols to pop.',
     breathTxt: 'breathe in · breathe out',
     tiSub: 'clear the goal',
-    tutS1: 'hold your finger down and <b>pull back</b> — release, and the orb glides upward',
-    tutS2: 'touch the orb to a <b>matching symbol</b>; the group melts away in a gentle ripple',
-    tutS3: 'every level has a <b>goal</b> — clear enough of the shown symbol, your shots are limited',
-    tutS4: '⇄ tap the <b>next orb</b> on the right to swap it with the one you are holding',
-    tutS5: 'at level 10, <b>zen mode</b> opens: endless flow, one purpose — the record ♛',
+    tutS1: '☝ tap above: the arrow follows · pull below and it works like a <b>slingshot</b>',
+    tutS2: '◎ watch the <b>TARGET</b> counter up top — pop that many of that symbol, <b>reach 0 to win</b>',
+    tutS3: '➳ <b>shots are limited</b> — every orb counts; try bouncing off walls',
+    tutS4: '⇄ tap the next orb — it <b>swaps</b> with the one you hold',
+    tutS5: '◈ the <b>joker</b> matches any color (100❖) — a lifesaver when stuck',
+    tutS6: '✦ release when the launcher ring <b>glows gold</b> → perfect shot: neighbors pop regardless of color',
+    tutS7: '⛩ your <b>zen garden</b> lives with you: flawless level → ⬢ stone · 4x combo → ✧ firefly · record → 🐟 koi',
     tutNext: 'Next', tutStart: 'Begin', tutSkip: 'skip',
     shapes: ['star', 'circle', 'hexagon', 'triangle', 'diamond', 'square'],
     themeNames: { neon: 'Neon', sakura: 'Sakura', ocean: 'Ocean', sunset: 'Sunset', night: 'Night', nebula: 'Nebula', dawn: 'Dawn', deep: 'Deep Sea' },
@@ -1423,6 +1499,9 @@ const G = {
   flash: 0, flashT0: 0,  // combo flaşı
   hueWave: 0,            // yüksek combo renk dalgası (bitiş zamanı)
   flow: 0, flowReady: false, // akış durumu: isabet serisiyle dolar, dolunca sonraki atış otomatik mükemmel
+  guideBlock: false,     // koç anlatırken atış kilidi
+  levelWon: false,       // hedef 0'a indi — atışlar kilitli, kutlama sahnede
+  guideCells: null,      // koçun ışıttığı hedef grubu (Set)
   levelWasted: 0,        // bu bölümde boşa giden atış (anı taşı için 0 kalmalı)
   seeds: loadInt('zx_seeds', 0, 0, 999999),   // ışık tohumları (bahçede ateş böceği)
   stones: loadInt('zx_stones', 0, 0, 9999),   // anı taşları (satın alınamaz)
@@ -1464,8 +1543,8 @@ function makeLevel(n) {
   const goal = Math.round(lerp(10, 32, d));
 
   // dar marj: erken %16, geç %4 — hatanı fark edersin ama tekrar denemek istersin
-  const effPerShot = lerp(1.4, 1.9, d);
-  const marginPct = lerp(0.10, 0.02, d);
+  const effPerShot = lerp(1.5, 2.05, d);
+  const marginPct = lerp(0.07, 0.01, d);
 
   // ritim: her 13. bölüm dinlenme (bol atış), her 10. sıkı (joker cazibesi)
   const rest = n % 13 === 0 && n % 10 !== 0;
@@ -1481,9 +1560,9 @@ function makeLevel(n) {
   // özel objeler: dünya-1'de kademeli tanıtım, sonra zorluk basamağıyla yoğunlaşır
   const g = n - 1;
   const ramp = clamp(inWorld * 1.8, 0.35, 1);
-  const ice   = g >= 3  ? lerp(0.08, 0.30, d) * ramp : 0;
-  const stone = g >= 8  ? lerp(0.06, 0.20, d) * ramp : 0;
-  const chain = g >= 14 ? lerp(0.07, 0.26, d) * ramp : 0;
+  const ice   = g >= 3  ? lerp(0.10, 0.34, d) * ramp : 0;
+  const stone = g >= 8  ? lerp(0.07, 0.23, d) * ramp : 0;
+  const chain = g >= 14 ? lerp(0.08, 0.30, d) * ramp : 0;
 
   // 🌬 Zen Rüzgarları: tematik dünyalarda statik akıntı alanı (bölüm başına sabit faz —
   // nişan önizlemesi ile uçuş BİREBİR aynı fiziği görür, oyuncu asla aldatılmaz)
@@ -1530,7 +1609,7 @@ function startLevel(n) {
   const maxRows = Math.max(4, Math.floor((H - 258 - TOP - R - BALL_R) / ROWH));
   if (L.rows > maxRows) L.rows = maxRows; // hedef/atış, tahta dolduktan sonra tek yerden dengelenir
   G.mode = 'level'; G.state = 'playing';
-  G.levelWasted = 0; G.flow = 0; G.flowReady = false;
+  G.levelWasted = 0; G.flow = 0; G.flowReady = false; G.levelWon = false;
   G.wind = L.wind || null;
   G.themeWorld = worldOf(n); applyThemes(); // dünya kimliği: palet + arka plan + müzik
   G.level = n; G.shots = L.shots;
@@ -1577,10 +1656,14 @@ function startLevel(n) {
   UI.enterGame();
   UI.targetIntro();  // hedef sembol küçük bir törenle sahneye gelir
   if (L.rest) setTimeout(() => { if (G.state === 'playing') UI.toast(T('restLevel')); }, 2200);
-  // İlk 5 bölüm: sıkmadan, bölüm başına tek eğitim ipucu (bir kez gösterilir)
+  // 🎓 ilk 3 bölüm: etkileşimli koç (bölüm başına bir kez)
+  const guidesDone = store.get('zx_guides', {});
+  const coachActive = n <= 3 && !guidesDone['l' + n];
+  if (coachActive) UI.startGuide && UI.startGuide(n, L);
+  // Bölüm ipuçları: koç aktifken sustur (bilgi bombardımanı olmasın)
   const hints = (LANGS[LANG] || LANGS.tr).lvlHints || [];
   const hintsSeen = store.get('zx_hints_seen', []);
-  if (n <= hints.length && !hintsSeen.includes(n)) {
+  if (!coachActive && n <= hints.length && !hintsSeen.includes(n)) {
     hintsSeen.push(n); store.set('zx_hints_seen', hintsSeen);
     setTimeout(() => { if (G.state === 'playing') UI.toast(hints[n - 1]); }, 2400);
   } else if (!G.swapUsed) {
@@ -1649,7 +1732,7 @@ function pickColor(avoid) {
   // 2) Hedef rengi ağırlığı — ama sadece seri kesiciden geçen havuz içinde
   if (G.mode === 'level' && opts.includes(G.targetIdx)) {
     const nearEnd = G.targetLeft > 0 && G.targetLeft <= 2;
-    const boost = nearEnd ? 0.38 : 0.12; // hedef top nadiren bedava gelir
+    const boost = nearEnd ? 0.32 : 0.10; // hedef top nadiren bedava gelir
     if (Math.random() < boost) choice = G.targetIdx;
   }
 
@@ -1946,10 +2029,10 @@ function attachFly() {
   }
   if (!popped && !blasted) {
     G.combo = 0; G.flow = 0;
-    if (G.mode === 'level') G.levelWasted++;
+    if (G.mode === 'level') { G.levelWasted++; UI.guideEvent && UI.guideEvent('waste'); }
     Sfx.softNote(180, 0.045, 0.5); vibrate(4);
   } else if (!G.flowReady) {
-    G.flow = Math.min(1, G.flow + 0.25); // 4 isabetli atış = akış
+    G.flow = Math.min(1, G.flow + 0.2); // 5 isabetli atış = akış
     if (G.flow >= 1) {
       G.flowReady = true;
       UI.floatText({ x: W / 2, y: H * 0.3 }, T('flowFull'), true);
@@ -2009,7 +2092,7 @@ function checkResolution() {
     if (G.targetLeft <= 0) {
       G.resolveLock = true;
       celebrateLevel();
-      setTimeout(() => UI.levelComplete(), 1150);
+      setTimeout(() => UI.levelComplete(), 1600);
     } else if (G.shots <= 0) {
       G.resolveLock = true;
       setTimeout(() => UI.outOfShots(), 600);
@@ -2299,6 +2382,7 @@ function updateAimFromPointer() {
 }
 function bindInput() {
   canvas.addEventListener('pointerdown', e => {
+    if (G.guideBlock || G.levelWon) return; // koç anlatıyor ya da bölüm bitti — sahne kutlamanın
     Sfx.start();
     if (G.state !== 'playing' || G.fly) return;
     const p = toLogical(e);
@@ -2306,6 +2390,7 @@ function bindInput() {
     const nx = LAUNCH.x + NEXT_BALL.dx, ny = LAUNCH.y + NEXT_BALL.dy;
     if ((p.x - nx) ** 2 + (p.y - ny) ** 2 < NEXT_BALL.hitR ** 2) {
       const tmp = G.cur; G.cur = G.next; G.next = tmp;
+      UI.guideEvent && UI.guideEvent('swap');
       if (!G.swapUsed) { G.swapUsed = true; store.set('zx_swapused', true); } // öğrenildi: dikkat çekmeyi bırak
       Sfx.click();
       vibrate(6);
@@ -2452,7 +2537,18 @@ function update(dt, now) {
       vibrate(b.falling ? 3 : 7);
       G.score += 15 * Math.max(1, G.combo);
       if (G.mode === 'level' && !isStone) {
-        if (b.idx === G.targetIdx && G.targetLeft > 0) G.targetLeft--;
+        if (b.idx === G.targetIdx && G.targetLeft > 0) {
+          G.targetLeft--;
+          UI.guideEvent && UI.guideEvent('pop');
+          if (G.targetLeft === 0 && !G.levelWon) {
+            G.levelWon = true; // atışlar ANINDA kilitlenir — kazandın, sahne kutlamanın
+            G.shake = 9; G.shakeT0 = now; G.flash = 0.2; G.flashT0 = now; G.hueWave = now + 1600;
+            spawnRipple(W / 2, H * 0.4, CUR_ACCENT, true);
+            UI.floatText({ x: W / 2, y: H * 0.34 }, T('lvlWon'), true);
+            Sfx.softNote(659.3, 0.06, 2); Sfx.softNote(880, 0.05, 2.2); Sfx.softNote(1318.5, 0.04, 2.6);
+            vibrate(30);
+          }
+        }
         G.levelCoins++;
       }
       G.coins += 1;
@@ -2621,6 +2717,14 @@ function render(now) {
       const st = (now - b.squashT0) / 190;
       if (st >= 1) b.squashT0 = 0;
       else sq = (1 - st) * (1 - st);
+    }
+    if (G.guideCells && G.guideCells.has(key(b.r, b.c))) {
+      const gp = 0.5 + 0.5 * Math.sin(now * 0.005);
+      ctx.strokeStyle = 'rgba(125,240,192,' + (0.45 + 0.4 * gp) + ')';
+      ctx.lineWidth = 2;
+      ctx.save(); ctx.shadowColor = '#7DF0C0'; ctx.shadowBlur = 10 * gp;
+      ctx.beginPath(); ctx.arc(p.x, p.y + bob, BALL_R * (1.15 + 0.14 * gp), 0, TAU); ctx.stroke();
+      ctx.restore();
     }
     if (b.aura) {
       const ap = 0.5 + 0.5 * Math.sin(now * 0.0035 + b.r);
@@ -2907,8 +3011,7 @@ function loop(t) {
   let dt = Math.min((t - lastT) / 1000, 0.033);
   lastT = t;
   // ağır çekim: SON top havadayken zaman %35'e yavaşlar — kıl payı anı sinematikleşir
-  if (G.state === 'playing' && G.mode === 'level' && G.shots === 0 && G.fly) dt *= 0.35;
-  else if (G.fly && G.state === 'playing') {
+  if (G.fly && G.state === 'playing') {
     // aura: top odak taşının etki alanındayken ağır çekim
     for (const b of G.grid.values()) {
       if (!b.aura) continue;
@@ -2977,7 +3080,9 @@ const UI = (() => {
     });
     el.mLevelBtn.addEventListener('click', () => { Sfx.start(); Sfx.click(); showWorlds(); });
     $('mGardenBtn').addEventListener('click', () => { Sfx.start(); Sfx.click(); showGarden(); });
-    $('gardenBack').addEventListener('click', () => { Sfx.click(); Garden.close(); showMenu(); });
+    $('gardenBack').addEventListener('click', () => { Sfx.click(); Garden.close(); coachHide(); showMenu(); });
+    $('gardenHelp').addEventListener('click', () => { Sfx.click(); gardenTour(); });
+    $('coachBtn').addEventListener('click', () => { Sfx.click(); coachNext(); });
     const lotusEl = $('lotus');
     if (lotusEl) lotusEl.addEventListener('click', () => { Sfx.start(); claimLotus(); });
     el.mShopBtn.addEventListener('click', () => { Sfx.start(); Sfx.click(); showShop(); });
@@ -3031,7 +3136,7 @@ const UI = (() => {
   function dailyAvailable() {
     return store.get('zx_day', '') !== new Date().toISOString().slice(0, 10);
   }
-  function claimLotus() {
+  function claimLotus(fromTree) {
     if (!dailyAvailable()) return;
     const today = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -3041,9 +3146,8 @@ const UI = (() => {
     const reward = 30 + Math.min(streak - 1, 6) * 5; // seri büyüdükçe 30→60
     G.coins += reward; saveCoins();
     Sfx.levelUp(); vibrate(18);
-    toast(T('lotusClaim', { n: reward, s: streak }));
+    toast(T(fromTree ? 'lotusTree' : 'lotusClaim', { n: reward, s: streak }));
     updateLotus();
-    buildBonsai();
   }
   function updateLotus() {
     const el2 = $('lotus');
@@ -3056,42 +3160,41 @@ const UI = (() => {
 
   /* ---- 🌳 Bonsai: ilerlemeyle büyüyen prosedürel ağaç ----
      Model tek yerde üretilir; menü SVG, bahçe canvas olarak çizer. */
-  function bonsaiModel() {
+  /* ---- 🌳 Ruh Ağacı: ilerlemeyle büyüyen, uçları sarkan zarif ağaç ----
+     Bonsaiden farklı silüet: uzun gövde + yukarı kavis + söğüt gibi sarkan uçlar.
+     Lotuslar bu ağaçta açar: günlük ödül hazırsa dallarda parlayan lotuslar belirir. */
+  function treeModel() {
     const worlds = clamp(Math.floor((G.maxLevel - 1) / LEVELS_PER_WORLD), 0, WORLD_COUNT);
-    const depth = 2 + Math.min(worlds, 6);
+    const depth = 3 + Math.min(worlds, 5);            // 3 → 8
     const blooms = G.best >= 6000 ? 3 : G.best >= 3000 ? 2 : G.best >= 1000 ? 1 : 0;
-    let seed = 1903;
+    let seed = 4207;
     const rand = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
-    const segs = [], flowers = [], leaves = [];
+    const segs = [], flowers = [], leaves = [], tips = [];
     function branch(x, y, ang, len, d) {
-      if (d <= 0 || len < 2.5) {
-        if (blooms > 0 && rand() < 0.16 * blooms) flowers.push([x, y]);
-        else if (d <= 0) leaves.push([x, y]);
-        return;
-      }
+      if (d <= 0 || len < 2.2) { tips.push([x, y]); return; }
       const x2 = x + Math.cos(ang) * len, y2 = y - Math.sin(ang) * len;
-      segs.push([x, y, x2, y2, Math.max(0.7, d * 0.55)]);
-      const forks = d >= depth - 1 ? 2 : (rand() < 0.35 ? 3 : 2);
+      segs.push([x, y, x2, y2, Math.max(0.6, d * 0.5)]);
+      const forks = d >= depth - 1 ? 1 : 2;           // uzun tek gövde, sonra çatallanma
       for (let i = 0; i < forks; i++) {
-        branch(x2, y2, ang + (rand() - 0.5) * 1.5 + (i - (forks - 1) / 2) * 0.55, len * (0.62 + rand() * 0.16), d - 1);
+        branch(x2, y2, ang + (rand() - 0.5) * 1.1 + (i - (forks - 1) / 2) * 0.7, len * (0.68 + rand() * 0.12), d - 1);
       }
     }
-    branch(34, 62, Math.PI / 2 + 0.12, 15, depth);
-    return { segs, leaves, flowers };
+    branch(34, 64, Math.PI / 2 + 0.06, 19, depth);
+    // uçlardan sarkan teller (söğüt ruhu) + yaprak/çiçek
+    for (const [tx, ty] of tips) {
+      const strands = 1 + (rand() * 2 | 0);
+      for (let si = 0; si < strands; si++) {
+        const sway = (rand() - 0.5) * 4;
+        const slen = 5 + rand() * 7;
+        segs.push([tx, ty, tx + sway, ty + slen, 0.55]);
+        const ex = tx + sway, ey = ty + slen;
+        if (blooms > 0 && rand() < 0.14 * blooms) flowers.push([ex, ey]);
+        else leaves.push([ex, ey]);
+      }
+    }
+    return { segs, leaves, flowers, tips };
   }
-  function buildBonsai() {
-    const holder = $('bonsai');
-    if (!holder) return;
-    const m = bonsaiModel();
-    const svg = ['<svg viewBox="0 0 68 70" width="86" height="88">'];
-    svg.push('<ellipse cx="34" cy="64" rx="17" ry="4.5" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>');
-    for (const [x1, y1, x2, y2, w] of m.segs)
-      svg.push('<path d="M' + x1.toFixed(1) + ',' + y1.toFixed(1) + ' L' + x2.toFixed(1) + ',' + y2.toFixed(1) + '" stroke="rgba(200,180,160,0.75)" stroke-width="' + w.toFixed(1) + '" stroke-linecap="round" fill="none"/>');
-    for (const [x, y] of m.leaves) svg.push('<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="1.7" fill="rgba(125,240,192,0.55)"/>');
-    for (const [x, y] of m.flowers) svg.push('<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2.1" fill="rgba(255,158,210,0.9)"/>');
-    svg.push('</svg>');
-    holder.innerHTML = svg.join('');
-  }
+  const bonsaiModel = treeModel; // eski çağrılar için köprü
 
   /* ---- eğitim ---- */
   function showTutorial(first) {
@@ -3103,8 +3206,8 @@ const UI = (() => {
     el.tut.classList.remove('hidden');
     renderTutSlide();
   }
-  const TUT_GLYPHS = ['➳', '✦', '◎', '⇄', '∞'];
-  const TUT_KEYS = ['tutS1', 'tutS2', 'tutS3', 'tutS4', 'tutS5'];
+  const TUT_GLYPHS = ['☝', '◎', '➳', '⇄', '◈', '✦', '⛩'];
+  const TUT_KEYS = ['tutS1', 'tutS2', 'tutS3', 'tutS4', 'tutS5', 'tutS6', 'tutS7'];
   const TUT_LAST = TUT_KEYS.length - 1;
   function renderTutSlide() {
     el.tutGlyph.textContent = TUT_GLYPHS[tutIdx];
@@ -3136,7 +3239,7 @@ const UI = (() => {
     c2.clearRect(0, 0, 120, 120);
     drawShapeCore(c2, PALETTE[G.targetIdx].shape, 60, 62, 40, PALETTE[G.targetIdx].c, 1, 22);
     el.tiText.textContent = G.targetGoal + ' × ' + SH(G.targetIdx);
-    el.tiSub.textContent = T('tiSub');
+    el.tiSub.textContent = T('tiSub', { n: G.targetGoal });
     el.ti.classList.remove('hidden', 'fly', 'show');
     void el.ti.offsetWidth;
     el.ti.classList.add('show');
@@ -3155,6 +3258,7 @@ const UI = (() => {
     set('goldLbl', 'lblGold'); set('bestLbl', 'lblBest');
     set('menuSub', 'menuSub'); set('menuFoot', 'menuFoot');
     set('shopTitleTxt', 'shopTitle'); set('worldsTitleTxt', 'worldsTitle'); set('gardenTitleTxt', 'gardenTitle'); set('gardenHintTxt', 'gardenHint');
+    const cb = $('coachBtn'); if (cb) cb.textContent = T('coachNext');
     set('howBtn', 'howTo'); set('splashSub', 'tapHint'); set('breathTxt', 'breathTxt');
     el.mShopBtn.innerHTML = T('shopBtn');
     el.langBtn.textContent = LANG.toUpperCase();
@@ -3191,7 +3295,7 @@ const UI = (() => {
       el.bestVal.textContent = '♛ ' + Math.max(G.best, G.score);
       el.bestChip.classList.toggle('crowned', G.score > G.zenStartBest && G.score > 0);
     }
-    el.coinsVal.textContent = '⬡ ' + G.coins;
+    el.coinsVal.textContent = '❖ ' + G.coins;
     el.joker.classList.toggle('ready', G.curRainbow);
     el.joker.classList.toggle('off', !G.curRainbow && G.coins < JOKER_COST);
     el.joker.innerHTML = G.curRainbow ? T('jokerSet') : T('joker');
@@ -3223,6 +3327,7 @@ const UI = (() => {
     let grain = [];          // statik kum dokusu
     let lastP = null, lastT = 0;
     let kois = [];
+    let treeHit = null;
 
     function dayPhase() {
       const h = new Date().getHours();
@@ -3276,6 +3381,12 @@ const UI = (() => {
       gc.addEventListener('pointerdown', e => {
         Sfx.start();
         const p = toXY(e);
+        // 🪷 ağaçtaki lotusları topla
+        if (treeHit && dailyAvailable() && (p.x - treeHit.x) ** 2 + (p.y - treeHit.y) ** 2 < treeHit.r ** 2) {
+          claimLotus(true);
+          el.gardenSeedsTxt.textContent = T('gardenSeeds', { n: G.seeds });
+          return;
+        }
         strokes.push({ pts: [{ ...p, t: performance.now() }] });
         lastP = p; lastT = performance.now();
         gc.setPointerCapture(e.pointerId);
@@ -3339,11 +3450,12 @@ const UI = (() => {
         gx.fillStyle = 'rgba(210,215,235,0.6)'; gx.font = '10px system-ui';
         gx.textAlign = 'left'; gx.fillText('+' + (G.stones - 18), 26, gH - 88);
       }
-      // 🌳 bonsai: merkezde, büyük
-      const m = bonsaiModel();
+      // 🌳 Ruh Ağacı: merkezde — lotuslar burada açar
+      const m = treeModel();
+      const TS = 2.2, TX = gW / 2 - 34 * TS, TY = gH * 0.56 - 62 * TS;
       gx.save();
-      gx.translate(gW / 2 - 34 * 2.2, gH * 0.56 - 62 * 2.2);
-      gx.scale(2.2, 2.2);
+      gx.translate(TX, TY);
+      gx.scale(TS, TS);
       gx.strokeStyle = 'rgba(200,180,160,0.8)'; gx.lineCap = 'round';
       gx.beginPath(); gx.ellipse(34, 64, 17, 4.5, 0, 0, TAU);
       gx.fillStyle = 'rgba(255,255,255,0.05)'; gx.fill();
@@ -3353,7 +3465,28 @@ const UI = (() => {
       }
       for (const [x, y] of m.leaves) { gx.fillStyle = 'rgba(125,240,192,0.55)'; gx.beginPath(); gx.arc(x, y, 1.7, 0, TAU); gx.fill(); }
       for (const [x, y] of m.flowers) { gx.fillStyle = 'rgba(255,158,210,0.9)'; gx.beginPath(); gx.arc(x, y, 2.1, 0, TAU); gx.fill(); }
+      // 🪷 günlük ödül hazırsa: dallarda lotuslar açar (ağaca dokun → topla)
+      if (dailyAvailable()) {
+        const lp = 0.6 + 0.4 * Math.sin(now * 0.0035);
+        for (let li = 0; li < Math.min(3, m.tips.length); li++) {
+          const [lx, ly] = m.tips[(li * 7) % m.tips.length];
+          gx.save();
+          gx.shadowColor = '#FF9ED2'; gx.shadowBlur = 10 * lp;
+          for (let pt = 0; pt < 5; pt++) {
+            const a = pt * TAU / 5 - Math.PI / 2;
+            gx.fillStyle = 'rgba(255,158,210,' + (0.75 * lp + 0.2) + ')';
+            gx.beginPath();
+            gx.ellipse(lx + Math.cos(a) * 2.4, ly + Math.sin(a) * 2.4, 2.6, 1.5, a, 0, TAU);
+            gx.fill();
+          }
+          gx.fillStyle = 'rgba(255,216,107,' + (0.8 + 0.2 * lp) + ')';
+          gx.beginPath(); gx.arc(lx, ly, 1.5, 0, TAU); gx.fill();
+          gx.restore();
+        }
+      }
       gx.restore();
+      // ağaç dokunma alanı (lotus toplama için) — mantıksal koordinatlarda sakla
+      treeHit = { x: TX + 34 * TS, y: TY + 40 * TS, r: 70 };
       // ✧ ateş böcekleri: ışık tohumlarından doğar, gece parlar
       const fb = pal.fireflyBoost;
       for (const f of fireflies) {
@@ -3420,6 +3553,10 @@ const UI = (() => {
     };
   })();
 
+  function gardenTour() {
+    coachSeq = ['g4a', 'g4b', 'g4c', 'g4d', 'g4e'].map(k => ({ msg: T(k) }));
+    coachIdx = -1; coachNext();
+  }
   function showGarden() {
     G.state = 'menu';
     G.themeWorld = null; applyThemes();
@@ -3429,6 +3566,83 @@ const UI = (() => {
     hideModal();
     el.garden.classList.remove('hidden');
     Garden.open();
+    if (!store.get('zx_guide_garden', false)) {
+      store.set('zx_guide_garden', true);
+      setTimeout(gardenTour, 900);
+    }
+  }
+
+  /* ==================== 🎓 KOÇ: etkileşimli rehber ====================
+     İlk 3 bölüm (yalnız ilk oynanışta): açıklar, gösterir, YAPTIRIR.
+     - HUD çipini spotlight'lar (hedef/atış)
+     - tahtadaki en büyük hedef grubunu ışıtır ("şuna at")
+     - anlatım adımlarında atışı kilitler, oyuncu 'devam' der
+     - gerçek olaylara tepki verir: ilk patlama, ilk boş atış, ilk swap */
+  let coachSeq = [], coachIdx = -1, coachWaitEvt = null;
+  function coachShow(step) {
+    const c = $('coach'); if (!c) return;
+    $('coachTxt').innerHTML = step.msg;
+    $('coachBtn').style.display = step.until ? 'none' : '';
+    c.classList.remove('hidden');
+    document.querySelectorAll('.chip.spot').forEach(e => e.classList.remove('spot'));
+    if (step.spot) { const ch = $(step.spot); if (ch) ch.classList.add('spot'); }
+    G.guideBlock = !!step.block;
+    G.guideCells = null;
+    if (step.highlightTargets) {
+      // en büyük hedef-renk grubunu bul ve ışıt
+      const seen = new Set(); let best = null;
+      for (const [k, b] of G.grid) {
+        if (seen.has(k) || b.idx !== G.targetIdx || b.type) continue;
+        const grp = new Set([k]); const q = [k];
+        while (q.length) {
+          const kk = q.pop(); const [r, c2] = kk.split(',').map(Number);
+          for (const nk of neighborKeys(r, c2)) {
+            const nb = G.grid.get(nk);
+            if (nb && nb.idx === G.targetIdx && !nb.type && !grp.has(nk)) { grp.add(nk); q.push(nk); }
+          }
+        }
+        grp.forEach(x => seen.add(x));
+        if (!best || grp.size > best.size) best = grp;
+      }
+      if (best) G.guideCells = best;
+    }
+    coachWaitEvt = step.until || null;
+  }
+  function coachHide() {
+    const c = $('coach'); if (c) c.classList.add('hidden');
+    document.querySelectorAll('.chip.spot').forEach(e => e.classList.remove('spot'));
+    G.guideBlock = false; G.guideCells = null; coachWaitEvt = null;
+  }
+  function coachNext() {
+    coachIdx++;
+    if (coachIdx >= coachSeq.length) { coachHide(); coachSeq = []; coachIdx = -1; return; }
+    coachShow(coachSeq[coachIdx]);
+  }
+  function startGuide(n, L) {
+    const done = store.get('zx_guides', {});
+    if (done['l' + n]) return;
+    done['l' + n] = true; store.set('zx_guides', done);
+    if (n === 1) coachSeq = [
+      { msg: T('g1a', { n: G.targetGoal }), spot: 'chipTarget', block: true },
+      { msg: T('g1b', { s: G.shots }), spot: 'chipShots', block: true },
+      { msg: T('g1c'), highlightTargets: true, until: 'pop' },
+      { msg: T('g1d'), spot: 'chipTarget' },
+      { msg: T('g1e'), until: 'swap' },
+    ];
+    else if (n === 2) coachSeq = [{ msg: T('g2a'), block: true }, { msg: T('g2b'), block: true }];
+    else if (n === 3) coachSeq = [{ msg: T('g3a'), block: true }, { msg: T('g3b'), block: true }];
+    else return;
+    coachIdx = -1;
+    setTimeout(coachNext, 2400); // hedef tanıtım animasyonundan sonra
+  }
+  function guideEvent(evt) {
+    // ilk boş atış: bağlamsal ders (bir kez, ilk 3 bölümde)
+    if (evt === 'waste' && G.level <= 3 && !store.get('zx_gwaste', false) && !coachWaitEvt) {
+      store.set('zx_gwaste', true);
+      coachSeq = [{ msg: T('gWaste') }]; coachIdx = -1; coachNext();
+      return;
+    }
+    if (coachWaitEvt && evt === coachWaitEvt) setTimeout(coachNext, evt === 'pop' ? 900 : 200);
   }
 
   function showMenu() {
@@ -3520,7 +3734,7 @@ const UI = (() => {
     ['hud', 'joker', 'menu', 'shop', 'tut', 'worlds', 'garden'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
     hideModal();
-    el.mapCoins.textContent = '⬡ ' + G.coins;
+    el.mapCoins.textContent = '❖ ' + G.coins;
     el.map.classList.remove('hidden');
     buildMap();
   }
@@ -3579,7 +3793,7 @@ const UI = (() => {
     ['hud', 'joker', 'menu', 'map', 'shop', 'tut'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
     hideModal();
-    el.worldCoins.textContent = '⬡ ' + G.coins;
+    el.worldCoins.textContent = '❖ ' + G.coins;
     el.worlds.classList.remove('hidden');
     buildWorlds();
   }
@@ -3643,7 +3857,7 @@ const UI = (() => {
     // ✦ Kilometre taşı: bir dünyanın son bölümü bitti mi? (1000. dahil)
     if (done % LEVELS_PER_WORLD === 0) { worldComplete(done, total, bonus); return; }
     const trial = G.trial;
-    const body = '<p>' + T('mindCalm') + '</p><p class="big">+' + total + ' ⬡</p>' +
+    const body = '<p>' + T('mindCalm') + '</p><p class="big">+' + total + ' ❖</p>' +
       '<div class="coinbreak">' +
       '<p>' + T('fromOrbs', { a: G.levelCoins }) + '</p>' +
       '<p>' + T('fromBonus', { b: bonus }) + '</p>' +
@@ -3652,7 +3866,7 @@ const UI = (() => {
     const btns = [];
     if (trial) {
       btns.push({
-        label: '◈ ⬡ ' + THEME_COIN, disabled: G.coins < THEME_COIN, cb: () => {
+        label: '◈ ❖ ' + THEME_COIN, disabled: G.coins < THEME_COIN, cb: () => {
           G.coins -= THEME_COIN; saveCoins();
           ownAndUse(trial.kind, trial.id);
           toast(T('boughtToast', { name: TN(trial.id) }));
@@ -3691,7 +3905,7 @@ const UI = (() => {
     // son dünya (1000. bölüm): ödülü ver, ardından yolculuk finalini göster
     if (done >= MAX_LEVEL) {
       showModal(T('doneTitle'),
-        '<p>' + T('doneBody') + '</p><p class="big">+' + (total + W_.reward) + ' ⬡</p>' + extra, [
+        '<p>' + T('doneBody') + '</p><p class="big">+' + (total + W_.reward) + ' ❖</p>' + extra, [
         { label: T('zenGo'), cls: 'primary', cb: startZen },
         { label: T('worldsTitle'), cb: showWorlds },
         { label: T('menuBtn'), cb: showMenu },
@@ -3702,11 +3916,11 @@ const UI = (() => {
     const hk = ((LANGS[LANG] || LANGS.tr).haikus || [])[w];
     const body = '<p>' + T('milestoneBody', { w: WN(w) }) + '</p>' +
       (hk ? '<p class="haiku">' + hk + '</p>' : '') +
-      '<p class="big">+' + (total + W_.reward) + ' ⬡</p>' +
+      '<p class="big">+' + (total + W_.reward) + ' ❖</p>' +
       '<div class="coinbreak">' +
       '<p>' + T('fromOrbs', { a: G.levelCoins }) + '</p>' +
       '<p>' + T('fromBonus', { b: bonus }) + '</p>' +
-      '<p style="color:var(--mint)">✦ +' + W_.reward + ' ⬡</p>' +
+      '<p style="color:var(--mint)">✦ +' + W_.reward + ' ❖</p>' +
       '</div>' + extra;
 
     const btns = [];
@@ -3781,7 +3995,7 @@ const UI = (() => {
 
   function journeyDone(bonus) {
     endTrial();
-    const body = '<p>' + T('doneBody') + '</p>' + (bonus ? '<p class="big">+' + bonus + ' ⬡</p>' : '');
+    const body = '<p>' + T('doneBody') + '</p>' + (bonus ? '<p class="big">+' + bonus + ' ❖</p>' : '');
     showModal(T('doneTitle'), body, [
       { label: T('zenGo'), cls: 'primary', cb: startZen },
       { label: T('worldsTitle'), cb: showWorlds },
@@ -3930,9 +4144,9 @@ const UI = (() => {
     const row = document.createElement('div'); row.className = 'packrow';
     for (const pk of SHOP.coinPacks) {
       const c = document.createElement('div'); c.className = 'packcard';
-      c.innerHTML = '<div class="packcoins">⬡ ' + pk.coins + '</div>';
+      c.innerHTML = '<div class="packcoins">❖ ' + pk.coins + '</div>';
       const price = pk.price[LANG] || pk.price.tr;
-      c.appendChild(mkBtn(price, () => buyMoney('⬡ ' + pk.coins, price, () => {
+      c.appendChild(mkBtn(price, () => buyMoney('❖ ' + pk.coins, price, () => {
         G.coins += pk.coins; saveCoins();
         toast(T('gotCoins', { n: pk.coins }));
         showShop();
@@ -3974,7 +4188,7 @@ const UI = (() => {
           }));
         } else {
           bt.appendChild(mkBtn(T('tryBtn'), () => tryTheme(kind, id)));
-          bt.appendChild(mkBtn('⬡ ' + THEME_COIN, () => buyCoinsCosmetic(kind, id), 'gold' + (G.coins < THEME_COIN ? ' off' : '')));
+          bt.appendChild(mkBtn('❖ ' + THEME_COIN, () => buyCoinsCosmetic(kind, id), 'gold' + (G.coins < THEME_COIN ? ' off' : '')));
         }
         r2.appendChild(bt);
         card.appendChild(r2);
@@ -3989,7 +4203,7 @@ const UI = (() => {
     ['hud', 'joker', 'menu', 'map', 'tut', 'worlds', 'garden'].forEach(k => el[k] && el[k].classList.add('hidden'));
     if (el.breath) el.breath.classList.add('hidden');
     hideModal();
-    el.shopCoins.textContent = '⬡ ' + G.coins;
+    el.shopCoins.textContent = '❖ ' + G.coins;
     el.shop.classList.remove('hidden');
     buildShop();
   }
@@ -4029,7 +4243,7 @@ const UI = (() => {
     setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 400); }, 2300);
   }
 
-  return { init, boot, refresh, refreshScore, enterGame, showMenu, showWorlds, showMap, levelComplete, outOfShots, zenOver, floatText, toast, journeyDone, targetIntro, showTutorial, breathGuide };
+  return { init, boot, refresh, refreshScore, enterGame, showMenu, showWorlds, showMap, levelComplete, outOfShots, zenOver, floatText, toast, journeyDone, targetIntro, showTutorial, breathGuide, guideEvent, startGuide };
 })();
 
 /* ---------- Başlat ---------- */
