@@ -3124,7 +3124,7 @@ function startLevel(n, daily) {
   G.themeWorld = worldOf(n); applyThemes(); // dünya kimliği: palet + arka plan + müzik
   G.level = n; G.shots = L.shots;
   G.score = 0; G.dispScore = 0; G.combo = 0; G.levelCoins = 0;
-  if (!resumed) { G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0; }
+  G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
   G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0;
   G.resolveLock = false; G.curRainbow = false;
   fillGrid(L.rows, L.colorCount, L.density, L);
@@ -3247,7 +3247,7 @@ function startZen(fresh = false) {
   applyThemes();
   const resumed = !fresh && restoreZenSession();
   if (!resumed) { G.score = 0; G.dispScore = 0; G.combo = 0; }
-  G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
+  if (!resumed) { G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0; }
   G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0;
   if (!resumed) G.zenShots = 0;
   G.zenRowPending = false; G.resolveLock = false;
