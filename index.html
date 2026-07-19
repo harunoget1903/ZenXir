@@ -1087,8 +1087,9 @@
     left:auto; margin:0; z-index:3;
   }
   #menuOverlay > .menufoot {
-    position:absolute; left:16px; right:78px; bottom:max(22px, env(safe-area-inset-bottom));
-    padding:0; text-align:center;
+    position:absolute; left:50%; right:auto; width:min(300px, calc(100% - 32px));
+    bottom:max(22px, env(safe-area-inset-bottom)); padding:0; text-align:center;
+    transform:translateX(-50%);
   }
   #menuOverlay h1, .card h2 {
     font-family:var(--font-display); font-weight:600;
@@ -1669,12 +1670,12 @@ const LANGS = {
     zenScored: "♛ Skorlu Zen <small>— iniş var</small>",
     meditBtn: "🧘 Meditasyon <small>— sonsuz akış</small>",
     dailyTitle: "🌸 günlük mandala",
-    dailyBody: "bugün <b>dünyadaki herkes</b> aynı tahtayı oynuyor — simetrik, zorlu, tek şans.<br>bitirirsen <b>+500 ❖</b>",
-    dailyGo: "Başla",
+    dailyBody: "bugün <b>dünyadaki herkes</b> aynı tahtayı oynuyor — 10. dünyanın son bölümleri kadar zor, simetrik ve tek şans.<br>reklamı izleyip bitirirsen <b>+300 ❖ · +3 Lotus</b>",
+    dailyGo: "▶ reklam izle ve oyna",
     dailyBtn: "✺ &nbsp;Günlük Mandala",
     dailyBtnDone: "✺ &nbsp;Günlük Mandala <small>✓ bugün tamam</small>",
     dailyDoneMsg: "bugünün mandalası tamamlandı — yarın yenisi açılır",
-    dailyReward: "🌸 günlük mandala  +500 ❖",
+    dailyReward: "🌸 günlük mandala  +300 ❖ · +3 Lotus",
     boardBtn: "♛ &nbsp;Zen Kartı",
     boardTitle: "🏆 zen kartı",
     boardEmpty: "henüz kart yok — kendi kartını paylaş ya da arkadaşınınkini ekle",
@@ -1733,20 +1734,20 @@ g4a: '🖐 Burası <b>zen bahçen</b>. Kumu tırmıklamak için araç gerekmez: 
     g4d: '✧ <b>Ateş böcekleri</b>: oyunda 4x+ combo yaptığında düşen ışık tohumlarından doğar. Gece daha parlaktır.',
     g4e: '🐟 Sağ alttaki <b>koi göleti</b>: zen modunda her 2000 rekor puanı yeni bir koi getirir. Parmağını yaklaştır — sana yüzerler.',
     lotusTree: '🪷 ağaç lotus verdi — +{n} ❖',
-    gJoker1: '◈ <b>Joker anı!</b> Zorlandın — alttaki <b>joker</b> düğmesine bas. Top <b>her renge uyum sağlar</b> ve ilk joker <b>hediye</b>.',
-    gJoker2: 'İşte bu ✦ Joker en büyük komşu gruba bürünür. Dara düşünce hatırla — {c} ❖.',
-    jokerFree: '◈ ilk joker hediye ✦',
+    gJoker1: '◈ <b>Joker zamanı!</b> Sıkıştın — soldaki <b>Zihin Sanatları</b> düğmesine bas ve <b>Joker</b>i seç. Top <b>her renge uyum sağlar</b>; ilk Joker <b>hediye</b>.',
+    gJoker2: 'İşte bu ✦ Joker, en büyük komşu renk grubuna uyum sağlar. Sıkışınca hatırla — {c} ❖.',
+    jokerFree: '◈ ilk Joker hediye ✦',
     g1a: '◎ Bu senin <b>HEDEFİN</b>: yukarıdaki sembolden <b>{n} tane</b> patlatmalısın. Sayaç <b>0\'a inince</b> bölüm biter!',
     g1b: '➳ Bu da <b>atış hakkın: {s}</b>. Sınırlı! Her atış en az bir grup patlatmalı.',
     g1c: '✨ Şimdi sen: <b>parlayan gruba</b> dokun ve bırak — aynı renkler birlikte erir.',
     g1d: 'Gördün mü? Hedef sayacı <b>azaldı</b>. 0\'a indir, bölüm senindir 🌊',
     g1e: '⇄ Son bir şey: sağdaki <b>sıradaki topa dokun</b> — elindekiyle yer değişir. Dene!',
     g2a: '✦ Fırlatıcı halkası nefes alıyor — <b>ALTIN parladığı anda</b> bırakırsan atışın <b>mükemmel</b> olur: iniş noktasındaki tüm komşular patlar.',
-    g2b: '◈ Sıkışırsan alttaki <b>joker</b> düğmesi (250❖): top her renge uyum sağlar.',
+    g2b: '✦ Sıkışırsan soldaki <b>Zihin Sanatları</b> düğmesine bas. İçindeki <b>Joker</b> (250❖), topu her renge uyumlu yapar.',
     g3a: '⬢ Ustalık ipucu: bölümü <b>hiç boşa atış yapmadan</b> bitir → <b>anı taşı</b> kazan. Parayla alınamaz, bahçende sergilenir.',
     g3b: '✧ 4x ve üzeri combo → <b>ışık tohumu</b> düşer → zen bahçende ateş böceğine dönüşür. Bahçen seninle büyür 🐟',
-    gBomb: '✹ <b>Bomba</b> renk dinlemez: düştüğü noktanın çevresini tek darbede çözer. Zincir ya da taşın arkasında sıkışırsan sağdaki beceri düğmesinden hazırla.',
-    gUndo: '↶ <b>Geri sar</b>, son atışın öncesindeki düzeni geri getirir. Top tamamen durduktan sonra görünür; yanlış bir hamleyi sakinlikle düzeltmek içindir.',
+    gBomb: '✹ <b>Zihin Sanatları</b> içindeki <b>Bomba</b> renk dinlemez: düştüğü noktanın çevresini tek darbede çözer. Zincir ya da taşın arkasında sıkışırsan oradan hazırla.',
+    gUndo: '↶ <b>Zihin Sanatları</b> içindeki <b>Geri sar</b>, son atışın öncesindeki düzeni geri getirir. Top tamamen durduktan sonra görünür; yanlış bir hamleyi sakinlikle düzeltmek içindir.',
     gWaste: '💭 Bu atış <b>boşa gitti</b> — top, aynı renkten en az <b>3\'li bir gruba</b> değmeli ki patlasın.',
     breathTxt: 'nefes al · nefes ver',
     tiSub: 'bu sembolden {n} tane patlat — sayacı 0\'a düşür',
@@ -1754,11 +1755,11 @@ g4a: '🖐 Burası <b>zen bahçen</b>. Kumu tırmıklamak için araç gerekmez: 
     tutS2: '◎ üstteki <b>HEDEF</b> sayacını gör — o sembolden o kadar patlat, <b>0\'a düşünce bölüm biter</b>',
     tutS3: '➳ <b>atış hakkın sınırlı</b> — her top değerli; duvardan sektirmeyi dene',
     tutS4: '⇄ sıradaki topa dokun — elindekiyle <b>yer değiştirir</b>',
-    tutS5: '◈ <b>joker</b> her renge uyar (250❖) — sıkışınca kurtarır',
+    tutS5: '✦ Soldaki <b>Zihin Sanatları</b> düğmesine bas: içindeki <b>Joker</b> her renge uyar (250❖) ve sıkışınca kurtarır',
     tutS6: '✦ fırlatıcı halkası <b>altın parladığında</b> bırak → mükemmel atış: komşular renk fark etmeksizin patlar',
     tutS7: '⛩ <b>zen bahçen</b> seninle yaşar: kusursuz bölüm → ⬢ anı taşı · 4x combo → ✧ ateş böceği · rekor → 🐟 koi',
-    tutS8: '✹ <b>bomba becerisi</b> renk seçmez. Düşen topun çevresindeki halkayı boşaltır; zincirleri ve sıkışmış kümeleri açmak için sakla.',
-    tutS9: '↶ <b>geri sar</b> son atışın öncesine döner. Boşa giden bir hamleyi düzeltmek için kullan; yalnızca top durduktan sonra açılır.',
+    tutS8: '✹ <b>Zihin Sanatları</b> içindeki <b>Bomba</b> renk seçmez. Düşen topun çevresindeki halkayı boşaltır; zincirleri ve sıkışmış kümeleri açmak için sakla.',
+    tutS9: '↶ <b>Zihin Sanatları</b> içindeki <b>Geri sar</b> son atışın öncesine döner. Boşa giden bir hamleyi düzeltmek için kullan; yalnızca top durduktan sonra açılır.',
     tutS10: '✧ <b>Ödül yolu:</b> 4x+ kombolar ışık tohumu verir. Boşa atışsız bölüm anı taşı kazandırır. Mükemmel atış ise çevreyi renk ayırmadan açar.',
     tutS11: '✺ <b>Lotus ritüeli:</b> her gün ağacı sula (+2), koi göletine üç yem bırak (+2), sonra ağaçtaki çiçeği topla (+3). Lotus, yalnız bahçe objelerinde harcanır.',
     tutNext: 'İleri', tutStart: 'Başla', tutSkip: 'geç',
@@ -1804,8 +1805,8 @@ g4a: '🖐 Burası <b>zen bahçen</b>. Kumu tırmıklamak için araç gerekmez: 
     zenLockToast: 'Zen Mode unlocks after Level 5',
     devUnlock: '🌙 patient fingers… zen unlocked',
     needGold: '❖ {n} gold needed',
-    jokerReady: '◈ wildcard ready — matches any color',
-    joker: '◈ wildcard <small>250❖</small>', jokerSet: '◈ ready',
+    jokerReady: '◈ Joker ready — matches any color',
+    joker: '◈ Joker <small>250❖</small>', jokerSet: '◈ Joker ready',
     pause: 'pause', breathe: 'take a deep breath…',
     resume: 'Resume', restartBtn: 'Restart', mapBtn: 'Map', menuBtn: 'Menu',
     lvlTitle: 'level {n} ✦', mindCalm: 'the mind is still',
@@ -1956,12 +1957,12 @@ g4a: '🖐 Burası <b>zen bahçen</b>. Kumu tırmıklamak için araç gerekmez: 
     zenScored: "♛ Scored Zen <small>— board descends</small>",
     meditBtn: "🧘 Meditation <small>— endless flow</small>",
     dailyTitle: "🌸 daily mandala",
-    dailyBody: "today <b>everyone in the world</b> plays the same board — symmetric, demanding, one shot.<br>finish it for <b>+500 ❖</b>",
-    dailyGo: "Start",
+    dailyBody: "today <b>everyone in the world</b> plays the same board — as demanding as the final levels of world 10, symmetric and one chance.<br>watch the ad and finish it for <b>+300 ❖ · +3 Lotus</b>",
+    dailyGo: "▶ watch ad and play",
     dailyBtn: "🌸 &nbsp;Daily Mandala",
     dailyBtnDone: "🌸 &nbsp;Daily Mandala <small>✓ done today</small>",
     dailyDoneMsg: "today's mandala is complete — a new one opens tomorrow",
-    dailyReward: "🌸 daily mandala  +500 ❖",
+    dailyReward: "🌸 daily mandala  +300 ❖ · +3 Lotus",
     boardBtn: "🏆 &nbsp;Zen Card",
     boardTitle: "🏆 zen card",
     boardEmpty: "no cards yet — share yours or add a friend's",
@@ -2020,16 +2021,16 @@ g4a: '🖐 Burası <b>zen bahçen</b>. Kumu tırmıklamak için araç gerekmez: 
     g4d: '✧ <b>Fireflies</b> are born from light seeds dropped by 4x+ combos in the game. They shine brighter at night.',
     g4e: '🐟 The <b>koi pond</b>: every 2000 points of zen record brings a new koi. Bring your finger close — they swim to you.',
     lotusTree: '🪷 the tree gave a lotus — +{n} ❖',
-    gJoker1: '◈ <b>Joker moment!</b> You are stuck — tap the <b>joker</b> button below. The orb <b>matches any color</b>, and your first joker is <b>free</b>.',
-    gJoker2: 'There it is ✦ The joker adopts the biggest neighboring group. Remember it when in trouble — {c} ❖.',
-    jokerFree: '◈ first joker on the house ✦',
+    gJoker1: '◈ <b>Joker moment!</b> You are stuck — open <b>Special Powers</b> below and choose <b>Joker</b>. The orb <b>matches any color</b>; the first Joker is <b>free</b>.',
+    gJoker2: 'There it is ✦ Joker adopts the largest neighbouring colour group. Remember it when you are stuck — {c} ❖.',
+    jokerFree: '◈ first Joker on the house ✦',
     g1a: '◎ This is your <b>TARGET</b>: pop <b>{n}</b> of the symbol above. When the counter hits <b>0</b>, you win the level!',
     g1b: '➳ And these are your <b>shots: {s}</b>. Limited! Make every one count.',
     g1c: '✨ Your turn: tap the <b>glowing group</b> and release — matching colors melt together.',
     g1d: 'See? The target counter <b>went down</b>. Bring it to 0 and the level is yours 🌊',
     g1e: '⇄ One more: <b>tap the next orb</b> on the right — it swaps with yours. Try it!',
     g2a: '✦ The launcher ring breathes — release <b>when it glows GOLD</b> for a <b>perfect shot</b>: every neighbor at the landing point pops.',
-    g2b: '◈ Stuck? The <b>joker</b> button below (250❖): it matches any color.',
+    g2b: '✦ Stuck? Tap <b>Special Powers</b> on the left. Its <b>Joker</b> (250❖) matches your orb to any colour.',
     g3a: '⬢ Mastery tip: finish a level with <b>no wasted shots</b> → earn a <b>memory stone</b>. It can\'t be bought — it lives in your garden.',
     g3b: '✧ Combos of 4x+ drop a <b>light seed</b> → it becomes a firefly in your zen garden. Your garden grows with you 🐟',
     gWaste: '💭 That shot was <b>wasted</b> — the orb must touch a group of at least <b>3 matching</b> symbols to pop.',
@@ -2039,11 +2040,11 @@ g4a: '🖐 Burası <b>zen bahçen</b>. Kumu tırmıklamak için araç gerekmez: 
     tutS2: '◎ watch the <b>TARGET</b> counter up top — pop that many of that symbol, <b>reach 0 to win</b>',
     tutS3: '➳ <b>shots are limited</b> — every orb counts; try bouncing off walls',
     tutS4: '⇄ tap the next orb — it <b>swaps</b> with the one you hold',
-    tutS5: '◈ the <b>joker</b> matches any color (250❖) — a lifesaver when stuck',
+    tutS5: '✦ Tap <b>Special Powers</b> on the left: its <b>Joker</b> matches any colour (250❖) when you are stuck',
     tutS6: '✦ release when the launcher ring <b>glows gold</b> → perfect shot: neighbors pop regardless of color',
     tutS7: '⛩ your <b>zen garden</b> lives with you: flawless level → ⬢ stone · 4x combo → ✧ firefly · record → 🐟 koi',
-    tutS8: '✹ <b>Bomb</b> clears the impact ring regardless of colour. Keep it for chains and dense knots.',
-    tutS9: '↶ <b>Rewind</b> returns to the moment before your last shot. It is available after the orb settles.',
+    tutS8: '✹ In <b>Special Powers</b>, <b>Bomb</b> clears the impact ring regardless of colour. Keep it for chains and dense knots.',
+    tutS9: '↶ In <b>Special Powers</b>, <b>Rewind</b> returns to the moment before your last shot. It is available after the orb settles.',
     tutS10: '✧ <b>Reward path:</b> 4x+ combos create light seeds. A zero-waste level grants a memory stone. Perfect shots open every neighbour.',
     tutS11: '✺ <b>Lotus ritual:</b> water the tree (+2), leave three koi feeds (+2), then collect its bloom (+3). Lotus is spent only on garden objects.',
     tutNext: 'Next', tutStart: 'Begin', tutSkip: 'skip',
@@ -2099,8 +2100,8 @@ Object.assign(LANGS.tr, {
   firstUseGift:'İlk kullanım hediye', firstUseGiftNote:'· ilk kullanım hediye', firstGiftUsed:'İlk hediye kullanıldı', passSeals:'Kart mührü kullanıldı ({n})', passUnlimited:'Sınırsız',
   avatarSection:'Zen Avatarları', avatarStarter:'Başlangıç avatarı', avatarReqLevel:'{n}. seviyeye ulaş', avatarReqScore:'Zen modunda {n} skor yap', avatarReqSeeds:'{n} ışık tohumu topla', avatarReqStones:'{n} anı taşı kazan',
   avatarMustEarn:'Önce {req}.', avatarOwned:'{n} artık senin.', avatarSelected:'{n} seçildi.', avatarOwnedLabel:'sahip olundu', avatarUnlock:'{n} ❖ ile aç', avatarEarnFirst:'Önce başarıyı tamamla', avatarUse:'Kullan', avatarSelectedLabel:'Seçili',
-  avatarName_enso:'Enso', avatarName_reed:'Kamış', avatarName_moon:'Ay Mührü', avatarName_koi:'Sessiz Koi', avatarName_kitsune:'Sumi Kitsune', avatarName_crane:'Kızıl Turna', avatarName_spiritTree:'Ruh Ağacı', avatarName_void:'Sessiz Yıldız', avatarName_dragon:'Altın Ejderha', avatarName_shogun:'Gölge Şogun', avatarName_oracle:'Ay Kahini', avatarName_phoenix:'Kül Anka', avatarName_monolith:'Sessiz Monolit', avatarName_celestialKoi:'Yıldız Koi',
-  profileCoins:'İnci bakiyesi', profileEdit:'Zen kimliğimi düzenle', windWhisper:'Rüzgâra Fısılda', windInvite:'Rüzgâra davet et', windInviteBody:'Rekor değil; yalnızca adın ve kısa rüzgâr yolun paylaşılır.', windAdd:'Rüzgâr yolu ekle', windAddBody:'Arkadaşının dört haneli rüzgâr kodunu gir. Rekor gerekmez.', windMissing:'Bu rüzgâr yolu henüz bulunamadı.', windOffline:'Bulutlara ulaşılamıyor… Sadece kendi bahçendesin.', windAdded:'{n} bahçesi eklendi.', windWishSent:'Dileğin rüzgâra bırakıldı.',
+  avatarName_enso:'Enso', avatarName_reed:'Kamış', avatarName_moon:'Ay Mührü', avatarName_koi:'Sessiz Koi', avatarName_kitsune:'Sumi Kitsune', avatarName_crane:'Kızıl Turna', avatarName_spiritTree:'Ruh Ağacı', avatarName_void:'Sessiz Yıldız', avatarName_dragon:'Altın Ejderha', avatarName_shogun:'Gölge Şogun', avatarName_oracle:'Ay Kahini', avatarName_phoenix:'Kül Anka', avatarName_monolith:'Sessiz Monolit', avatarName_celestialKoi:'Yıldız Koi', avatarName_moonRegent:'Ay Naibi', avatarName_sunWarden:'Güneş Muhafızı', avatarName_voidArchivist:'Boşluk Arşivcisi',
+  profileCoins:'İnci bakiyesi', profileEdit:'Zen kimliğimi düzenle', windWhisper:'Rüzgâra Fısılda', windInvite:'Rüzgâra davet et', windInviteBody:'Rekor değil; yalnızca adın ve kısa rüzgâr yolun paylaşılır.', windAdd:'Rüzgâr yolu ekle', windAddBody:'Arkadaşının dört haneli rüzgâr kodunu gir. Rekor gerekmez.', windMissing:'Bu rüzgâr yolu henüz bulunamadı.', windOffline:'Bulutlara ulaşılamıyor… Sadece kendi bahçendesin.', windAdded:'{n} bahçesi eklendi.', windWishSent:'Dileğin rüzgâra bırakıldı.', passBody:'<b>%50 daha fazla İnci</b> · <b>ayda 10 Özel Güç Bombası</b> · <b>sınırsız Geri Sar</b> · bahçende <b>kuzey ışıkları</b>',
   wishTitle:'Dilek Feneri', wishBody:'Gölete kısa bir dilek bırak.', wishPlaceholder:'Rüzgâr yumuşak essin…', wishDrop:'Feneri bırak', giftTitle:'İnci armağanı', giftBody:'Kendi incilerinden bir armağan gönder.', send:'Gönder', giftSent:'{n} ❖ rüzgâra karıştı.', windPath:'Rüzgâr yolu', windPathBody:'Bir bahçenin dört haneli rüzgâr kodunu fısılda.', visitGarden:'Bahçeyi ziyaret et', windCodeNeeded:'Dört haneli kod gerekli.', gardenReached:'{n} bahçesine ulaştın.', visit:'Ziyaret et', myWindCode:'Senin rüzgâr kodun:', windReadOnly:'Bu kodla bahçen salt okunur ziyaret edilebilir.', openWindPath:'Rüzgâr yolu aç',
   copyZenCode:'Kodu kopyala', zenCodeCopied:'Rüzgâr yolu kopyalandı.', shareInviteText:'ZenXir’de bir nefeslik bahçe kurdum. {n} · rüzgâr yolu {code}. Gel, iz bırak ve kendi sakinliğini büyüt. #ZenXir', shareInstagram:'Instagram’da paylaş', instagramHint:'Metin kopyalandı; Instagram hikâyene yapıştırabilirsin.',
   gardenShareTitle:'Bahçeyi paylaş', gardenShareBody:'Ekran görüntün için bahçeye kısa bir ZenXir imzası bırakabilir ya da rüzgâr yolunu paylaşabilirsin.', gardenShowStamp:'Paylaşım imzasını göster', gardenStamp:'ZENXIR · {n} · {code}',
@@ -2116,8 +2117,8 @@ Object.assign(LANGS.en, {
   firstUseGift:'First use is a gift', firstUseGiftNote:'· first use is a gift', firstGiftUsed:'First gift used', passSeals:'Pass seal used ({n})', passUnlimited:'Unlimited',
   avatarSection:'Zen Avatars', avatarStarter:'Starter avatar', avatarReqLevel:'Reach level {n}', avatarReqScore:'Score {n} in Zen mode', avatarReqSeeds:'Collect {n} light seeds', avatarReqStones:'Earn {n} memory stones',
   avatarMustEarn:'First, {req}.', avatarOwned:'{n} is now yours.', avatarSelected:'{n} selected.', avatarOwnedLabel:'owned', avatarUnlock:'Unlock for {n} ❖', avatarEarnFirst:'Complete the achievement first', avatarUse:'Use', avatarSelectedLabel:'Selected',
-  avatarName_enso:'Enso', avatarName_reed:'Reed', avatarName_moon:'Moon Seal', avatarName_koi:'Silent Koi', avatarName_kitsune:'Sumi Kitsune', avatarName_crane:'Crimson Crane', avatarName_spiritTree:'Spirit Tree', avatarName_void:'Silent Star', avatarName_dragon:'Golden Dragon', avatarName_shogun:'Shadow Shogun', avatarName_oracle:'Moon Oracle', avatarName_phoenix:'Ash Phoenix', avatarName_monolith:'Quiet Monolith', avatarName_celestialKoi:'Star Koi',
-  profileCoins:'Pearl balance', profileEdit:'Edit my Zen identity', windWhisper:'Whisper to the Wind', windInvite:'Invite to the wind', windInviteBody:'No record—only your name and short wind path are shared.', windAdd:'Add a wind path', windAddBody:'Enter a friend’s four-character wind code. A record is not needed.', windMissing:'That wind path has not arrived yet.', windOffline:'The clouds are out of reach… You are only in your own garden.', windAdded:'{n}’s garden was added.', windWishSent:'Your wish was released to the wind.',
+  avatarName_enso:'Enso', avatarName_reed:'Reed', avatarName_moon:'Moon Seal', avatarName_koi:'Silent Koi', avatarName_kitsune:'Sumi Kitsune', avatarName_crane:'Crimson Crane', avatarName_spiritTree:'Spirit Tree', avatarName_void:'Silent Star', avatarName_dragon:'Golden Dragon', avatarName_shogun:'Shadow Shogun', avatarName_oracle:'Moon Oracle', avatarName_phoenix:'Ash Phoenix', avatarName_monolith:'Quiet Monolith', avatarName_celestialKoi:'Star Koi', avatarName_moonRegent:'Moon Regent', avatarName_sunWarden:'Sun Warden', avatarName_voidArchivist:'Void Archivist',
+  profileCoins:'Pearl balance', profileEdit:'Edit my Zen identity', windWhisper:'Whisper to the Wind', windInvite:'Invite to the wind', windInviteBody:'No record—only your name and short wind path are shared.', windAdd:'Add a friend’s card', windAddBody:'Paste a friend’s Zen card code. A score is never required.', windMissing:'That card has not arrived yet.', windOffline:'The clouds are out of reach… You are only in your own garden.', windAdded:'{n}’s garden was added.', windWishSent:'Your wish was released to the wind.', passBody:'<b>50% more pearls</b> · <b>10 Special Power Bombs each month</b> · <b>unlimited Rewind</b> · <b>northern lights</b> in your garden',
   wishTitle:'Wish Lantern', wishBody:'Leave a brief wish on the pond.', wishPlaceholder:'May the wind be gentle…', wishDrop:'Release lantern', giftTitle:'Pearl gift', giftBody:'Send a gift from your own pearls.', send:'Send', giftSent:'{n} ❖ joined the wind.', windPath:'Wind path', windPathBody:'Whisper a garden’s four-character wind code.', visitGarden:'Visit garden', windCodeNeeded:'A four-character code is required.', gardenReached:'You reached {n}’s garden.', visit:'Visit', myWindCode:'Your wind code:', windReadOnly:'With this code, your garden can be visited read-only.', openWindPath:'Open a wind path',
   copyZenCode:'Copy code', zenCodeCopied:'Wind path copied.', shareInviteText:'I built a breath-sized garden in ZenXir. {n} · wind path {code}. Come leave a trace and grow your own calm. #ZenXir', shareInstagram:'Share on Instagram', instagramHint:'Text copied; paste it into your Instagram story.',
   gardenShareTitle:'Share garden', gardenShareBody:'Leave a small ZenXir signature on your garden for a screenshot, or share your wind path.', gardenShowStamp:'Show sharing signature', gardenStamp:'ZENXIR · {n} · {code}',
@@ -2251,6 +2252,35 @@ Object.assign(LANGS.nl, {
   outTitle:'geen schoten meer', outBody:'Neem een ademteug en kies je volgende stap.', adShots:'bekijk advertentie · +{n} schoten', buyShots:'koop {n} schoten', dailyRetry:'dagelijkse herkansing', dailyRetryOn:'Je dagelijkse herkansing is klaar.', skipLevel:'niveau overslaan', skipDone:'Niveau overgeslagen.', adTitle:'gratis parels', adSim:'advertentie bekijken', shotsGrant:'{n} schoten toegevoegd.', lastTitle:'laatste kans', lastAd:'één advertentie voor een laatste kans', lastCoins:'gebruik parels', lastGive:'geef {n} schoten', lastSaved:'Je voortgang is bewaard.', adCont:'verder spelen', reflow:'stroom herstellen', zenOverTitle:'Zenstroom voltooid', newRec:'nieuw record', bestIs:'beste: {n}', flowOn:'De stroom gaat verder.',
   buyTitle:'parels', buyBody:'Parels openen speciale krachten en prestigeavatars. Lotus blijft voor de tuin.', coinBody:'Kies een klein pakket dat bij jouw reis past.', boughtToast:'Parels toegevoegd.', gotCoins:'Je hebt {n} parels ontvangen.', freeGold:'gratis parels', adCoins:'bekijk advertentie · +{n} ❖', passTitle:'reiskaart', passBody:'Een kalme reisbonus zonder druk.', passActive:'actief · {n} dagen', passBuy:'activeer 30 dagen', passOn:'Reiskaart actief', avatarOwnedLabel:'in bezit', avatarUnlock:'ontgrendel voor {n} ❖', avatarEarnFirst:'Voltooi eerst de prestatie', avatarSelected:'{n} geselecteerd.', avatarSelectedLabel:'geselecteerd', avatarUse:'gebruiken', packs:'pakketten', bestValue:'beste waarde', lotusPacks:'lotuspakketten', gotLotus:'{n} lotus ontvangen.', lotusInfo:'Lotus komt uit tuinrituelen en koopt decoratie. Parels worden nooit voor lotus omgewisseld.', pinBody:'Plaats een wereld als jouw rustige beginpunt.', pinWorld:'wereld vastzetten', pinFixed:'Beginpunt bijgewerkt.', activeTag:'actief', useBtn:'gebruiken', pinTitle:'beginpunt'
 });
+/* Garden economy copy: “Lotus” is the game currency name in every locale. */
+Object.assign(LANGS.tr, {
+  noKoi:'Gölde henüz koi yok. İlk koi, Zen modunda 2000 puanda gelir.',
+  feedCooldown:'Koi az önce beslendi. {h} saat sonra yeniden yem verebilirsin.',
+  fedDone:'Koi beslendi; bugünün 2 Lotus ödülü zaten alındı.',
+  fedReward:'Koi beslendi — +2 Lotus.',
+  wateredReady:'Ağaç sulandı. Dalındaki Lotus açtı; ağaca tekrar dokunup topla.',
+  watered:'Ağaç bugün zaten sulandı; Lotus dalda seni bekliyor.',
+  invStonesBody:'Anı taşları, boşa atış yapmadan bitirdiğin bölümlerin ustalık ödülüdür. İnci ile satın alınamaz.',
+  invLotusBody:'Lotus, koi besleyerek (+2) ve sulanmış ağaçtaki çiçeği toplayarak (+3) kazanılır. Bahçe objeleri için kullanılır; 200 İnci karşılığı alınabilir.'
+  ,adCoinsLeft:'bugün {n}/5 reklam hakkı kaldı', adCoinsLimit:'Bugünkü ücretsiz İnci reklam hakkın doldu. Yarın yeniden açılır.',
+  profileEditBody:'Zen kimliğini ayda bir kez düzenleyebilirsin: 1000 İnci harca ya da iki reklam izle.', profileEditAds:'reklam izle ({n}/{max})', profileEditMonth:'Zen kimliğin bu ay zaten düzenlendi. Yeni ayda tekrar açılır.'
+});
+Object.assign(LANGS.en, {
+  noKoi:'There are no koi in the pond yet. The first arrives at 2000 points in Zen mode.',
+  feedCooldown:'The koi was fed recently. You can feed it again in {h} hours.',
+  fedDone:'The koi is fed; today’s 2 Lotus reward was already collected.',
+  fedReward:'Koi fed — +2 Lotus.',
+  wateredReady:'The tree is watered. A Lotus opened on its branch; tap the tree again to collect it.',
+  watered:'The tree is already watered today; its Lotus is waiting on the branch.',
+  invStonesBody:'Memory stones are mastery rewards for finishing a level without wasted shots. They cannot be bought with pearls.',
+  invLotusBody:'Lotus is earned by feeding koi (+2) and collecting the bloom on a watered tree (+3). It is spent on garden objects; one Lotus can be bought for 200 pearls.'
+  ,adCoinsLeft:'{n}/5 ad rewards left today', adCoinsLimit:'Your free pearl-ad limit is used for today. It resets tomorrow.',
+  profileEditBody:'You can edit your Zen identity once per month: spend 1000 pearls or watch two ads.', profileEditAds:'watch ad ({n}/{max})', profileEditMonth:'Your Zen identity was already edited this month. It opens again next month.'
+});
+Object.keys(LANGS).forEach(code => {
+  // Proper game-currency noun: automatic localisation must not turn Lotus into water lily.
+  if (LANGS[code].profLotus) LANGS[code].profLotus = 'Lotus';
+});
 /* These marks are interface structure, not prose.  A locale may change the
    wording but may never remove the visual anchor of a menu item. */
 const I18N_UI_SYMBOLS = {
@@ -2258,6 +2288,14 @@ const I18N_UI_SYMBOLS = {
   profileTitle:'🏆', boardTitle:'🏆', boardBtn:'♛', dailyBtn:'🌸', dailyBtnDone:'🌸',
   howTo:'❓', langTitle:'🌐', powersShort:'✦'
 };
+/* “Joker” is the wildcard card term, not a clown / trickster character.
+   Keep the gameplay noun identical in every package. */
+const I18N_FIXED_TERMS = new Set(['joker', 'powerJokerName', 'jokerSet']);
+Object.keys(LANGS).forEach(code => {
+  LANGS[code].powerJokerName = 'Joker';
+  LANGS[code].joker = '◈ Joker <small>250❖</small>';
+  LANGS[code].jokerSet = '◈ Joker';
+});
 function T(k, v) {
   let s = (LANGS[LANG] && LANGS[LANG][k] != null) ? LANGS[LANG][k]
     : (LANGS.en && LANGS.en[k] != null) ? LANGS.en[k]
@@ -2281,10 +2319,10 @@ function T(k, v) {
    then uses the cached local package on later offline launches.  It is not an
    external UI library.
    -------------------------------------------------------------------------- */
-const I18N_CACHE_VERSION = 'zx_i18n_complete_v5_';
+const I18N_CACHE_VERSION = 'zx_i18n_complete_v7_';
 const i18nLoading = Object.create(null);
 function i18nIsEnglishFallback(code, key) {
-  if (code === 'en' || !LANGS.en || LANGS.en[key] == null) return false;
+  if (code === 'en' || I18N_FIXED_TERMS.has(key) || !LANGS.en || LANGS.en[key] == null) return false;
   const value = LANGS[code] && LANGS[code][key];
   return value == null || value === LANGS.en[key];
 }
@@ -2305,7 +2343,7 @@ async function i18nTranslateChunk(code, entries, sequence) {
     const tokens = [];
     /* Preserve HTML, placeholders and icon glyphs verbatim.  They describe
        interaction/state, while only the surrounding sentence is translated. */
-    const text = entry[1].replace(/<[^>]*>|\{[A-Za-z0-9_]+\}|&[A-Za-z]+;|[\u{1F000}-\u{1FAFF}\u2190-\u27BF]/gu, token => {
+    const text = entry[1].replace(/<[^>]*>|\{[A-Za-z0-9_]+\}|&[A-Za-z]+;|\b[Jj]oker\b|\bLotus\b|[\u{1F000}-\u{1FAFF}\u2190-\u27BF]/gu, token => {
       const id = '__ZXIR_TOKEN_' + sequence + '_' + entryIndex + '_' + tokens.length + '__';
       tokens.push([id, token]); return id;
     });
@@ -4812,7 +4850,7 @@ const UI = (() => {
       Sfx.click();
       if (dailyDone()) { toast(T('dailyDoneMsg')); return; }
       showModal(T('dailyTitle'), '<p>' + T('dailyBody') + '</p>', [
-        { label: T('dailyGo'), cls: 'primary', cb: () => { hideModal(); startDaily(); } },
+        { label: T('dailyGo'), cls: 'primary', cb: () => adSim(() => { hideModal(); startDaily(); }) },
         { label: T('cancel'), cb: hideModal },
       ]);
     });
@@ -4859,7 +4897,11 @@ const UI = (() => {
     el.gardenShopBtn && el.gardenShopBtn.addEventListener('click', ev => { ev.stopPropagation(); Sfx.click(); showGardenShop(); });
     el.undoBtn && el.undoBtn.addEventListener('click', ev => { ev.stopPropagation(); Sfx.click(); undoShot(); });
     el.bombBtn && el.bombBtn.addEventListener('click', ev => { ev.stopPropagation(); Sfx.click(); armBomb(); });
-    el.skillBtn && el.skillBtn.addEventListener('click', ev => { ev.stopPropagation(); Sfx.click(); showSkillDock(); });
+    el.skillBtn && el.skillBtn.addEventListener('click', ev => {
+      ev.stopPropagation(); Sfx.click();
+      guideEvent('powers');
+      showSkillDock();
+    });
     // ⛩ bahçe araçları
     const toolBtns = [['gFeedBtn', 'feed'], ['gWaterBtn', 'water']];
     toolBtns.forEach(([id, act]) => {
@@ -4964,7 +5006,7 @@ const UI = (() => {
 
   /* ---- 👤 Katmanlı SVG avatarları: metin emojisi yerine yerel, hafif vektör sanat ---- */
   const AVATARS = ['enso', 'reed', 'moon', 'koi'];
-  const AVATARS_PREMIUM = ['kitsune', 'crane', 'spiritTree', 'void', 'dragon', 'shogun', 'oracle', 'phoenix', 'monolith', 'celestialKoi'];
+  const AVATARS_PREMIUM = ['kitsune', 'crane', 'spiritTree', 'void', 'dragon', 'shogun', 'oracle', 'phoenix', 'monolith', 'celestialKoi', 'moonRegent', 'sunWarden', 'voidArchivist'];
   const AVATAR_CATALOG = {
     enso:       { svg: '<circle cx="32" cy="32" r="19" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-dasharray="105 18" transform="rotate(-35 32 32)"/>' },
     reed:       { svg: '<path d="M22 52C29 39 31 25 30 12M32 52c5-13 6-25 5-37M42 52c-3-11-1-24 5-34" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M18 34l12-6m7 4 11-7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' },
@@ -4980,6 +5022,9 @@ const UI = (() => {
     phoenix:    { seeds:50, cost: 1600, svg: '<path d="M32 54c-9-11-11-23-4-37 1 12 7 15 10 3 7 14 5 25-6 34Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M27 38 16 31m19 7 13-11M29 19l3-9 4 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' },
     monolith:   { stones:12, cost: 1900, svg: '<path d="M22 53V18l10-9 10 9v35Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M27 27h10m-10 9h10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>' },
     celestialKoi:{ level:40, cost: 2600, svg: '<path d="M10 34c10-15 28-17 45-2-13 14-31 13-45 2Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="m12 34-6-8m6 8-6 8m25-8h8m-4-4v8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="44" cy="26" r="2" fill="currentColor"/>' },
+    moonRegent: { level:500, cost:18000, svg:'<path d="M44 10C25 13 18 37 33 50c-15 1-25-11-22-25C14 10 31 4 44 10Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="m19 17 5-7 5 7 5-7 5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="42" cy="21" r="2.5" fill="currentColor"/>' },
+    sunWarden:  { level:800, cost:32000, svg:'<circle cx="32" cy="32" r="13" fill="none" stroke="currentColor" stroke-width="4"/><path d="M32 8v9m0 30v9M8 32h9m30 0h9M15 15l6 6m22 22 6 6M49 15l-6 6M21 43l-6 6" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M27 34h10" stroke="currentColor" stroke-width="3"/>' },
+    voidArchivist:{ best:20000, cost:50000, svg:'<path d="M17 15h30v35H17zM22 10h20M24 24h16m-16 8h16m-16 8h10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="m44 18 8 6-8 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>' },
   };
   function ownedAvatars() { return store.get('zx_avatars', []); }
   function avatarMarkup(id, cls) { const a = AVATAR_CATALOG[id] || AVATAR_CATALOG.enso; return '<svg class="avatar-art ' + (cls || '') + '" viewBox="0 0 64 64" aria-hidden="true">' + a.svg + '</svg>'; }
@@ -5014,7 +5059,7 @@ const UI = (() => {
   function onboardProfile(after, isChange) {
     let pick = myAvatar();
     /* İlk karşılaşma yalnızca dört özgür avatarla sakin tutulur; düzenleme stüdyosu başarıma açık seçimleri gösterir. */
-    const choices = isChange ? AVATARS.concat(AVATARS_PREMIUM.filter(a => avatarEarned(a) || hasAvatar(a))) : AVATARS;
+    const choices = isChange ? AVATARS.concat(AVATARS_PREMIUM) : AVATARS;
     const grid = choices.map(a => {
       const locked = !hasAvatar(a);
       const meta = AVATAR_CATALOG[a];
@@ -5039,6 +5084,7 @@ const UI = (() => {
           }
           store.set('zx_name', v.trim().slice(0, 18));
           store.set('zx_avatar', pick);
+          if (isChange) store.set('zx_profile_edit_month', todayKey().slice(0, 7));
           refreshMyCard();
           Sfx.levelUp();
           hideModal();
@@ -5087,7 +5133,21 @@ const UI = (() => {
   }
   /* Zen kartındaki kimlik stüdyosu: isim serbest, prestij avatarları başarı + inci ister. */
   function renameFlow(after = showProfile) {
-    onboardProfile(after, true);
+    const month = todayKey().slice(0, 7);
+    if (store.get('zx_profile_edit_month', '') === month) { toast(T('profileEditMonth')); return; }
+    const ledger = store.get('zx_profile_edit_ads', { month:'', count:0 }) || { month:'', count:0 };
+    const watched = ledger.month === month ? ledger.count : 0;
+    const openStudio = () => onboardProfile(after, true);
+    showModal(T('profileEdit'), '<p>' + T('profileEditBody') + '</p>', [
+      { label: '❖ 1000', cls:'primary', disabled:G.coins < 1000, cb: () => { G.coins -= 1000; saveCoins(); openStudio(); } },
+      { label: '▶ ' + T('profileEditAds', { n: watched, max:2 }), cb: () => {
+          adSim(() => {
+            const next = watched + 1; store.set('zx_profile_edit_ads', { month, count:next });
+            if (next >= 2) openStudio(); else renameFlow(after);
+          });
+        } },
+      { label: T('cancel'), cb: showProfile },
+    ]);
   }
 
   /* ---- günlük sükunet hediyesi: menüde açan lotus ---- */
@@ -5361,9 +5421,13 @@ const UI = (() => {
     }
     function palette() {
       const ph = dayPhase();
-      if (ph === 'night') return { top: '#0a0e18', bot: '#131826', sand: 'rgba(210,220,255,0.05)', trail: CUR_ACCENT, fireflyBoost: 1 };
-      if (ph === 'dusk') return { top: '#1c1420', bot: '#2a1e28', sand: 'rgba(255,220,190,0.06)', trail: '#FFB86B', fireflyBoost: 0.7 };
-      return { top: '#1a2026', bot: '#2b3138', sand: 'rgba(255,245,220,0.07)', trail: '#7DF0C0', fireflyBoost: 0.35 };
+      // Bahçe, satın alınan arka planın temel ve yansıma tonlarını kullanır.
+      // Böylece kozmetik yalnız menüde değil, oyuncunun kendi alanında da hissedilir.
+      const base = 'rgb(' + (CUR_BASE || '9,11,20') + ')';
+      const wash = 'rgb(' + (CUR_WASH || '110,130,220') + ')';
+      if (ph === 'night') return { top: base, bot: wash, sand: 'rgba(210,220,255,0.05)', trail: CUR_ACCENT, fireflyBoost: 1 };
+      if (ph === 'dusk') return { top: base, bot: wash, sand: 'rgba(255,220,190,0.06)', trail: '#FFB86B', fireflyBoost: 0.7 };
+      return { top: base, bot: wash, sand: 'rgba(255,245,220,0.07)', trail: CUR_ACCENT, fireflyBoost: 0.35 };
     }
     function setup() {
       gc = $('gardenCanvas');
@@ -5377,8 +5441,8 @@ const UI = (() => {
       // kum dokusu
       grain = [];
       for (let i = 0; i < 220; i++) grain.push([Math.random() * gW, Math.random() * gH, Math.random() * 1.1 + 0.3]);
-      // 🐟 koi: zen rekoru kademeleriyle gölete katılır (1 + her 2000 puan, en çok 5)
-      const koiN = clamp(1 + Math.floor(G.best / 2000), 1, 5);
+      // 🐟 İlk koi 2000 Zen puanında gelir. Gölet boşken besleme yapılamaz.
+      const koiN = clamp(Math.floor(G.best / 2000), 0, 5);
       kois = [];
       for (let i = 0; i < koiN; i++) kois.push({
         a: Math.random() * TAU, r: 14 + Math.random() * 16,
@@ -5416,7 +5480,7 @@ const UI = (() => {
           }
           if (best) {
             // Aynı satın alınmış objeye kısa aralıkla ikinci dokunuş: bahçeden kaldır.
-            if (best !== 'tree' && best !== 'pond' && hasDecor(best) && lastEditTap.key === best && performance.now() - lastEditTap.at < 380) {
+            if (best !== 'tree' && best !== 'pond' && hasDecor(best) && lastEditTap.key === best && performance.now() - lastEditTap.at < 650) {
               removePlacedDecor(best); lastEditTap = { key: '', at: 0 }; dragKey = null; return;
             }
             lastEditTap = { key: best, at: performance.now() };
@@ -5429,20 +5493,33 @@ const UI = (() => {
         }
         // 🌾 besleme modu: suya dokunulan yere yem serpilir
         if (gAction === 'feed') {
-          if (!kois.length) { UI.toast(T('noKoi')); return; }
+          if (!kois.length) {
+            gAction = null; if (el.gFeedBtn) el.gFeedBtn.classList.remove('on');
+            UI.toast(T('noKoi')); return;
+          }
+          const feedNow = ServerClock.now();
+          const feedAt = Number(store.get('zx_feed_at', 0)) || 0;
+          const feedWait = 6 * 60 * 60 * 1000;
+          if (feedAt && feedNow - feedAt < feedWait) {
+            const left = Math.max(1, Math.ceil((feedWait - (feedNow - feedAt)) / 3600000));
+            gAction = null; if (el.gFeedBtn) el.gFeedBtn.classList.remove('on');
+            UI.toast(T('feedCooldown', { h: left })); return;
+          }
           if (pondHit && Math.abs(p.x - pondHit.x) < pondHit.rx && Math.abs(p.y - pondHit.y) < pondHit.ry) {
             for (let fi = 0; fi < 5; fi++) {
               pellets.push({ x: p.x + (Math.random() - 0.5) * 22, y: p.y + (Math.random() - 0.5) * 14, life: 300 + Math.random() * 120 });
             }
             ripples.push({ x: p.x, y: p.y, t: performance.now() });
             Sfx.softNote(1046, 0.02, 0.3);
-            feedCount++;
-            if (feedCount >= 3 && store.get('zx_fed', '') !== todayKey()) {
+            store.set('zx_feed_at', feedNow);
+            // Günlük ekonomi: 2 Lotus koi, 3 Lotus sulanmış ağaç = en fazla 5 Lotus.
+            if (store.get('zx_fed', '') !== todayKey()) {
               store.set('zx_fed', todayKey());
               addLotus(2);
               UI.toast(T('fedReward'));
               UI.refreshGardenBar && UI.refreshGardenBar();
-            }
+            } else UI.toast(T('fedDone'));
+            gAction = null; if (el.gFeedBtn) el.gFeedBtn.classList.remove('on');
           } else UI.toast(T('feedHint'));
           return;
         }
@@ -5456,10 +5533,10 @@ const UI = (() => {
             waterGlow = performance.now();
             if (store.get('zx_watered', '') !== todayKey()) {
               store.set('zx_watered', todayKey());
-              addLotus(2);
-              UI.toast(T('wateredReward'));
-              UI.refreshGardenBar && UI.refreshGardenBar();
+              // Ödül sulama anında değil: oyuncu oluşan Lotus'a ikinci kez dokunur.
+              UI.toast(T('wateredReady'));
             } else UI.toast(T('watered'));
+            gAction = null; if (el.gWaterBtn) el.gWaterBtn.classList.remove('on');
           } else UI.toast(T('waterHint'));
           return;
         }
@@ -5509,7 +5586,12 @@ const UI = (() => {
         Sfx.sandMove(vel);
         lastP = p; lastT = now;
       });
-      const up = () => { lastP = null; Sfx.sandStop(); };
+      const up = () => {
+        lastP = null;
+        // Sürükle-bırak konumu hemen kaydedilir; düzenleme kapatılmasını beklemez.
+        if (editMode && dragKey) { saveLayout(); dragKey = null; }
+        Sfx.sandStop();
+      };
       gc.addEventListener('pointerup', up);
       gc.addEventListener('pointercancel', up);
     }
@@ -6551,6 +6633,25 @@ const UI = (() => {
       { label: T('cancel'), cb: hideModal },
     ]);
   }
+  async function shareGardenImage() {
+    const garden = $('gardenCanvas');
+    if (!garden || !garden.toBlob) { toast(T('instagramHint')); return; }
+    garden.toBlob(async blob => {
+      if (!blob) { toast(T('instagramHint')); return; }
+      const file = new File([blob], 'zenxir-garden.png', { type:'image/png' });
+      const text = T('gardenShareBody', { n: myName() }) + ' #ZenXir';
+      try {
+        if (navigator.share && (!navigator.canShare || navigator.canShare({ files:[file] }))) {
+          await navigator.share({ title:'ZenXir', text, files:[file] });
+        } else {
+          const url = URL.createObjectURL(blob), a = document.createElement('a');
+          a.href = url; a.download = 'zenxir-garden.png'; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 800);
+          toast(T('instagramHint'));
+        }
+      } catch (e) { /* user can close the native share sheet */ }
+    }, 'image/png');
+  }
   function showGardenShare() {
     const code = windCode();
     const txt = T('shareInviteText', { n: myName(), code });
@@ -6570,7 +6671,7 @@ const UI = (() => {
       { label: T('gardenShowStamp'), cls: 'primary', cb: () => { hideModal(); stamp(); } },
       { label: T('copyZenCode'), cb: copyCode },
       { label: T('shareX'), cb: () => { try { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt) + '&hashtags=ZenXir', '_blank', 'noopener,noreferrer'); } catch (e) { copyCode(); } } },
-      { label: '📸 ' + T('shareInstagram'), cb: () => { if (navigator.share) navigator.share({ title:'ZenXir', text:txt }).catch(() => {}); else copyCode(); } },
+      { label: '📸 ' + T('shareInstagram'), cb: () => { hideModal(); shareGardenImage(); } },
       { label: T('cancel'), cb: hideModal },
     ]);
   }
@@ -6598,23 +6699,23 @@ const UI = (() => {
 
   /* 🌿 Bahçe Dükkanı: süslemeler lotus (bakım) ve anı taşı (ustalık) ile alınır */
   const DECOR = [
-    { id: 'lantern', icon: '🏮', lotus: 6,  stones: 0 },
-    { id: 'bamboo',       icon: '🎋', lotus: 8,  stones: 0 },
-    { id: 'fountain',     icon: '🎍', lotus: 14, stones: 2 },
-    { id: 'bridge',       icon: '🌉', lotus: 18, stones: 3 },
-    { id: 'rock',    icon: '⛰', lotus: 22, stones: 4 },
-    { id: 'pagoda',       icon: '🏯', lotus: 30, stones: 6 },
-    { id: 'chime',        icon: '🎐', lotus: 12, stones: 2 },
-    { id: 'sakura',       icon: '🌸', lotus: 26, stones: 5 },
-    { id: 'torii',        icon: '⛩', lotus: 40, stones: 8 },
-    { id: 'crane',        icon: '🦢', lotus: 16, stones: 2 },
-    { id: 'bench',        icon: '🪵', lotus: 10, stones: 1 },
-    { id: 'floatLantern', icon: '🏵', lotus: 20, stones: 3 },
-    { id: 'candles',      icon: '🕯', lotus: 13, stones: 1 },
-    { id: 'mistBowl',     icon: '∽', lotus: 15, stones: 2 },
-    { id: 'stonePath',    icon: '⋯', lotus: 19, stones: 3 },
-    { id: 'windBell',     icon: '⌇', lotus: 21, stones: 4 },
-    { id: 'moonGate',     icon: '◌', lotus: 34, stones: 5 },
+    { id: 'lantern', icon: '🏮', lotus: 28, stones: 1 },
+    { id: 'bamboo',       icon: '🎋', lotus: 36, stones: 2 },
+    { id: 'fountain',     icon: '🎍', lotus: 68, stones: 5 },
+    { id: 'bridge',       icon: '🌉', lotus: 92, stones: 7 },
+    { id: 'rock',         icon: '⛰', lotus: 110, stones: 9 },
+    { id: 'pagoda',       icon: '🏯', lotus: 160, stones: 14 },
+    { id: 'chime',        icon: '🎐', lotus: 58, stones: 4 },
+    { id: 'sakura',       icon: '🌸', lotus: 132, stones: 11 },
+    { id: 'torii',        icon: '⛩', lotus: 220, stones: 20 },
+    { id: 'crane',        icon: '🦢', lotus: 72, stones: 5 },
+    { id: 'bench',        icon: '🪵', lotus: 44, stones: 3 },
+    { id: 'floatLantern', icon: '🏵', lotus: 88, stones: 6 },
+    { id: 'candles',      icon: '🕯', lotus: 54, stones: 4 },
+    { id: 'mistBowl',     icon: '∽', lotus: 78, stones: 6 },
+    { id: 'stonePath',    icon: '⋯', lotus: 104, stones: 8 },
+    { id: 'windBell',     icon: '⌇', lotus: 120, stones: 10 },
+    { id: 'moonGate',     icon: '◌', lotus: 190, stones: 16 },
   ];
   function ownedDecor() { return store.get('zx_decor', []); }
   function pendingDecor() { return store.get('zx_decor_pending', []); }
@@ -6694,15 +6795,23 @@ const UI = (() => {
     el.modal.querySelectorAll('.decorrow').forEach(b => b.addEventListener('click', () => {
       const id = b.getAttribute('data-id');
       const d = DECOR.find(x => x.id === id);
-      if (hasDecor(id)) { toast(T('gardenPlaced', { n: T(id + 'Name') })); return; }
-      if (hasPendingDecor(id)) { chooseDecorPlacement(id); return; }
-      if (G.lotus < d.lotus || G.stones < d.stones) { toast(T('decorNeed', { l: d.lotus, s: d.stones })); return; }
-      G.lotus -= d.lotus; store.set('zx_lotus', G.lotus);
-      const arr = pendingDecor(); arr.push(id); store.set('zx_decor_pending', arr);
-      Sfx.levelUp();
-      toast(T('decorBought', { n: T(id + 'Name') }));
-      refreshGardenBar();
-      chooseDecorPlacement(id);
+      const name = T(id + 'Name');
+      const infoKey = id + 'Info';
+      const story = T(infoKey) === infoKey ? '<p>' + T('gardenPlaceBody', { n: name }) + '</p>' : T(infoKey);
+      const buy = () => {
+        if (G.lotus < d.lotus || G.stones < d.stones) { toast(T('decorNeed', { l: d.lotus, s: d.stones })); return; }
+        G.lotus -= d.lotus; store.set('zx_lotus', G.lotus);
+        const arr = pendingDecor(); arr.push(id); store.set('zx_decor_pending', arr);
+        Sfx.levelUp(); toast(T('decorBought', { n: name })); refreshGardenBar(); chooseDecorPlacement(id);
+      };
+      const cost = '<p class="decorsub">🪷 ' + d.lotus + (d.stones ? ' · ⬢ ' + d.stones : '') + '</p>';
+      if (hasDecor(id)) {
+        showModal(name, story + cost, [{ label:T('close'), cls:'primary', cb:hideModal }]);
+      } else if (hasPendingDecor(id)) {
+        showModal(name, story + cost, [{ label:T('gardenPlace'), cls:'primary', cb:() => chooseDecorPlacement(id) }, { label:T('close'), cb:hideModal }]);
+      } else {
+        showModal(name, story + cost, [{ label:T('gardenPlace'), cls:'primary', disabled:G.lotus < d.lotus || G.stones < d.stones, cb:buy }, { label:T('close'), cb:hideModal }]);
+      }
     }));
   }
 
@@ -6811,7 +6920,10 @@ const UI = (() => {
       { msg: T('g1d'), spot: 'chipTarget' },
       { msg: T('g1e'), until: 'swap' },
     ];
-    else if (n === 2) coachSeq = [{ msg: T('g2a'), block: true }, { msg: T('g2b'), block: true }];
+    else if (n === 2) coachSeq = [
+      { msg: T('g2a'), block: true },
+      { msg: T('g2b'), spot: 'skillBtn', until: 'powers' },
+    ];
     else if (n === 3) coachSeq = [{ msg: T('g3a'), block: true }, { msg: T('g3b'), block: true }];
     else if (n === 4) coachSeq = [{ msg: T('gBomb'), block: true }];
     else if (n === 5) coachSeq = [{ msg: T('gUndo'), block: true }];
@@ -7022,7 +7134,7 @@ const UI = (() => {
     const first = !dailyDone();
     const bonus = 20 + G.shots * 5;
     let total = G.levelCoins + bonus;
-    if (first) { store.set('zx_daily_done', todayKey()); total += 500; }
+    if (first) { store.set('zx_daily_done', todayKey()); total += 300; addLotus(3); }
     if (hasPass()) total = Math.round(total * 1.5);
     G.coins += total; saveCoins();
     Sfx.softNote(440, 0.05, 2.8); Sfx.softNote(660, 0.04, 2.8);
@@ -7034,7 +7146,7 @@ const UI = (() => {
       '<p class="coinline">' + T('fromBonus', { b: bonus }) + '</p>';
     showModal(T('dailyTitle'), body, [
       { label: T('menuBtn'), cls: 'primary', cb: () => { G.daily = false; showMenu(); } },
-      { label: T('restartBtn'), cb: () => startDaily() },
+      { label: T('restartBtn'), cb: () => adSim(() => { hideModal(); startDaily(); }) },
     ]);
   }
 
@@ -7365,9 +7477,14 @@ const UI = (() => {
     ]);
   }
   function adForCoins() {
+    const today = todayKey();
+    const ledger = store.get('zx_ad_coin_ledger', { day:'', count:0 }) || { day:'', count:0 };
+    const count = ledger.day === today ? ledger.count : 0;
+    if (count >= 5) { toast(T('adCoinsLimit')); return; }
     adSim(() => {
       hideModal();
       G.coins += AD_COINS; saveCoins();
+      store.set('zx_ad_coin_ledger', { day: today, count: count + 1 });
       toast(T('gotCoins', { n: AD_COINS }));
       showShop();
     });
@@ -7400,9 +7517,12 @@ const UI = (() => {
     const addAdCard = () => {
       sec(T('freeGold'));
       const adCard = document.createElement('div'); adCard.className = 'shopcard adcard';
-      const adBtn = mkBtn('', adForCoins, 'primarybtn wide');
+      const ledger = store.get('zx_ad_coin_ledger', { day:'', count:0 }) || { day:'', count:0 };
+      const used = ledger.day === todayKey() ? ledger.count : 0;
+      const adBtn = mkBtn('', adForCoins, 'primarybtn wide' + (used >= 5 ? ' off' : ''));
       // Her yerde aynı inci işareti: HUD'daki ❖, reklam ödülünde de korunur.
-      adBtn.innerHTML = T('adCoins', { n: AD_COINS });
+      adBtn.disabled = used >= 5;
+      adBtn.innerHTML = T('adCoins', { n: AD_COINS }) + '<small> · ' + T('adCoinsLeft', { n: Math.max(0, 5 - used) }) + '</small>';
       adCard.appendChild(adBtn); el.shopList.appendChild(adCard);
     };
 
