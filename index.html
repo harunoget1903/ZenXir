@@ -247,11 +247,13 @@
   }
   #skillBtn {
     position:absolute; left:max(10px, env(safe-area-inset-left)); bottom:max(14px, env(safe-area-inset-bottom)); z-index:7;
-    min-height:42px; padding:9px 14px;
-    border:1px solid rgba(125,240,192,0.42); border-radius:999px;
+    width:48px; height:48px; min-height:48px; padding:0;
+    border:1px solid rgba(125,240,192,0.52); border-radius:50%;
     background:rgba(9,18,24,0.82); color:var(--mint); font-size:11px; letter-spacing:0.12em;
     cursor:pointer; backdrop-filter:blur(8px); box-shadow:0 0 18px rgba(125,240,192,0.10);
+    display:grid; place-items:center; font-size:0;
   }
+  #skillBtn::before { content:'✦'; font-size:22px; line-height:1; color:var(--mint); text-shadow:0 0 12px rgba(125,240,192,.45); }
   #skillBtn:active { transform:scale(0.96); }
   @keyframes bombPulse {
     0%,100% { box-shadow:0 0 12px rgba(255,140,80,0.35); }
@@ -418,6 +420,9 @@
   .garden-codex p { margin:4px 0 0; color:var(--dim); font-size:11px; line-height:1.58; letter-spacing:0.02em; }
   .lotusguide { color:var(--dim); font-size:11px; line-height:1.68; letter-spacing:0.025em; }
   .lotusguide b { color:#FFD86B; font-weight:600; }
+  .lotus-mark { display:inline-grid; place-items:center; width:1.15em; height:1.15em; vertical-align:-0.1em; line-height:1; font-size:1.12em; color:#ff8fc9; text-shadow:0 0 8px rgba(255,126,190,.7); }
+  .lotus-mark::before { content:'✺'; background:linear-gradient(145deg,#fff0fb 8%,#ff9bd4 43%,#d76cc0 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #mDailyBtn small { display:block; width:100%; margin-top:5px; text-align:center; letter-spacing:.09em; line-height:1.2; }
 
   #silentBtn {
     position:absolute; top:max(14px, env(safe-area-inset-top)); right:68px; z-index:19;
@@ -2107,6 +2112,7 @@ Object.keys(LANGS).forEach(code => {
 /* Yeni sosyal, bahçe ve prestij ekranları: tüm eski diller İngilizceye düşer;
    böylece yeni bir anahtar hiçbir dilde Türkçe olarak sızmaz. */
 Object.assign(LANGS.tr, {
+  dailyBtn:'Günlük Mandala', dailyBtnDone:'Günlük Mandala<small>✓ bugün tamam</small>',
   specialPowers:'Özel Güçler', powersShort:'✦ güçler', powerCurrentCombo:'anlık kombo', powerBestCombo:'en iyi kombo', powerPerfectShots:'mükemmel atış', powerJokerName:'Joker', powerBombName:'Bomba', powerUndoName:'Geri sar',
   powerJokerDesc:'Topunu her renkle uyumlu hâle getirir.', powerBombDesc:'İniş çevresini güçlü bir şok dalgasıyla boşaltır.', powerUndoDesc:'Son atıştan önceki düzeni geri getirir.',
   firstUseGift:'İlk kullanım hediye', firstUseGiftNote:'· ilk kullanım hediye', firstGiftUsed:'İlk hediye kullanıldı', passSeals:'Kart mührü kullanıldı ({n})', passUnlimited:'Sınırsız',
@@ -2124,6 +2130,7 @@ Object.assign(LANGS.tr, {
   mistBowlName:'Sis Kâsesi', stonePathName:'Taş Patika', windBellName:'Rüzgâr Çanı', moonGateName:'Ay Kapısı', rakeHint:'Kumu dilediğin zaman tırmıkla; bu ritüel ödül tüketmez.', gBomb:'Güçlü patlamayı işaretle; inişte çevredeki düğümler tek dalgada çözülür.', gUndo:'Son atışı geri al; yalnızca bir atış kaydı varken kullanılabilir.', close:'Kapat'
 });
 Object.assign(LANGS.en, {
+  dailyBtn:'Daily Mandala', dailyBtnDone:'Daily Mandala<small>✓ complete today</small>',
   specialPowers:'Special Powers', powersShort:'✦ powers', powerCurrentCombo:'current combo', powerBestCombo:'best combo', powerPerfectShots:'perfect shots', powerJokerName:'Joker', powerBombName:'Bomb', powerUndoName:'Rewind',
   powerJokerDesc:'Tunes your orb to every colour.', powerBombDesc:'Clears the landing area with a focused shockwave.', powerUndoDesc:'Restores the board to just before your last shot.',
   firstUseGift:'First use is a gift', firstUseGiftNote:'· first use is a gift', firstGiftUsed:'First gift used', passSeals:'Pass seal used ({n})', passUnlimited:'Unlimited',
@@ -2139,6 +2146,28 @@ Object.assign(LANGS.en, {
   gardenTracesTitle:'New garden traces', gardenTracesBody:'10 light seeds bring the Wish Constellation to your garden; 6 memory stones bring the Moonstone Circle. These traces quietly show your lasting progress.', gardenCareTitle:'✺ Lotuses and care', gardenCareBody:'Water the tree once per day: +2 lotuses. Feed the koi pond three times: +2 lotuses. Collect the watered tree’s flower: +3 lotuses. Lotuses are used only for garden objects.', gardenOwnedTitle:'What you own', gardenInvitesTitle:'What your garden can invite', gardenEmpty:'You have not collected a garden object yet.', gardenFull:'Your collection is complete.',
   worldShareComplete:'World {n} complete',
   mistBowlName:'Mist Bowl', stonePathName:'Stone Path', windBellName:'Wind Bell', moonGateName:'Moon Gate', rakeHint:'Rake the sand whenever you like; this ritual never spends a reward.', gBomb:'Mark a focused blast; on landing, nearby nodes resolve in one wave.', gUndo:'Rewind the last shot; available only while a shot record exists.', close:'Close'
+});
+/* Small interaction copy belongs here as well: it must not be an English or
+   Turkish leak when the rest of a language package is refreshed. */
+Object.assign(LANGS.tr, {
+  g2b:'✦ Takıldığında sol alttaki <b>Güçler halkasına</b> dokun. Joker, Bomba ve Geri Sar burada.',
+  gJoker1:'◈ <b>Joker zamanı.</b> Güçler halkasını aç, sonra <b>Joker</b>i seç. Her renkle uyum sağlar; ilk kullanımı hediyedir.',
+  gBomb:'✹ Güçler halkasını aç ve <b>Bomba</b>yı seç. Sonraki atışın iniş çevresini tek dalgada boşaltır.',
+  gUndo:'↶ Bir atıştan sonra Güçler halkasını açıp <b>Geri Sar</b>a dokun. Tahta atıştan önceki ana döner.',
+  gardenInvitesTitle:'Sıradaki bahçe izleri',
+  gardenCoreLocked:'{n}, bahçenin temel sembolüdür; kaldırılmaz. Düzenleme halkasında yalnızca boyutunu değiştirebilirsin.',
+  gardenScale:'Boyut %{n} olarak ayarlandı.',
+  pondName:'Koi gölü'
+});
+Object.assign(LANGS.en, {
+  g2b:'✦ If you are stuck, tap the <b>Powers ring</b> at lower left. Joker, Bomb and Rewind live there.',
+  gJoker1:'◈ <b>Joker time.</b> Open the Powers ring, then choose <b>Joker</b>. It matches every colour; the first use is a gift.',
+  gBomb:'✹ Open the Powers ring and choose <b>Bomb</b>. Your next shot clears its landing area in one wave.',
+  gUndo:'↶ After a shot, open the Powers ring and tap <b>Rewind</b>. The board returns to the moment before it.',
+  gardenInvitesTitle:'Garden traces to discover',
+  gardenCoreLocked:'{n} is a core garden symbol and cannot be removed. In edit mode you may only change its size.',
+  gardenScale:'Size set to {n}%.',
+  pondName:'Koi pond'
 });
 /* Yeni sistem ekranları için yerel etiketler. Eski paketlerdeki ayrıntılı açıklamalar
    aşağıda yeniden kullanılır; böylece seçilebilir bir dilde İngilizce yedek metin kalmaz. */
@@ -2328,6 +2357,8 @@ function T(k, v) {
   if (v) for (const kk in v) s = s.split('{' + kk + '}').join(v[kk]);
   return s;
 }
+/* Lotus, every screen uses the same drawn petal mark rather than platform emoji. */
+function lotusMark() { return '<span class="lotus-mark" aria-label="Lotus"></span>'; }
 /* --------------------------------------------------------------------------
    Locale completion
 
@@ -5359,11 +5390,14 @@ const UI = (() => {
     set('shopTitleTxt', 'shopTitle'); set('worldsTitleTxt', 'worldsTitle'); set('gardenTitleTxt', 'gardenTitle'); set('gardenHintTxt', 'gardenHint');
     const cb = $('coachBtn'); if (cb) cb.textContent = T('coachNext');
     set('howBtn', 'howTo'); set('splashSub', 'tapHint'); set('breathTxt', 'breathTxt');
-    if (el.skillBtn) { el.skillBtn.textContent = T('powersShort'); el.skillBtn.setAttribute('aria-label', T('specialPowers')); }
+    if (el.skillBtn) { el.skillBtn.textContent = '✦'; el.skillBtn.setAttribute('aria-label', T('specialPowers')); el.skillBtn.title = T('specialPowers'); }
     const shareGarden = $('gardenShareBtn'); if (shareGarden) shareGarden.setAttribute('aria-label', T('gardenShareTitle'));
     el.mShopBtn.innerHTML = T('shopBtn');
     el.langBtn.innerHTML = languageFlag(LANG) + '<span>' + LANG.toUpperCase() + '</span>';
-    if (el.mDailyBtn) el.mDailyBtn.innerHTML = dailyDone() ? T('dailyBtnDone') : T('dailyBtn');
+    if (el.mDailyBtn) {
+      const dailyCopy = dailyDone() ? T('dailyBtnDone') : T('dailyBtn');
+      el.mDailyBtn.innerHTML = dailyCopy.replace(/^✺\s*/, lotusMark());
+    }
     if (el.mBoardBtn) el.mBoardBtn.innerHTML = T('boardBtn');
     refreshMenu();
     if (G.state === 'playing') refresh();
@@ -5446,14 +5480,14 @@ const UI = (() => {
     let feedCount = 0, waterGlow = 0;
     let dragTargets = {};
     let layout = {};          // 📍 sürükle-bırak konumları {anahtar:{x,y}} — oranlı (0..1)
-    let editMode = false, dragKey = null, dragDX = 0, dragDY = 0, lastEditTap = { key: '', at: 0 };
+    let editMode = false, dragKey = null, selectedKey = null, dragDX = 0, dragDY = 0, lastEditTap = { key: '', at: 0 }, scaleControls = null;
     const DRAGGABLE = ['tree', 'pond', 'lantern', 'torii', 'pagoda', 'fountain', 'rock', 'cairn', 'mush'];
     function loadLayout() { layout = store.get('zx_layout', {}) || {}; }
     function saveLayout() { store.set('zx_layout', layout); }
     /* varsayılan konum ya da oyuncunun taşıdığı yer */
     const P = (key, dx, dy) => {
       const l = layout[key];
-      return l ? { x: l.x * gW, y: l.y * gH } : { x: dx, y: dy };
+      return l ? { x: l.x * gW, y: l.y * gH, s: clamp(Number(l.s) || 1, .65, 1.45) } : { x: dx, y: dy, s: 1 };
     };
     let viewCard = null;      // null = kendi bahçen
     const V = () => viewCard
@@ -5523,6 +5557,16 @@ const UI = (() => {
         const p = toXY(e);
         // 📍 düzenleme modu: en yakın objeyi yakala
         if (editMode && !viewCard) {
+          if (scaleControls) {
+            const hitControl = Object.entries(scaleControls).find(([, q]) => (p.x - q.x) ** 2 + (p.y - q.y) ** 2 < 19 ** 2);
+            if (hitControl) {
+              const delta = hitControl[0] === 'plus' ? .1 : -.1;
+              const prev = layout[selectedKey] || { x: dragTargets[selectedKey].x / gW, y: dragTargets[selectedKey].y / gH, s: 1 };
+              layout[selectedKey] = { ...prev, s: clamp((Number(prev.s) || 1) + delta, .65, 1.45) };
+              saveLayout(); Sfx.click(); UI.toast(T('gardenScale', { n: Math.round(layout[selectedKey].s * 100) }));
+              return;
+            }
+          }
           let best = null, bd = 1e9;
           for (const k in dragTargets) {
             const t = dragTargets[k];
@@ -5531,11 +5575,17 @@ const UI = (() => {
             if (d2 < bd && d2 < (t.r + 26) ** 2) { bd = d2; best = k; }
           }
           if (best) {
+            if ((best === 'tree' || best === 'pond') && lastEditTap.key === best && performance.now() - lastEditTap.at < 650) {
+              selectedKey = best;
+              UI.toast(T('gardenCoreLocked', { n: T(best === 'tree' ? 'treeName' : 'pondName') }));
+              return;
+            }
             // Aynı satın alınmış objeye kısa aralıkla ikinci dokunuş: bahçeden kaldır.
             if (best !== 'tree' && best !== 'pond' && hasDecor(best) && lastEditTap.key === best && performance.now() - lastEditTap.at < 650) {
-              removePlacedDecor(best); lastEditTap = { key: '', at: 0 }; dragKey = null; return;
+              removePlacedDecor(best); lastEditTap = { key: '', at: 0 }; dragKey = null; selectedKey = null; return;
             }
             lastEditTap = { key: best, at: performance.now() };
+            selectedKey = best;
             dragKey = best;
             dragDX = p.x - dragTargets[best].x;
             dragDY = p.y - dragTargets[best].y;
@@ -6019,8 +6069,8 @@ const UI = (() => {
 
       // 🌳 Ruh Ağacı: merkezde — lotuslar burada açar
       const m = treeModel();
-      const TS = 1.5;
       const treePos = P('tree', gW / 2, gH * 0.50);
+      const TS = 1.5 * treePos.s;
       const TX = treePos.x - 34 * TS, TY = treePos.y - 62 * TS;
       gx.save();
       gx.translate(TX, TY);
@@ -6146,6 +6196,24 @@ const UI = (() => {
           gx.beginPath(); gx.arc(t.x, t.y, t.r, 0, TAU); gx.stroke();
         }
         gx.restore();
+        const selected = selectedKey && dragTargets[selectedKey];
+        if (selected) {
+          const scale = P(selectedKey, selected.x, selected.y).s;
+          scaleControls = {
+            minus: { x: selected.x - 26, y: selected.y - selected.r - 19 },
+            plus: { x: selected.x + 26, y: selected.y - selected.r - 19 },
+          };
+          gx.save();
+          gx.fillStyle = 'rgba(9,18,24,.90)'; gx.strokeStyle = 'rgba(125,240,192,.72)'; gx.lineWidth = 1;
+          for (const [kind, q] of Object.entries(scaleControls)) {
+            gx.beginPath(); gx.arc(q.x, q.y, 15, 0, TAU); gx.fill(); gx.stroke();
+            gx.fillStyle = 'rgba(190,255,230,.96)'; gx.font = '18px system-ui'; gx.textAlign = 'center'; gx.textBaseline = 'middle';
+            gx.fillText(kind === 'plus' ? '+' : '−', q.x, q.y - .5); gx.fillStyle = 'rgba(9,18,24,.90)';
+          }
+          gx.fillStyle = 'rgba(190,255,230,.92)'; gx.font = '10px system-ui'; gx.textAlign = 'center'; gx.textBaseline = 'alphabetic';
+          gx.fillText(Math.round(scale * 100) + '%', selected.x, selected.y - selected.r - 15);
+          gx.restore();
+        } else scaleControls = null;
       }
 
       // ✧ ateş böcekleri: ışık tohumlarından doğar, gece parlar
@@ -6163,7 +6231,7 @@ const UI = (() => {
       gx.shadowBlur = 0;
       // 🐟 koi gölü: organik kıyılı, kıyı taşlı, nilüferli — daire değil, göl
       const pondPos = P('pond', gW - 78, gH - 74);
-      const px = pondPos.x, py = pondPos.y, prx = 64, pry = 37;
+      const px = pondPos.x, py = pondPos.y, prx = 64 * pondPos.s, pry = 37 * pondPos.s;
       const blob = (rx, ry) => {
         gx.beginPath();
         for (let a2 = 0; a2 <= TAU + 0.01; a2 += TAU / 22) {
@@ -6385,7 +6453,7 @@ const UI = (() => {
     }
     function setView(card) { viewCard = card || null; }
     function setAction(a) { gAction = (gAction === a) ? null : a; return gAction; }
-    function setEdit(on) { editMode = on == null ? !editMode : on; dragKey = null; if (!editMode) saveLayout(); return editMode; }
+    function setEdit(on) { editMode = on == null ? !editMode : on; dragKey = null; if (!editMode) { selectedKey = null; scaleControls = null; saveLayout(); } return editMode; }
     function resetLayout() { layout = {}; saveLayout(); }
     function getAction() { return gAction; }
     function loopG(t) {
@@ -6407,11 +6475,11 @@ const UI = (() => {
         const vv2 = V();
         el.gardenStonesTxt.textContent = T('gardenStones', { n: vv2.stones });
         el.gardenSeedsTxt.textContent = T('gardenSeeds', { n: vv2.seeds });
-        if (el.gardenLotusTxt) el.gardenLotusTxt.textContent = '🪷 ' + (viewCard ? '—' : G.lotus);
+        if (el.gardenLotusTxt) el.gardenLotusTxt.innerHTML = lotusMark() + '<span>' + (viewCard ? '—' : G.lotus) + '</span>';
         running = true;
         requestAnimationFrame(loopG);
       },
-      close() { running = false; viewCard = null; gAction = null; editMode = false; dragKey = null; pellets = []; waterDrops = []; Sfx.sandStop(); },
+      close() { running = false; viewCard = null; gAction = null; editMode = false; dragKey = null; selectedKey = null; scaleControls = null; pellets = []; waterDrops = []; Sfx.sandStop(); },
       setView, setAction, getAction, setEdit, resetLayout,
       isVisiting() { return !!viewCard; },
     };
@@ -6806,14 +6874,14 @@ const UI = (() => {
     ]);
   }
   function refreshGardenBar() {
-    if (el.gardenLotusTxt) el.gardenLotusTxt.textContent = '🪷 ' + G.lotus;
+    if (el.gardenLotusTxt) el.gardenLotusTxt.innerHTML = lotusMark() + '<span>' + G.lotus + '</span>';
     if (el.gardenStonesTxt) el.gardenStonesTxt.textContent = T('gardenStones', { n: G.stones });
   }
   function showGardenCurrencyInfo(kind) {
     const data = {
       stones: { title: T('invStonesTitle'), mark: '⬢', count: G.stones, body: T('invStonesBody') },
       seeds: { title: T('invSeedsTitle'), mark: '✧', count: G.seeds, body: T('invSeedsBody') },
-      lotus: { title: T('invLotusTitle'), mark: '✺', count: G.lotus, body: T('invLotusBody') },
+      lotus: { title: T('invLotusTitle'), mark: lotusMark(), count: G.lotus, body: T('invLotusBody') },
     }[kind];
     if (!data) return;
     showModal(T('gardenInventory'), '<div class="garden-codex"><section><b>' + data.mark + ' ' + data.title + ' · ' + data.count + '</b><p>' + data.body + '</p></section></div>', [
@@ -6831,7 +6899,7 @@ const UI = (() => {
       return '<button class="decorrow' + (has ? ' has' : pending || can ? '' : ' cant') + '" data-id="' + d.id + '">' +
         '<span class="dcico">' + d.icon + '</span>' +
         '<span class="dcname">' + T(d.id + 'Name') + '</span>' +
-        '<span class="dccost">' + (has ? '✓' : pending ? T('gardenReadyToPlace') : '🪷 ' + d.lotus + (d.stones ? '  ⬢ ' + d.stones : '')) + '</span></button>';
+        '<span class="dccost">' + (has ? '✓' : pending ? T('gardenReadyToPlace') : lotusMark() + d.lotus + (d.stones ? '  ⬢ ' + d.stones : '')) + '</span></button>';
     }).join('');
     showModal(T('decorTitle'),
       '<p class="decorsub">' + T('decorSub', { l: G.lotus, s: G.stones }) + '</p><div class="decorlist">' + rows + '</div>' +
@@ -6858,7 +6926,7 @@ const UI = (() => {
         const arr = pendingDecor(); arr.push(id); store.set('zx_decor_pending', arr);
         Sfx.levelUp(); toast(T('decorBought', { n: name })); refreshGardenBar(); chooseDecorPlacement(id);
       };
-      const cost = '<p class="decorsub">🪷 ' + d.lotus + (d.stones ? ' · ⬢ ' + d.stones : '') + '</p>';
+      const cost = '<p class="decorsub">' + lotusMark() + d.lotus + (d.stones ? ' · ⬢ ' + d.stones : '') + '</p>';
       if (hasDecor(id)) {
         showModal(name, story + cost, [{ label:T('close'), cls:'primary', cb:hideModal }]);
       } else if (hasPendingDecor(id)) {
@@ -6894,6 +6962,8 @@ const UI = (() => {
   }
   function showGarden(card) {
     if (el.silentBtn) el.silentBtn.classList.add('hidden');
+    // Oyun tahtasının koçu bahçeye taşınmaz. Bahçe yalnız kendi kısa rehberini açar.
+    coachHide(); coachSeq = []; coachIdx = -1;
     G.state = 'menu';
     if (el.skillBtn) el.skillBtn.classList.add('hidden');
     Garden.setView(card || null);   // 👁 kart verilirse o oyuncunun bahçesi çizilir
@@ -6995,7 +7065,10 @@ const UI = (() => {
     }
     else return;
     coachIdx = -1;
-    setTimeout(coachNext, 2400); // hedef tanıtım animasyonundan sonra
+    setTimeout(() => {
+      // Oyuncu bu arada menüye/bahçeye geçtiyse eski oyun koçunu orada gösterme.
+      if (G.state === 'playing' && G.mode === 'level' && !G.daily) coachNext();
+    }, 2400); // hedef tanıtım animasyonundan sonra
   }
   function guideEvent(evt) {
     // ilk boş atış: bağlamsal ders (bir kez, ilk 3 bölümde)
