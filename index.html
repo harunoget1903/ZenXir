@@ -309,6 +309,12 @@
   .mainbtn small { color:var(--dim); font-size:11px; letter-spacing:0.04em; }
   .mainbtn:active { transform:scale(0.97); }
   #mLevelBtn { border-color:rgba(125,240,192,0.4); box-shadow:0 0 22px rgba(125,240,192,0.09) inset, 0 0 18px rgba(125,240,192,0.06); }
+  #mDailyBtn {
+    border-color:rgba(255,176,216,.48);
+    background:radial-gradient(circle at 20px 50%, rgba(255,158,210,.26) 0 3px, transparent 3.5px),
+      radial-gradient(circle at 20px 50%, transparent 0 8px, rgba(255,216,107,.26) 8.5px 9.5px, transparent 10px), rgba(255,255,255,.035);
+    box-shadow:inset 0 0 20px rgba(255,158,210,.07), 0 0 16px rgba(255,158,210,.06);
+  }
   #mZenBtn.locked { color:var(--dim); }
   #howBtn { background:none; border:none; color:var(--dim); font-size:11px; letter-spacing:0.14em; cursor:pointer; margin-top:8px; padding:8px; }
   /* ---------- Günlük Lotus ---------- */
@@ -460,6 +466,12 @@
   .gardenstat:active { transform:scale(.94); }
   .gardenstat:focus-visible { outline:1px solid rgb(var(--th-a1)); }
   .gardenstat:hover { background:rgba(var(--th-a1),.10); }
+  #gardenShopBtn {
+    width:40px; height:40px; font-size:25px; font-weight:300;
+    color:rgb(var(--th-a1)); border-color:rgba(var(--th-a1),.45);
+    box-shadow:0 0 18px rgba(var(--th-a1),.16);
+  }
+  #gardenShopBtn:active { transform:scale(.91); }
   .pearl-mark, .pearl-readout::before {
     content:'❖'; display:inline-block; width:auto; height:auto; margin:0 5px 0 1px; vertical-align:0;
     color:#ffd59e; font-size:.95em; line-height:1; text-shadow:0 0 7px rgba(255,198,126,.7);
@@ -2260,10 +2272,14 @@ Object.assign(LANGS.tr, {
   fedReward:'Koi beslendi — +2 Lotus.',
   wateredReady:'Ağaç sulandı. Dalındaki Lotus açtı; ağaca tekrar dokunup topla.',
   watered:'Ağaç bugün zaten sulandı; Lotus dalda seni bekliyor.',
+  wateredDone:'Bugünün Lotusunu zaten topladın; ağacı yarın yeniden sulayabilirsin.',
+  lotusClaim:'✺ Günlük Lotus hediyesi — +{n} Lotus.', lotusDone:'Bugünün Lotus hediyesini zaten aldın; yarın yeniden açacak.',
+  needGold:'❖ {n} İnci gerekli', swapLine:'✺ 1 &nbsp;←&nbsp; ❖ {c}', swapBtn:'❖ {c} &nbsp;→&nbsp; ✺ 1',
   invStonesBody:'Anı taşları, boşa atış yapmadan bitirdiğin bölümlerin ustalık ödülüdür. İnci ile satın alınamaz.',
   invLotusBody:'Lotus, koi besleyerek (+2) ve sulanmış ağaçtaki çiçeği toplayarak (+3) kazanılır. Bahçe objeleri için kullanılır; 200 İnci karşılığı alınabilir.'
   ,adCoinsLeft:'bugün {n}/5 reklam hakkı kaldı', adCoinsLimit:'Bugünkü ücretsiz İnci reklam hakkın doldu. Yarın yeniden açılır.',
   profileEditBody:'Zen kimliğini ayda bir kez düzenleyebilirsin: 1000 İnci harca ya da iki reklam izle.', profileEditAds:'reklam izle ({n}/{max})', profileEditMonth:'Zen kimliğin bu ay zaten düzenlendi. Yeni ayda tekrar açılır.'
+  ,gBombUse:'✹ Şimdi <b>Bomba</b>yı seç. Bir sonraki atışın iniş çevresini güçlü bir dalgayla temizleyecek.', gUndoUse:'↶ Şimdi <b>Geri Sar</b>a bas. Atış öncesindeki tahta aynen geri gelir.'
 });
 Object.assign(LANGS.en, {
   noKoi:'There are no koi in the pond yet. The first arrives at 2000 points in Zen mode.',
@@ -2272,10 +2288,14 @@ Object.assign(LANGS.en, {
   fedReward:'Koi fed — +2 Lotus.',
   wateredReady:'The tree is watered. A Lotus opened on its branch; tap the tree again to collect it.',
   watered:'The tree is already watered today; its Lotus is waiting on the branch.',
+  wateredDone:'Today’s Lotus was already collected; you can water the tree again tomorrow.',
+  lotusClaim:'✺ Daily Lotus gift — +{n} Lotus.', lotusDone:'Today’s Lotus gift was already collected; it blooms again tomorrow.',
+  needGold:'❖ {n} pearls required', swapLine:'✺ 1 &nbsp;←&nbsp; ❖ {c}', swapBtn:'❖ {c} &nbsp;→&nbsp; ✺ 1',
   invStonesBody:'Memory stones are mastery rewards for finishing a level without wasted shots. They cannot be bought with pearls.',
   invLotusBody:'Lotus is earned by feeding koi (+2) and collecting the bloom on a watered tree (+3). It is spent on garden objects; one Lotus can be bought for 200 pearls.'
   ,adCoinsLeft:'{n}/5 ad rewards left today', adCoinsLimit:'Your free pearl-ad limit is used for today. It resets tomorrow.',
   profileEditBody:'You can edit your Zen identity once per month: spend 1000 pearls or watch two ads.', profileEditAds:'watch ad ({n}/{max})', profileEditMonth:'Your Zen identity was already edited this month. It opens again next month.'
+  ,gBombUse:'✹ Now select <b>Bomb</b>. Your next shot clears the landing area in one focused wave.', gUndoUse:'↶ Now press <b>Rewind</b>. The board returns exactly to the moment before the shot.'
 });
 Object.keys(LANGS).forEach(code => {
   // Proper game-currency noun: automatic localisation must not turn Lotus into water lily.
@@ -2285,7 +2305,7 @@ Object.keys(LANGS).forEach(code => {
    wording but may never remove the visual anchor of a menu item. */
 const I18N_UI_SYMBOLS = {
   journey:'▷', zenBtn:'∞', zenBtnLocked:'∞', shopBtn:'◇', gardenBtn:'⛩',
-  profileTitle:'🏆', boardTitle:'🏆', boardBtn:'♛', dailyBtn:'🌸', dailyBtnDone:'🌸',
+  profileTitle:'🏆', boardTitle:'🏆', boardBtn:'♛', dailyBtn:'✺', dailyBtnDone:'✺',
   howTo:'❓', langTitle:'🌐', powersShort:'✦'
 };
 /* “Joker” is the wildcard card term, not a clown / trickster character.
@@ -2319,7 +2339,7 @@ function T(k, v) {
    then uses the cached local package on later offline launches.  It is not an
    external UI library.
    -------------------------------------------------------------------------- */
-const I18N_CACHE_VERSION = 'zx_i18n_complete_v7_';
+const I18N_CACHE_VERSION = 'zx_i18n_complete_v8_';
 const i18nLoading = Object.create(null);
 function i18nIsEnglishFallback(code, key) {
   if (code === 'en' || I18N_FIXED_TERMS.has(key) || !LANGS.en || LANGS.en[key] == null) return false;
@@ -2971,12 +2991,12 @@ function makeLevel(n) {
 
   // dünya bazlı zorluk basamağı (0..1) + dünya içi hafif dalga
   const dW = w / (WORLD_COUNT - 1);
-  const softStart = w === 0 ? lerp(-0.07, 0, clamp(inWorld * 4, 0, 1)) : 0; // ilk bölümler öğretici
-  const d = clamp(dW + 0.045 * Math.sin(inWorld * Math.PI * 4) + softStart, 0, 1);
+  // İlk dünya artık yalnızca öğretici değil: tüm semboller görünür, kısa ama gerçek kararlar ister.
+  const d = clamp(Math.max(0.13, dW) + 0.045 * Math.sin(inWorld * Math.PI * 4), 0, 1);
 
-  const rows = Math.round(lerp(5, 9, d));
-  const colorCount = clamp(3 + Math.round(d * 3), 3, PALETTE.length);
-  const goal = Math.round(lerp(10, 28, d));
+  const rows = Math.round(lerp(6, 9, d));
+  const colorCount = PALETTE.length; // semboller dünya ilerledikçe açılmaz; her dünya tam paletle oynanır
+  const goal = Math.round(lerp(13, 28, d));
 
   // dar marj: erken %16, geç %4 — hatanı fark edersin ama tekrar denemek istersin
   const effPerShot = lerp(1.5, 1.95, d);
@@ -3033,6 +3053,12 @@ function fillGrid(rows, colorCount, density, L) {
       else if (roll2 < ice + chain) { cell.type = 'chain'; }      // zincirli: sadece zincirleme kırar
       G.grid.set(key(r, c), cell);
     }
+  }
+  // Tam palet kuralı: rastlantı ilk dünyada bir sembolü atlayamaz.
+  // Her renk, sahnede en az bir kez görünür; dünya değişimi sembol kilidi değildir.
+  const normal = [...G.grid.values()].filter(b => !b.type && b.idx >= 0);
+  for (let i = 0; i < colorCount; i++) {
+    if (!normal.some(b => b.idx === i) && normal.length) normal[i % normal.length].idx = i;
   }
 }
 
@@ -3098,7 +3124,7 @@ function startLevel(n, daily) {
   G.themeWorld = worldOf(n); applyThemes(); // dünya kimliği: palet + arka plan + müzik
   G.level = n; G.shots = L.shots;
   G.score = 0; G.dispScore = 0; G.combo = 0; G.levelCoins = 0;
-  G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
+  if (!resumed) { G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0; }
   G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0;
   G.resolveLock = false; G.curRainbow = false;
   fillGrid(L.rows, L.colorCount, L.density, L);
@@ -3192,21 +3218,45 @@ function startLevel(n, daily) {
   }
 }
 
-function startZen() {
+function saveZenSession() {
+  if (G.mode !== 'zen' || !G.grid || !G.grid.size || G.fly || G.pendingPops > 0) return;
+  store.set('zx_zen_session', {
+    v: 1, grid: [...G.grid.entries()].map(([k, b]) => [k, { ...b }]), score: G.score,
+    dispScore: G.dispScore, combo: G.combo, topRow: G.topRow, scrollY: G.scrollY,
+    scrollTarget: G.scrollTarget, cur: G.cur, next: G.next, zenShots: G.zenShots,
+    zenLastTier: G.zenLastTier || 0, zenContinueUsed: !!G.zenContinueUsed,
+  });
+}
+function clearZenSession() { store.set('zx_zen_session', null); }
+function restoreZenSession() {
+  const s = store.get('zx_zen_session', null);
+  if (!s || s.v !== 1 || !Array.isArray(s.grid) || !s.grid.length) return false;
+  G.grid = new Map(s.grid.map(([k, b]) => [k, { ...b }]));
+  G.score = Number(s.score) || 0; G.dispScore = Number(s.dispScore) || G.score;
+  G.combo = Number(s.combo) || 0; G.topRow = Number(s.topRow) || 0;
+  G.scrollY = Number(s.scrollY) || 0; G.scrollTarget = Number(s.scrollTarget) || 0;
+  G.cur = s.cur; G.next = s.next; G.zenShots = Number(s.zenShots) || 0;
+  G.zenLastTier = Number(s.zenLastTier) || zenTier(); G.zenContinueUsed = !!s.zenContinueUsed;
+  return true;
+}
+function startZen(fresh = false) {
+  if (fresh) clearZenSession();
   G.mode = 'zen'; G.state = 'playing';
   G.wind = null; G.zenLastTier = 0; G.lastChanceUsed = false;
   G.themeWorld = null;
   applyThemes();
-  G.score = 0; G.dispScore = 0; G.combo = 0;
+  const resumed = !fresh && restoreZenSession();
+  if (!resumed) { G.score = 0; G.dispScore = 0; G.combo = 0; }
   G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
   G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0;
-  G.zenShots = 0; G.zenRowPending = false; G.resolveLock = false;
+  if (!resumed) G.zenShots = 0;
+  G.zenRowPending = false; G.resolveLock = false;
   G.fly = null; G.pendingPops = 0; G.guideBlock = false; G.levelWon = false; G.lockSince = 0; G.undo = null;
-  G.zenContinueUsed = false; G.zenStartBest = G.best;
+  if (!resumed) G.zenContinueUsed = false;
+  G.zenStartBest = G.best;
   G.zenStartTime = performance.now(); G.breathNextAt = G.zenStartTime + 42000;
   G.curRainbow = false;
-  fillGrid(5, PALETTE.length, 0.9);
-  refillQueue(true);
+  if (!resumed) { fillGrid(5, PALETTE.length, 0.9); refillQueue(true); }
   UI.enterGame();
 }
 
@@ -4984,6 +5034,7 @@ const UI = (() => {
     }
     if (navigator.onLine !== false) SyncQueue.flush();
     window.addEventListener('online', () => { ServerClock.sync(); SyncQueue.flush(); }, { passive: true });
+    window.addEventListener('pagehide', () => { if (G.mode === 'zen') saveZenSession(); }, { passive:true });
     el.splash.addEventListener('pointerdown', () => { Sfx.start(); proceedSplash(); });
     // ses izni varsa tema kendiliğinden başlasın (yoksa ilk dokunuşta)
     try { Sfx.start(); } catch (e) {}
@@ -5157,16 +5208,17 @@ const UI = (() => {
     return store.get('zx_day', '') !== todayKey();
   }
   function claimLotus(fromTree) {
-    if (!dailyAvailable()) return;
+    if (!dailyAvailable()) { toast(T('lotusDone')); return; }
     const today = todayKey();
     const yesterday = new Date(ServerClock.now() - 86400000).toISOString().slice(0, 10);
     let streak = store.get('zx_day_streak', 0);
     streak = (store.get('zx_day', '') === yesterday) ? streak + 1 : 1;
     store.set('zx_day', today); store.set('zx_day_streak', streak);
-    const reward = 30 + Math.min(streak - 1, 6) * 5; // seri büyüdükçe 30→60
-    G.coins += reward; saveCoins();
+    const reward = 2; // menüdeki günlük çiçek: her gün net iki Lotus
+    addLotus(reward);
     Sfx.levelUp(); vibrate(18);
     toast(T(fromTree ? 'lotusTree' : 'lotusClaim', { n: reward, s: streak }));
+    if (UI.refreshGardenBar) UI.refreshGardenBar();
     updateLotus();
   }
   function updateLotus() {
@@ -5535,7 +5587,7 @@ const UI = (() => {
               store.set('zx_watered', todayKey());
               // Ödül sulama anında değil: oyuncu oluşan Lotus'a ikinci kez dokunur.
               UI.toast(T('wateredReady'));
-            } else UI.toast(T('watered'));
+            } else UI.toast(T(store.get('zx_treelotus', '') === todayKey() ? 'wateredDone' : 'watered'));
             gAction = null; if (el.gWaterBtn) el.gWaterBtn.classList.remove('on');
           } else UI.toast(T('waterHint'));
           return;
@@ -6384,6 +6436,7 @@ const UI = (() => {
     if (passBomb) consumePassBomb(); else if (!firstFree) { G.coins -= BOMB_COST; saveCoins(); }
     if (firstFree) store.set('zx_bomb_used', true);
     G.bombArmed = true;
+    guideEvent('bomb');
     G.curRainbow = false;
     Sfx.softNote(120, 0.06, 0.9); Sfx.softNote(180, 0.04, 0.7);
     vibrate(18);
@@ -6404,6 +6457,7 @@ const UI = (() => {
     if (!firstFree && !passUndo && G.coins < UNDO_COST) { toast(T('needGold', { n: UNDO_COST })); return; }
     if (!firstFree && !passUndo) { G.coins -= UNDO_COST; saveCoins(); }
     if (applyUndo()) {
+      guideEvent('undo');
       if (firstFree) store.set('zx_undo_used', true);
       // ⏪ zaman geri sarma efekti: mavi dalga + ters dönen halka + düşük perdeli süpürme
       G.rewind = { t0: performance.now() };
@@ -6923,10 +6977,22 @@ const UI = (() => {
     else if (n === 2) coachSeq = [
       { msg: T('g2a'), block: true },
       { msg: T('g2b'), spot: 'skillBtn', until: 'powers' },
+      { msg: T('gJoker1'), spot: 'jokerBtn', until: 'joker' },
+      { msg: T('gJoker2', { c: JOKER_COST }) },
     ];
     else if (n === 3) coachSeq = [{ msg: T('g3a'), block: true }, { msg: T('g3b'), block: true }];
-    else if (n === 4) coachSeq = [{ msg: T('gBomb'), block: true }];
-    else if (n === 5) coachSeq = [{ msg: T('gUndo'), block: true }];
+    else if (n === 4) coachSeq = [
+      { msg: T('gBomb'), spot: 'skillBtn', until: 'powers' },
+      { msg: T('gBombUse'), spot: 'bombBtn', until: 'bomb' },
+    ];
+    else if (n === 5) {
+      // Gerçek bir geri sarma için atış geçmişi gerekir; eğitim bunun için zararsız bir anlık görüntü hazırlar.
+      snapUndo();
+      coachSeq = [
+        { msg: T('gUndo'), spot: 'skillBtn', until: 'powers' },
+        { msg: T('gUndoUse'), spot: 'undoBtn', until: 'undo' },
+      ];
+    }
     else return;
     coachIdx = -1;
     setTimeout(coachNext, 2400); // hedef tanıtım animasyonundan sonra
@@ -6942,6 +7008,8 @@ const UI = (() => {
   }
 
   function showMenu() {
+    // Zen akışı menüye dönerken saklanır; oyuncu Zen Modu'na dönünce aynı tahtaya devam eder.
+    if (G.mode === 'zen' && G.state === 'playing') saveZenSession();
     if (el.silentBtn) el.silentBtn.classList.remove('hidden');
     if (el.undoBtn) el.undoBtn.classList.add('hidden');
     if (el.bombBtn) el.bombBtn.classList.add('hidden');
@@ -7122,7 +7190,7 @@ const UI = (() => {
     Sfx.click();
     const btns = [
       { label: T('resume'), cls: 'primary', cb: hideModal },
-      { label: T('restartBtn'), cb: () => (G.mode === 'zen' ? startZen() : G.daily ? startDaily() : startLevel(G.level)) },
+      { label: T('restartBtn'), cb: () => (G.mode === 'zen' ? startZen(true) : G.daily ? startDaily() : startLevel(G.level)) },
     ];
     if (G.mode === 'level') btns.push({ label: T('mapBtn'), cb: showMap });
     btns.push({ label: T('menuBtn'), cb: showMenu });
@@ -7416,6 +7484,7 @@ const UI = (() => {
     zenOverReal();
   }
   function zenOverReal() {
+    clearZenSession();
     const nb = Math.max(G.best, G.score);
     const isNew = G.score > G.best;
     G.best = nb; store.set('zx_best', nb);
