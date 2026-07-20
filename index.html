@@ -248,13 +248,18 @@
   #skillBtn {
     position:absolute; left:max(10px, env(safe-area-inset-left)); bottom:max(14px, env(safe-area-inset-bottom)); z-index:7;
     width:48px; height:48px; min-height:48px; padding:0;
-    border:1px solid rgba(125,240,192,0.52); border-radius:50%;
-    background:rgba(9,18,24,0.82); color:var(--mint); font-size:11px; letter-spacing:0.12em;
-    cursor:pointer; backdrop-filter:blur(8px); box-shadow:0 0 18px rgba(125,240,192,0.10);
+    border:1px solid rgba(var(--power-rgb,166,128,255),0.72); border-radius:50%;
+    background:radial-gradient(circle,rgba(var(--power-rgb,154,116,255),.26),rgba(9,18,24,.88) 62%); color:#f3efff; font-size:11px; letter-spacing:0.12em;
+    cursor:pointer; backdrop-filter:blur(8px); box-shadow:0 0 14px rgba(var(--power-rgb,162,120,255),.48), inset 0 0 16px rgba(var(--power-rgb,112,232,255),.12);
     display:grid; place-items:center; font-size:0;
+    isolation:isolate; animation:powerSeal 2.6s ease-in-out infinite;
   }
-  #skillBtn::before { content:'✦'; font-size:22px; line-height:1; color:var(--mint); text-shadow:0 0 12px rgba(125,240,192,.45); }
+  /* Yazı karakterinin optik kutusuna güvenmek yerine çekirdek doğrudan 50%/50%'ye çizilir. */
+  #skillBtn::before { content:''; position:absolute; left:50%; top:50%; z-index:1; width:15px; height:15px; transform:translate(-50%,-50%); border:1.5px solid #f5f2ff; border-radius:4px; background:radial-gradient(circle at 50% 50%,#fff 0 17%,rgba(var(--power-rgb,182,151,255),.9) 20% 34%,rgba(var(--power-rgb,141,96,255),.18) 38% 100%); box-shadow:0 0 13px rgba(var(--power-rgb,176,142,255),.95), inset 0 0 5px rgba(255,255,255,.75); }
+  #skillBtn::after { content:''; position:absolute; inset:5px; border-radius:50%; border:1px dashed rgba(var(--power-rgb,112,232,255),.78); box-shadow:0 0 9px rgba(var(--power-rgb,112,232,255),.40); animation:sealOrbit 5s linear infinite; }
   #skillBtn:active { transform:scale(0.96); }
+  @keyframes powerSeal { 0%,100% { box-shadow:0 0 14px rgba(var(--power-rgb,162,120,255),.42), inset 0 0 16px rgba(var(--power-rgb,112,232,255),.10); } 50% { box-shadow:0 0 28px rgba(var(--power-rgb,162,120,255),.76), inset 0 0 22px rgba(var(--power-rgb,112,232,255),.24); } }
+  @keyframes sealOrbit { to { transform:rotate(360deg); } }
   @keyframes bombPulse {
     0%,100% { box-shadow:0 0 12px rgba(255,140,80,0.35); }
     50% { box-shadow:0 0 26px rgba(255,140,80,0.7); }
@@ -310,13 +315,19 @@
   }
   .mainbtn small { color:var(--dim); font-size:11px; letter-spacing:0.04em; }
   .mainbtn:active { transform:scale(0.97); }
-  #mLevelBtn { border-color:rgba(125,240,192,0.4); box-shadow:0 0 22px rgba(125,240,192,0.09) inset, 0 0 18px rgba(125,240,192,0.06); }
+  #mLevelBtn { border-color:rgba(125,240,192,0.5); background:linear-gradient(105deg,rgba(125,240,192,.12),rgba(125,240,192,.025)); box-shadow:0 0 22px rgba(125,240,192,0.12) inset, 0 0 18px rgba(125,240,192,0.08); }
+  #mZenBtn { border-color:rgba(140,177,255,.38); background:linear-gradient(105deg,rgba(112,145,255,.12),rgba(160,115,255,.035)); box-shadow:0 0 20px rgba(125,150,255,.08) inset; }
+  #mShopBtn { border-color:rgba(182,146,255,.54); background:linear-gradient(105deg,rgba(162,122,255,.16),rgba(96,116,255,.035)); box-shadow:inset 0 0 18px rgba(162,122,255,.08); }
+  #mGardenBtn { border-color:rgba(86,220,196,.48); background:linear-gradient(105deg,rgba(57,206,186,.13),rgba(68,156,221,.035)); box-shadow:inset 0 0 18px rgba(57,206,186,.07); }
   #mDailyBtn {
+    position:relative; text-align:center; padding-left:14px; padding-right:14px;
     border-color:rgba(255,176,216,.48);
-    background:radial-gradient(circle at 20px 50%, rgba(255,158,210,.26) 0 3px, transparent 3.5px),
-      radial-gradient(circle at 20px 50%, transparent 0 8px, rgba(255,216,107,.26) 8.5px 9.5px, transparent 10px), rgba(255,255,255,.035);
+    background:rgba(255,255,255,.035);
     box-shadow:inset 0 0 20px rgba(255,158,210,.07), 0 0 16px rgba(255,158,210,.06);
   }
+  .mandala-mark { position:absolute; left:15px; top:50%; display:grid; place-items:center; width:25px; height:25px; border-radius:50%; color:#ffd1ec; background:radial-gradient(circle,#ff8fc9 0 2px,transparent 3px),repeating-conic-gradient(from 0deg,rgba(255,176,226,.92) 0 8deg,transparent 8deg 30deg); box-shadow:0 0 12px rgba(255,144,205,.55); animation:mandalaTurn 12s linear infinite; }
+  .mandala-mark::before { content:'✾'; font-size:16px; text-shadow:0 0 7px #fff; }
+  @keyframes mandalaTurn { from { transform:translateY(-50%) rotate(0); } to { transform:translateY(-50%) rotate(360deg); } }
   #mZenBtn.locked { color:var(--dim); }
   #howBtn { background:none; border:none; color:var(--dim); font-size:11px; letter-spacing:0.14em; cursor:pointer; margin-top:8px; padding:8px; }
   /* ---------- Günlük Lotus ---------- */
@@ -420,8 +431,7 @@
   .garden-codex p { margin:4px 0 0; color:var(--dim); font-size:11px; line-height:1.58; letter-spacing:0.02em; }
   .lotusguide { color:var(--dim); font-size:11px; line-height:1.68; letter-spacing:0.025em; }
   .lotusguide b { color:#FFD86B; font-weight:600; }
-  .lotus-mark { display:inline-grid; place-items:center; width:1.15em; height:1.15em; vertical-align:-0.1em; line-height:1; font-size:1.12em; color:#ff8fc9; text-shadow:0 0 8px rgba(255,126,190,.7); }
-  .lotus-mark::before { content:'✺'; background:linear-gradient(145deg,#fff0fb 8%,#ff9bd4 43%,#d76cc0 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lotus-mark { display:inline-grid; place-items:center; width:1.15em; height:1.15em; vertical-align:-0.1em; line-height:1; font-size:1.12em; filter:drop-shadow(0 0 5px rgba(255,150,205,.55)); }
   #mDailyBtn small { display:block; width:100%; margin-top:5px; text-align:center; letter-spacing:.09em; line-height:1.2; }
 
   #silentBtn {
@@ -626,8 +636,14 @@
   .mindstats div { min-width:0; padding:7px 3px; text-align:center; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.025); }
   .mindstats i { display:block; color:var(--dim); font-size:8.5px; font-style:normal; letter-spacing:.08em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .mindstats b { display:block; margin-top:2px; color:rgb(var(--th-a1)); font-size:15px; font-weight:500; }
+  .powerwallet { float:right; margin:-2px 0 7px; color:#FFD86B; font-size:11px; letter-spacing:.08em; padding:5px 8px; border:1px solid rgba(255,216,107,.28); border-radius:999px; background:rgba(255,216,107,.06); }
   .artsgrid { display:grid; gap:6px; }
-  .artcard { padding:8px 10px; border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.028); }
+  .artcard { padding:8px 10px; border:1px solid var(--line); border-radius:11px; background:rgba(255,255,255,.028); position:relative; overflow:hidden; }
+  .artcard::before { content:''; position:absolute; width:42px; height:42px; right:-12px; top:-16px; border-radius:50%; border:1px solid currentColor; opacity:.28; box-shadow:0 0 16px currentColor; animation:artGlow 2.8s ease-in-out infinite; }
+  .artcard:nth-child(1) { color:#8ee8ff; border-color:rgba(142,232,255,.36); }
+  .artcard:nth-child(2) { color:#ffb06e; border-color:rgba(255,176,110,.36); }
+  .artcard:nth-child(3) { color:#c2a7ff; border-color:rgba(194,167,255,.36); }
+  @keyframes artGlow { 0%,100% { transform:scale(.82); opacity:.2; } 50% { transform:scale(1.12); opacity:.46; } }
   .artcard b { display:block; color:var(--txt); font-size:12px; }
   .artcard p { margin:3px 0 0; color:var(--dim); font-size:10.5px; line-height:1.42; }
   .artcard em { color:rgb(var(--th-a1)); font-style:normal; }
@@ -1308,6 +1324,11 @@ const pickArr = arr => arr[(Math.random() * arr.length) | 0];
 function hexToRgba(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+function hexToRgbString(hex) {
+  if (typeof hex !== 'string' || !/^#[0-9a-f]{6}$/i.test(hex)) return '';
+  const n = parseInt(hex.slice(1), 16);
+  return ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
 }
 /* Kalıcı kayıt — 1000 bölümlük ilerleme kaybolmamalı.
    localStorage erişilemezse (gizli mod, kota dolu, izin yok) bellek yansımasına düşer;
@@ -2358,7 +2379,7 @@ function T(k, v) {
   return s;
 }
 /* Lotus, every screen uses the same drawn petal mark rather than platform emoji. */
-function lotusMark() { return '<span class="lotus-mark" aria-label="Lotus"></span>'; }
+function lotusMark() { return '<span class="lotus-mark" aria-label="Lotus">🪷</span>'; }
 /* --------------------------------------------------------------------------
    Locale completion
 
@@ -2539,6 +2560,12 @@ function applyThemes() {
   PALETTE.forEach((p, i) => { p.c = cols[i]; });
   CUR_AURORA = bg.aurora; CUR_BASE = bg.base; CUR_PARTICLE = bg.particle; CUR_WASH = bg.wash;
   CUR_ACCENT = wt ? WORLDS[G.themeWorld].accent : '#7DF0C0';
+  // Özel güç mührü, oynanan dünyanın kimliğini; sabitlenmiş/satın alınmış temada ise
+  // oyuncunun seçtiği palet veya fondaki baskın rengi taşır.
+  const palAccent = !wt && (SHOP.palettes[G.activePal] || {}).colors && (SHOP.palettes[G.activePal] || {}).colors[0];
+  const powerRgb = wt
+    ? (hexToRgbString(WORLDS[G.themeWorld].accent) || ((bg.aurora || [])[0] || {}).c)
+    : (hexToRgbString(palAccent) || ((bg.aurora || [])[0] || {}).c || '125,240,192');
   if (typeof Sfx !== 'undefined' && Sfx.setTone) Sfx.setTone(wt ? wt.tone : 1);
   if (typeof initDust === 'function') initDust();
   if (typeof syncAuroraLayer === 'function') syncAuroraLayer();
@@ -2547,6 +2574,7 @@ function applyThemes() {
     const root = document.documentElement.style;
     root.setProperty('--th-base', CUR_BASE || '9,11,20');
     root.setProperty('--th-wash', CUR_WASH || '110,130,220');
+    root.setProperty('--power-rgb', powerRgb);
     if (bg.aurora && bg.aurora[0]) root.setProperty('--th-a1', bg.aurora[0].c);
     if (bg.aurora && bg.aurora[1]) root.setProperty('--th-a2', bg.aurora[1].c);
     if (bg.aurora && bg.aurora[2]) root.setProperty('--th-a3', bg.aurora[2].c);
@@ -2983,7 +3011,7 @@ const G = {
 };
 
 /* Sık patlamalar için sabit bellek havuzu: oyun döngüsünde yeni obje/GC baskısı yok. */
-const BURST_POOL_SIZE = 480;
+const BURST_POOL_SIZE = 260;
 G.bursts = Array.from({ length: BURST_POOL_SIZE }, () => ({ active: false }));
 let burstCursor = 0;
 function spawnPooledBurst(data) {
@@ -3091,6 +3119,26 @@ function fillGrid(rows, colorCount, density, L) {
   for (let i = 0; i < colorCount; i++) {
     if (!normal.some(b => b.idx === i) && normal.length) normal[i % normal.length].idx = i;
   }
+  // Tek atışta bölüm bitmesin: ilk tahtada 5'ten büyük aynı-renk adaları bölünür.
+  // Bu, her hedef için en az iki-üç karar gerektirirken tahtayı çözümsüz yapmaz.
+  for (let pass = 0; pass < 2; pass++) {
+    const seen = new Set();
+    for (const [startKey, start] of G.grid) {
+      if (seen.has(startKey) || start.type || start.idx < 0) continue;
+      const group = [startKey], q = [startKey]; seen.add(startKey);
+      while (q.length) {
+        const k = q.pop(); const b = G.grid.get(k);
+        for (const nk of neighborKeys(b.r, b.c)) {
+          const nb = G.grid.get(nk);
+          if (nb && !nb.type && nb.idx === start.idx && !seen.has(nk)) { seen.add(nk); q.push(nk); group.push(nk); }
+        }
+      }
+      for (let i = 5; i < group.length; i++) {
+        const b = G.grid.get(group[i]);
+        b.idx = (start.idx + 1 + i) % colorCount;
+      }
+    }
+  }
 }
 
 /* ================= 🌸 GÜNLÜK MANDALA =================
@@ -3185,6 +3233,23 @@ function startLevel(n, daily) {
   while (count < L.goal + 1 && si < scored.length) {
     scored[si++].b.idx = G.targetIdx;
     count++;
+  }
+  // Hedef dağıtımı sonrasında da tek dev grup oluşmasına izin verme.
+  // Böylece 10 hedef, tek bir isabetle değil birden fazla mantıklı hamleyle çözülür.
+  for (let pass = 0; pass < 2; pass++) {
+    const visited = new Set();
+    for (const [startKey, start] of G.grid) {
+      if (visited.has(startKey) || start.type || start.idx < 0) continue;
+      const group = [startKey], q = [startKey]; visited.add(startKey);
+      while (q.length) {
+        const k = q.pop(); const b = G.grid.get(k);
+        for (const nk of neighborKeys(b.r, b.c)) {
+          const nb = G.grid.get(nk);
+          if (nb && !nb.type && nb.idx === start.idx && !visited.has(nk)) { visited.add(nk); q.push(nk); group.push(nk); }
+        }
+      }
+      for (let i = 5; i < group.length; i++) G.grid.get(group[i]).idx = (start.idx + 1 + i) % L.colorCount;
+    }
   }
   // ⏳ aura odak taşları: sıkı bölümlerde 1-2 hücre etrafında zaman yavaşlar (mikro-strateji)
   if (n % 10 === 0 && worldOf(n) >= 3) {
@@ -3389,12 +3454,12 @@ function spawnRipple(x, y, color, big) {
 function spawnBurst(idx, x, y) {
   const shape = PALETTE[idx].shape, color = PALETTE[idx].c, now = performance.now();
   const specs = {
-    star:     { n: 9,  shape: 'star',     speed: [70, 150], size: [2, 4.5], life: [500, 780], grav: 8,   spin: true,  fade: 'twinkle' },
-    circle:   { n: 6,  shape: 'circle',   speed: [40, 95],  size: [1.6, 3.4], life: [520, 820], grav: 90,  spin: false, fade: 'drip' },
-    hex:      { n: 7,  shape: 'hex',      speed: [55, 120], size: [2, 3.8], life: [480, 720], grav: 20,  spin: true,  fade: 'shard' },
-    triangle: { n: 8,  shape: 'triangle', speed: [60, 135], size: [2, 3.6], life: [460, 700], grav: 30,  spin: true,  fade: 'shard' },
-    diamond:  { n: 6,  shape: 'diamond',  speed: [0, 0],    size: [1, 1],  life: [280, 420], grav: 0,   spin: false, fade: 'glint' },
-    square:   { n: 8,  shape: 'square',   speed: [50, 125], size: [1.8, 3.4], life: [480, 740], grav: 40,  spin: true,  fade: 'shard' },
+    star:     { n: 5, shape: 'star',     speed: [70, 150], size: [2, 4.5], life: [420, 660], grav: 8,  spin: true,  fade: 'twinkle' },
+    circle:   { n: 4, shape: 'circle',   speed: [40, 95],  size: [1.6, 3.4], life: [440, 680], grav: 90, spin: false, fade: 'drip' },
+    hex:      { n: 4, shape: 'hex',      speed: [55, 120], size: [2, 3.8], life: [420, 640], grav: 20, spin: true,  fade: 'shard' },
+    triangle: { n: 5, shape: 'triangle', speed: [60, 135], size: [2, 3.6], life: [400, 620], grav: 30, spin: true,  fade: 'shard' },
+    diamond:  { n: 4, shape: 'diamond',  speed: [0, 0],    size: [1, 1], life: [250, 380], grav: 0, spin: false, fade: 'glint' },
+    square:   { n: 5, shape: 'square',   speed: [50, 125], size: [1.8, 3.4], life: [410, 650], grav: 40, spin: true, fade: 'shard' },
   };
   const s = specs[shape] || specs.circle;
   if (s.fade === 'glint') {
@@ -3434,7 +3499,7 @@ function comboFx(combo, pos, groupSize) {
     G.hueWave = now + 1200; // ~1.2 sn boyunca tüm semboller renk dalgasında yüzer
     const words = (LANGS[LANG] || LANGS.tr).praise;
     UI.floatText({ x: W / 2, y: H * 0.34 }, pickArr(words), true);
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 5; i++) {
       spawnBurst((Math.random() * PALETTE.length) | 0,
         pos.x + rnd(-60, 60), pos.y + rnd(-40, 40));
     }
@@ -3814,8 +3879,8 @@ function celebrateLevel() {
   G.hueWave = nowMs + 1400;
   // hedef sembolden dairesel konfeti patlaması — spawnBurst'ten daha geniş ve yavaş
   const shape = PALETTE[G.targetIdx].shape, color = PALETTE[G.targetIdx].c, now = performance.now();
-  for (let i = 0; i < 22; i++) {
-    const a = (i / 22) * TAU + rnd(-0.15, 0.15);
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * TAU + rnd(-0.15, 0.15);
     const sp = rnd(90, 210);
     spawnPooledBurst({
       kind: 'p', shape, color,
@@ -3826,7 +3891,7 @@ function celebrateLevel() {
   }
   // ikinci renkten kıvılcım yağmuru — kutlamayı zenginleştirir
   const otherIdx = (G.targetIdx + 1 + ((Math.random() * (PALETTE.length - 1)) | 0)) % PALETTE.length;
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     spawnPooledBurst({
       kind: 'p', shape: PALETTE[otherIdx].shape, color: PALETTE[otherIdx].c,
       x: rnd(W * 0.15, W * 0.85), y: -10, vx: rnd(-16, 16), vy: rnd(30, 60),
@@ -3835,7 +3900,7 @@ function celebrateLevel() {
     });
   }
   // üçüncü perde: tüm paletten gecikmeli yıldız seli — kutlama tek vuruşta bitmez, kabarır
-  for (let i = 0; i < 26; i++) {
+  for (let i = 0; i < 10; i++) {
     const pi = i % PALETTE.length;
     spawnPooledBurst({
       kind: 'p', shape: PALETTE[pi].shape, color: PALETTE[pi].c,
@@ -3876,7 +3941,9 @@ function launch(dir) {
     G.zenShots++;
     if (G.zenShots % zenDropEvery() === 0) G.zenRowPending = true;
   }
-  let perfect = breathVal(performance.now()) >= PERFECT_WINDOW;
+  // Joker kendi başına bir karar aracıdır; mükemmel atış dalgasıyla birleşip
+  // Zen tahtasını gereğinden fazla silmez.
+  let perfect = !G.curRainbow && breathVal(performance.now()) >= PERFECT_WINDOW;
   if (G.flowReady) { perfect = true; G.flowReady = false; G.flow = 0; } // akış armağanı
   G.fly = { x: LAUNCH.x, y: LAUNCH.y, vx: dir.x * SPEED, vy: dir.y * SPEED, idx: G.cur, rainbow: G.curRainbow, bomb: bombNow, perfect };
   G.curRainbow = false;
@@ -3897,7 +3964,9 @@ function resize() {
   const cssH = vh;
   SC = cssW / W;
   H = cssH / SC;
-  DPR = window.devicePixelRatio || 1;
+  // 3× telefon ekranlarında Canvas piksel sayısı gereksizce ısı üretir.
+  // 2× sınırı gözle fark edilmeyecek kadar net, ama yoğun komboda çok daha serin.
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(cssW * DPR);
   canvas.height = Math.round(cssH * DPR);
   canvas.style.width = cssW + 'px';
@@ -5034,6 +5103,7 @@ const UI = (() => {
       const affordBomb = bombFree || passBombs > 0 || G.coins >= BOMB_COST;
       const affordUndo = undoFree || passUndo || G.coins >= UNDO_COST;
       showModal(T('specialPowers'),
+        '<div class="powerwallet">❖ ' + G.coins + '</div><div style="clear:both"></div>' +
         '<div class="mindstats"><div><i>' + T('powerCurrentCombo') + '</i><b>×' + G.combo + '</b></div><div><i>' + T('powerBestCombo') + '</i><b>×' + maxCombo + '</b></div><div><i>' + T('powerPerfectShots') + '</i><b>' + perfects + '</b></div></div>' +
         '<div class="artsgrid">' +
           '<section class="artcard"><b>◈ ' + T('powerJokerName') + ' · ' + JOKER_COST + ' ❖</b><p>' + T('powerJokerDesc') + ' <em>' + (jokerFree ? T('firstUseGift') : T('firstGiftUsed')) + '</em></p></section>' +
@@ -5390,13 +5460,13 @@ const UI = (() => {
     set('shopTitleTxt', 'shopTitle'); set('worldsTitleTxt', 'worldsTitle'); set('gardenTitleTxt', 'gardenTitle'); set('gardenHintTxt', 'gardenHint');
     const cb = $('coachBtn'); if (cb) cb.textContent = T('coachNext');
     set('howBtn', 'howTo'); set('splashSub', 'tapHint'); set('breathTxt', 'breathTxt');
-    if (el.skillBtn) { el.skillBtn.textContent = '✦'; el.skillBtn.setAttribute('aria-label', T('specialPowers')); el.skillBtn.title = T('specialPowers'); }
+    if (el.skillBtn) { el.skillBtn.textContent = ''; el.skillBtn.setAttribute('aria-label', T('specialPowers')); el.skillBtn.title = T('specialPowers'); }
     const shareGarden = $('gardenShareBtn'); if (shareGarden) shareGarden.setAttribute('aria-label', T('gardenShareTitle'));
     el.mShopBtn.innerHTML = T('shopBtn');
     el.langBtn.innerHTML = languageFlag(LANG) + '<span>' + LANG.toUpperCase() + '</span>';
     if (el.mDailyBtn) {
       const dailyCopy = dailyDone() ? T('dailyBtnDone') : T('dailyBtn');
-      el.mDailyBtn.innerHTML = dailyCopy.replace(/^✺\s*/, lotusMark());
+      el.mDailyBtn.innerHTML = dailyCopy.replace(/^(?:✺|🌸)\s*(?:🌸\s*)?/, '<span class="mandala-mark" aria-label="Günlük Mandala"></span>');
     }
     if (el.mBoardBtn) el.mBoardBtn.innerHTML = T('boardBtn');
     refreshMenu();
@@ -6821,23 +6891,23 @@ const UI = (() => {
 
   /* 🌿 Bahçe Dükkanı: süslemeler lotus (bakım) ve anı taşı (ustalık) ile alınır */
   const DECOR = [
-    { id: 'lantern', icon: '🏮', lotus: 28, stones: 1 },
-    { id: 'bamboo',       icon: '🎋', lotus: 36, stones: 2 },
-    { id: 'fountain',     icon: '🎍', lotus: 68, stones: 5 },
-    { id: 'bridge',       icon: '🌉', lotus: 92, stones: 7 },
-    { id: 'rock',         icon: '⛰', lotus: 110, stones: 9 },
-    { id: 'pagoda',       icon: '🏯', lotus: 160, stones: 14 },
-    { id: 'chime',        icon: '🎐', lotus: 58, stones: 4 },
-    { id: 'sakura',       icon: '🌸', lotus: 132, stones: 11 },
-    { id: 'torii',        icon: '⛩', lotus: 220, stones: 20 },
-    { id: 'crane',        icon: '🦢', lotus: 72, stones: 5 },
-    { id: 'bench',        icon: '🪵', lotus: 44, stones: 3 },
-    { id: 'floatLantern', icon: '🏵', lotus: 88, stones: 6 },
-    { id: 'candles',      icon: '🕯', lotus: 54, stones: 4 },
-    { id: 'mistBowl',     icon: '∽', lotus: 78, stones: 6 },
-    { id: 'stonePath',    icon: '⋯', lotus: 104, stones: 8 },
-    { id: 'windBell',     icon: '⌇', lotus: 120, stones: 10 },
-    { id: 'moonGate',     icon: '◌', lotus: 190, stones: 16 },
+    { id: 'lantern', icon: '🏮', lotus: 6, stones: 2 },
+    { id: 'bamboo',       icon: '🎋', lotus: 10, stones: 4 },
+    { id: 'fountain',     icon: '🎍', lotus: 18, stones: 7 },
+    { id: 'bridge',       icon: '🌉', lotus: 24, stones: 10 },
+    { id: 'rock',         icon: '⛰', lotus: 30, stones: 13 },
+    { id: 'pagoda',       icon: '🏯', lotus: 44, stones: 18 },
+    { id: 'chime',        icon: '🎐', lotus: 14, stones: 5 },
+    { id: 'sakura',       icon: '🌸', lotus: 36, stones: 15 },
+    { id: 'torii',        icon: '⛩', lotus: 64, stones: 25 },
+    { id: 'crane',        icon: '🦢', lotus: 16, stones: 6 },
+    { id: 'bench',        icon: '🪵', lotus: 8, stones: 3 },
+    { id: 'floatLantern', icon: '🏵', lotus: 22, stones: 8 },
+    { id: 'candles',      icon: '🕯', lotus: 12, stones: 5 },
+    { id: 'mistBowl',     icon: '∽', lotus: 20, stones: 9 },
+    { id: 'stonePath',    icon: '⋯', lotus: 26, stones: 12 },
+    { id: 'windBell',     icon: '⌇', lotus: 32, stones: 16 },
+    { id: 'moonGate',     icon: '◌', lotus: 52, stones: 22 },
   ];
   function ownedDecor() { return store.get('zx_decor', []); }
   function pendingDecor() { return store.get('zx_decor_pending', []); }
@@ -7018,7 +7088,8 @@ const UI = (() => {
         grp.forEach(x => seen.add(x));
         if (!best || grp.size > best.size) best = grp;
       }
-      if (best) G.guideCells = best;
+      // Sadece eldeki top hedefle eşleşiyorsa ve atış gerçekten 3'lüyü tamamlayacaksa ışıt.
+      if (best && best.size >= 2 && (G.curRainbow || G.cur === G.targetIdx)) G.guideCells = best;
     }
     coachWaitEvt = step.until || null;
   }
@@ -7037,13 +7108,18 @@ const UI = (() => {
     const done = store.get('zx_guides', {});
     if (done['l' + n]) return;
     done['l' + n] = true; store.set('zx_guides', done);
-    if (n === 1) coachSeq = [
+    if (n === 1) {
+      // Koç yalnız oyuncunun gerçekten kullanabildiği topla örnek verir.
+      // Bu sayede parlayan küme yanlış atışa davet etmez.
+      if (!G.curRainbow) G.cur = G.targetIdx;
+      coachSeq = [
       { msg: T('g1a', { n: G.targetGoal }), spot: 'chipTarget', block: true },
       { msg: T('g1b', { s: G.shots }), spot: 'chipShots', block: true },
       { msg: T('g1c'), highlightTargets: true, until: 'pop' },
       { msg: T('g1d'), spot: 'chipTarget' },
       { msg: T('g1e'), until: 'swap' },
-    ];
+      ];
+    }
     else if (n === 2) coachSeq = [
       { msg: T('g2a'), block: true },
       { msg: T('g2b'), spot: 'skillBtn', until: 'powers' },
@@ -7088,6 +7164,8 @@ const UI = (() => {
     if (el.bombBtn) el.bombBtn.classList.add('hidden');
     if (el.skillBtn) el.skillBtn.classList.add('hidden');
     G.daily = false;
+    // Oyun koçu, oyuncu tahtadan ayrıldığı an susar; menü/bahçe üzerinde kalmaz.
+    coachHide(); coachSeq = []; coachIdx = -1;
     G.state = 'menu';
     if (typeof Garden !== 'undefined') Garden.close();
     G.themeWorld = null; applyThemes();
