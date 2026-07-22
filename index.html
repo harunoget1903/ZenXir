@@ -1451,6 +1451,9 @@ const BREATH_MS = 4200;              // nefes döngüsü süresi
 const PERFECT_WINDOW = 0.95;         // nefes değeri bunun üstündeyken bırakılan atış "mükemmel"
 /* 0..1 nefes değeri: yavaşça dolar (nefes al), tepede kısa durur, iner (ver) */
 function breathVal(now) { if (G.breathFrozen) return 1; return 0.5 + 0.5 * Math.sin((now % BREATH_MS) / BREATH_MS * TAU - Math.PI / 2); }
+// Mükemmel atış, Yolculuk'un zamanlama ödülüdür. Zen'de aynı nefes yalnızca
+// ritim hissi verir; altın pencere ve komşu patlatma avantajı hiç çalışmaz.
+function perfectEnabled() { return G.mode === 'level'; }
 /* rüzgar alanı: y'ye bağlı yanal ivme — hem uçuş hem nişan aynı formülü kullanır */
 function windAx(y) { return G.wind ? G.wind.A * Math.sin(y * G.wind.k + G.wind.ph) : 0; }
 const AIM_MAX_ANGLE = 80 * Math.PI / 180; // dikeyden en fazla sapma — geniş açı, alttan seke seke atış imkanı
@@ -3856,6 +3859,7 @@ const G = {
   guideBlock: false,     // koç anlatırken atış kilidi
   levelWon: false,       // hedef 0'a indi — atışlar kilitli, kutlama sahnede
   guideCells: null,      // koçun ışıttığı hedef grubu (Set)
+  guideZenBoundary: false, // Zen eğitiminde kayıp eşiğini kısa süre görünür kılar
   levelWasted: 0,        // bu bölümde boşa giden atış (anı taşı için 0 kalmalı)
   seeds: loadInt('zx_seeds', 0, 0, 999999),   // ışık tohumları (bahçede ateş böceği)
   lotus: loadInt('zx_lotus', 0, 0, 999999),   // 🪷 bahçe para birimi — bakımla kazanılır, süslemeye harcanır
@@ -4585,7 +4589,7 @@ function attachFly() {
   const popped = popGroup(key(cell.r, cell.c), 160);
   // ✦ mükemmel atış: çarpma noktasında geniş patlama — komşular renk fark etmeksizin erir
   let blasted = 0;
-  if (f.perfect) {
+  if (G.mode === 'level' && f.perfect) {
     const nowP = performance.now();
     for (const nk of neighborKeys(cell.r, cell.c)) {
       const nb = G.grid.get(nk);
@@ -4615,7 +4619,7 @@ function attachFly() {
     G.combo = 0; G.flow = 0;
     if (G.mode === 'level') { G.levelWasted++; UI.guideEvent && UI.guideEvent('waste'); }
     Sfx.softNote(180, 0.045, 0.5); vibrate(4);
-  } else if (!G.flowReady) {
+  } else if (G.mode === 'level' && !G.flowReady) {
     G.flow = Math.min(1, G.flow + 0.2); // 5 isabetli atış = akış
     if (G.flow >= 1) {
       G.flowReady = true;
@@ -4799,10 +4803,11 @@ function launch(dir) {
     G.zenShots++;
     if (G.zenShots % zenDropEvery() === 0) G.zenRowPending = true;
   }
-  // Joker kendi başına bir karar aracıdır; mükemmel atış dalgasıyla birleşip
-  // Zen tahtasını gereğinden fazla silmez.
-  let perfect = !G.curRainbow && breathVal(performance.now()) >= PERFECT_WINDOW;
-  if (G.flowReady) { perfect = true; G.flowReady = false; G.flow = 0; } // akış armağanı
+  // Joker kendi başına bir karar aracıdır. Mükemmel atış yalnız Yolculuk'ta
+  // vardır; Zen'de altın pencere veya akış armağanı tahtayı kolaylaştırmaz.
+  let perfect = perfectEnabled() && !G.curRainbow && breathVal(performance.now()) >= PERFECT_WINDOW;
+  if (perfectEnabled() && G.flowReady) { perfect = true; G.flowReady = false; G.flow = 0; } // akış armağanı
+  if (!perfectEnabled()) { G.flowReady = false; G.flow = 0; }
   G.fly = { x: LAUNCH.x, y: LAUNCH.y, vx: dir.x * SPEED, vy: dir.y * SPEED, idx: G.cur, rainbow: G.curRainbow, bomb: bombNow, perfect };
   G.curRainbow = false;
   refillQueue(false);
@@ -5372,24 +5377,26 @@ function render(now) {
   if (G.mode === 'zen' && G.state === 'playing') {
     const zy = zenFailY();
     const drift = now * 0.00125;
+    const teachingBoundary = G.guideZenBoundary;
+    const guidePulse = teachingBoundary ? 0.62 + 0.38 * Math.sin(now * 0.008) : 0;
     // Yazısız "sessiz eşik": yoğun bir uyarı çizgisi yerine, temayla nefes
     // alan puslu bir dalga. Görünür kalır ama tahtayı bölüp dikkat dağıtmaz.
     ctx.save();
     const mist = ctx.createLinearGradient(0, zy - 18, 0, zy + 18);
     mist.addColorStop(0, 'rgba(255,151,196,0)');
-    mist.addColorStop(0.5, 'rgba(255,151,196,0.045)');
+    mist.addColorStop(0.5, 'rgba(255,151,196,' + (teachingBoundary ? (0.15 + guidePulse * 0.16).toFixed(3) : '0.045') + ')');
     mist.addColorStop(1, 'rgba(255,151,196,0)');
     ctx.fillStyle = mist; ctx.fillRect(0, zy - 18, W, 36);
-    ctx.strokeStyle = 'rgba(255,174,207,0.28)';
-    ctx.lineWidth = 1.05; ctx.lineCap = 'round';
-    ctx.setLineDash([2, 10]); ctx.lineDashOffset = -drift * 16;
+    ctx.strokeStyle = 'rgba(255,174,207,' + (teachingBoundary ? (0.62 + guidePulse * 0.28).toFixed(3) : '0.28') + ')';
+    ctx.lineWidth = teachingBoundary ? 2.2 : 1.05; ctx.lineCap = 'round';
+    ctx.setLineDash(teachingBoundary ? [5, 5] : [2, 10]); ctx.lineDashOffset = -drift * (teachingBoundary ? 30 : 16);
     ctx.beginPath();
     for (let x = 12; x <= W - 12; x += 6) {
       const y = zy + Math.sin(x * 0.055 + drift * 1.7) * 1.25;
       if (x === 12) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
     ctx.stroke(); ctx.setLineDash([]);
-    ctx.strokeStyle = 'rgba(178,224,255,0.13)'; ctx.lineWidth = 0.7;
+    ctx.strokeStyle = 'rgba(178,224,255,' + (teachingBoundary ? '0.38' : '0.13') + ')'; ctx.lineWidth = teachingBoundary ? 1.2 : 0.7;
     ctx.beginPath();
     for (let x = 12; x <= W - 12; x += 7) {
       const y = zy + 4 + Math.sin(x * 0.043 - drift * 1.25) * 0.75;
@@ -5575,18 +5582,21 @@ function render(now) {
         : hexToRgba(PALETTE[G.fly.idx].c, a);
       ctx.beginPath(); ctx.arc(t.x, t.y, BALL_R * 0.3 * (i + 1) / G.trail.length + 1, 0, TAU); ctx.fill();
     });
-    // squash & stretch: top hız yönünde uzar (×1.22), yanlardan daralır (×0.82)
-    ctx.save();
-    ctx.translate(G.fly.x, G.fly.y);
-    ctx.rotate(Math.atan2(G.fly.vy, G.fly.vx));
-    ctx.scale(1.22, 0.82);
-    if (rb) drawShapeCore(ctx, 'joker', 0, 0, BALL_R * 0.82, rainbowColor(now), 1, 18);
-    else drawShape(ctx, G.fly.idx, 0, 0, BALL_R * 0.82, 1, 16);
-    ctx.restore();
+    // Bomba uçuşta da kendi gövdesini korur; diğer toplar hız yönünde uzar.
+    if (G.fly.bomb) drawBombOrb(G.fly.x, G.fly.y, BALL_R * 0.86, now);
+    else {
+      ctx.save();
+      ctx.translate(G.fly.x, G.fly.y);
+      ctx.rotate(Math.atan2(G.fly.vy, G.fly.vx));
+      ctx.scale(1.22, 0.82);
+      if (rb) drawShapeCore(ctx, 'joker', 0, 0, BALL_R * 0.82, rainbowColor(now), 1, 18);
+      else drawShape(ctx, G.fly.idx, 0, 0, BALL_R * 0.82, 1, 16);
+      ctx.restore();
+    }
   }
 
   // akış durumu: hazırken ekran kenarları vurgu renginde nefes alır
-  if (G.flowReady && G.state === 'playing') {
+  if (perfectEnabled() && G.flowReady && G.state === 'playing') {
     const fa = 0.10 + 0.05 * Math.sin(now * 0.004);
     const eg = ctx.createRadialGradient(W / 2, H / 2, H * 0.32, W / 2, H / 2, H * 0.62);
     eg.addColorStop(0, 'rgba(0,0,0,0)');
@@ -5615,20 +5625,55 @@ function render(now) {
   if (G.state === 'playing') drawLauncher(now);
 }
 
+// Silahlanmış bomba, fırlatıcıdaki sıradan sembolün yerini alır. Turuncu çekirdek,
+// kıvılcım ve yayılan halkalar, oyuncuya sonraki atışın alan patlaması olduğunu söyler.
+function drawBombOrb(x, y, r, now) {
+  const pulse = 1 + 0.06 * Math.sin(now * 0.011);
+  ctx.save();
+  ctx.translate(x, y); ctx.scale(pulse, pulse);
+  ctx.shadowColor = '#FF6B3D'; ctx.shadowBlur = 15 * PERF.f();
+  const core = ctx.createRadialGradient(-r * 0.28, -r * 0.32, r * 0.1, 0, 0, r);
+  core.addColorStop(0, '#667184'); core.addColorStop(0.28, '#303847'); core.addColorStop(1, '#10141D');
+  ctx.fillStyle = core; ctx.beginPath(); ctx.arc(0, 0, r * 0.78, 0, TAU); ctx.fill();
+  ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,190,112,.78)'; ctx.lineWidth = 1.25;
+  ctx.beginPath(); ctx.arc(0, 0, r * 0.78, 0, TAU); ctx.stroke();
+  // kısa fitil ve yaşayan ateş kıvılcımı
+  ctx.strokeStyle = '#EAB06C'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(r * 0.36, -r * 0.55); ctx.quadraticCurveTo(r * 0.68, -r * 0.9, r * 0.48, -r * 1.1); ctx.stroke();
+  const spark = 0.75 + 0.25 * Math.sin(now * 0.028);
+  ctx.fillStyle = '#FFE9A8'; ctx.shadowColor = '#FF7A3D'; ctx.shadowBlur = 10 * PERF.f();
+  ctx.beginPath(); ctx.arc(r * 0.47, -r * 1.1, r * 0.16 * spark, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+function drawBombLauncher(now, ringR) {
+  const pulse = 0.5 + 0.5 * Math.sin(now * 0.01);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,118,70,' + (0.5 + pulse * 0.35).toFixed(3) + ')';
+  ctx.shadowColor = '#FF633B'; ctx.shadowBlur = 13 * PERF.f();
+  ctx.lineWidth = 2.1; ctx.setLineDash([4, 5]); ctx.lineDashOffset = -now * 0.025;
+  ctx.beginPath(); ctx.arc(LAUNCH.x, LAUNCH.y, ringR + 7 + pulse * 3, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]); ctx.lineWidth = 0.9; ctx.strokeStyle = 'rgba(255,224,174,.7)';
+  ctx.beginPath(); ctx.arc(LAUNCH.x, LAUNCH.y, ringR + 14, 0, TAU); ctx.stroke();
+  ctx.restore();
+}
+
 function drawLauncher(now) {
-  // nefes halkası: döngüyle şişer/söner; tepe penceresinde altın ışır — "mükemmel atış" anı
+  // Yolculukta nefes halkasının altın tepesi mükemmel atış sunar. Zen'de aynı
+  // halka yalnızca sakin tema renginde kalır; hiçbir zaman ödül penceresi açmaz.
   const bv = breathVal(now);
-  const inWin = bv >= PERFECT_WINDOW;
+  const inWin = perfectEnabled() && bv >= PERFECT_WINDOW;
   const ringR = BALL_R * (1.28 + 0.5 * bv);
   ctx.strokeStyle = inWin ? 'rgba(255,216,107,' + (0.5 + 0.3 * Math.sin(now * 0.02)) + ')' : hexToRgba(CUR_ACCENT, 0.16 + 0.18 * bv);
   ctx.lineWidth = inWin ? 2 : 1.4;
   if (inWin) { ctx.save(); ctx.shadowColor = '#FFD86B'; ctx.shadowBlur = 10 * PERF.f(); }
   ctx.beginPath(); ctx.arc(LAUNCH.x, LAUNCH.y, ringR, 0, TAU); ctx.stroke();
   if (inWin) ctx.restore();
+  if (G.bombArmed && !G.fly) drawBombLauncher(now, ringR);
 
   if (G.aiming && G.aimVec) {
     const { pts, hit } = traceAim(G.aimVec);
-    const col = PALETTE[G.cur].c;
+    const col = G.bombArmed ? '#FF7A3D' : PALETTE[G.cur].c;
 
     // ince, süzülen kılavuz çizgisi — noktaları bağlayan yumuşak bir zemin
     ctx.save();
@@ -5704,7 +5749,8 @@ function drawLauncher(now) {
   }
   if (!G.fly) {
     const puls = 1 + 0.03 * Math.sin(now * 0.002);
-    if (G.curRainbow) drawShapeCore(ctx, 'joker', LAUNCH.x + ox, LAUNCH.y + oy, BALL_R * 0.82 * puls, rainbowColor(now), 1, 16);
+    if (G.bombArmed) drawBombOrb(LAUNCH.x + ox, LAUNCH.y + oy, BALL_R * 0.88 * puls, now);
+    else if (G.curRainbow) drawShapeCore(ctx, 'joker', LAUNCH.x + ox, LAUNCH.y + oy, BALL_R * 0.82 * puls, rainbowColor(now), 1, 16);
     else drawShape(ctx, G.cur, LAUNCH.x + ox, LAUNCH.y + oy, BALL_R * 0.82 * puls, 1, 14);
   }
   const nbx = LAUNCH.x + NEXT_BALL.dx, nby = LAUNCH.y + NEXT_BALL.dy;
@@ -6706,7 +6752,9 @@ const UI = (() => {
             const fedAt = performance.now();
             birdFood = {
               x:nest.x, y:nest.y, born:fedAt,
-              arriveEnd:fedAt + 2500, eatEnd:fedAt + 7600, departEnd:fedAt + 10500, until:fedAt + 11300
+              // Yaklaşma, yerleşme, beslenme ve ayrılış ayrı nefeslerdir.
+              // Kuşların "dokunup kaçması" yerine sakin bir küçük sahne yaratır.
+              arriveEnd:fedAt + 3200, eatEnd:fedAt + 13500, departEnd:fedAt + 17500, until:fedAt + 18600
             };
             store.set('zx_bird_feed_at', birdNow);
             gAction = null; if (el.gBirdBtn) el.gBirdBtn.classList.remove('on');
@@ -6943,12 +6991,16 @@ const UI = (() => {
         const flap = perchedFeed ? Math.sin(now * 0.004 + bd.ph) * 0.7 : Math.sin(now * 0.009 + bd.ph) * 3.4;
         const dir = bd.v >= 0 ? 1 : -1;
         // Uçuşta kanatlar geniş; yuvada ise kuş oturur ve başıyla yeme uzanır.
-        gx.save(); gx.translate(bd.x, bd.y); gx.scale(dir, 1);
-        gx.fillStyle = 'rgba(234,241,252,0.80)';
+        const birdScale = perchedFeed ? 1.62 : 1.74;
+        const birdTone = bi % 3 === 0 ? 'rgba(234,241,252,0.88)' : bi % 3 === 1 ? 'rgba(178,210,235,0.88)' : 'rgba(221,229,246,0.88)';
+        gx.save(); gx.translate(bd.x, bd.y); gx.scale(dir * birdScale, birdScale);
+        gx.fillStyle = birdTone;
         if (perchedFeed) {
           const peck = Math.max(0, Math.sin(now * .012 + bi * 1.7)) * 1.5;
           gx.beginPath(); gx.ellipse(0, 0, 3.6, 2.35, -.08, 0, TAU); gx.fill();
-          gx.fillStyle = 'rgba(250,205,120,.88)'; gx.beginPath(); gx.arc(3.25, 1.05 + peck, .7, 0, TAU); gx.fill();
+          gx.beginPath(); gx.arc(2.8, -1.25, 1.45, 0, TAU); gx.fill();
+          gx.fillStyle = 'rgba(24,37,52,.9)'; gx.beginPath(); gx.arc(3.28, -1.48, .26, 0, TAU); gx.fill();
+          gx.fillStyle = 'rgba(250,205,120,.92)'; gx.beginPath(); gx.arc(4.18, .52 + peck, .7, 0, TAU); gx.fill();
           gx.strokeStyle = 'rgba(184,207,234,.64)'; gx.lineWidth = .9;
           gx.beginPath(); gx.moveTo(-2.6, .2); gx.quadraticCurveTo(-4.2, -1.2, -5.4, -1.8); gx.stroke();
         } else {
@@ -6958,6 +7010,8 @@ const UI = (() => {
           gx.beginPath(); gx.moveTo(0, 0); gx.quadraticCurveTo(-3.2, 1.8, -7, -flap); gx.quadraticCurveTo(-3.7, 0.9, 0, 0); gx.stroke();
           gx.strokeStyle = 'rgba(184,207,234,0.52)'; gx.lineWidth = 0.8;
           gx.beginPath(); gx.moveTo(-1.4, 0.4); gx.quadraticCurveTo(-4.2, 3.1, -6.5, flap * 0.55 + 2); gx.stroke();
+          gx.fillStyle = 'rgba(234,241,252,.88)'; gx.beginPath(); gx.arc(3.1, -1.15, 1.3, 0, TAU); gx.fill();
+          gx.fillStyle = 'rgba(24,37,52,.9)'; gx.beginPath(); gx.arc(3.48, -1.36, .24, 0, TAU); gx.fill();
         }
         gx.restore();
       }
@@ -7414,13 +7468,15 @@ const UI = (() => {
           }
         }
         for (let pi = 0; pi < perched; pi++) {
-          const px = nx - 7 * TS + (pi % 4) * 4.8 * TS;
-          const py = ny - 4.2 * TS + ((pi * 7) % 3) * 2.3 * TS;
+          const px = nx - 8.5 * TS + (pi % 4) * 5.8 * TS;
+          const py = ny - 5.2 * TS + ((pi * 7) % 3) * 2.8 * TS;
           const bob = Math.sin(now * .002 + pi) * .55;
           gx.fillStyle = pi % 3 ? 'rgba(231,241,252,.83)' : 'rgba(170,198,226,.82)';
-          gx.beginPath(); gx.ellipse(px, py + bob, 2.8, 2, 0, 0, TAU); gx.fill();
+          gx.beginPath(); gx.ellipse(px, py + bob, 3.7, 2.6, 0, 0, TAU); gx.fill();
+          gx.beginPath(); gx.arc(px + 2.9, py - 1.3 + bob, 1.45, 0, TAU); gx.fill();
+          gx.fillStyle = 'rgba(28,40,54,.86)'; gx.beginPath(); gx.arc(px + 3.3, py - 1.55 + bob, .3, 0, TAU); gx.fill();
           gx.strokeStyle = 'rgba(218,235,252,.78)'; gx.lineWidth = 1;
-          gx.beginPath(); gx.moveTo(px - 2.5, py + bob); gx.quadraticCurveTo(px, py - 3 + bob, px + 2.4, py + bob); gx.stroke();
+          gx.beginPath(); gx.moveTo(px - 3.2, py + bob); gx.quadraticCurveTo(px - .2, py - 4 + bob, px + 2.7, py + bob); gx.stroke();
         }
         gx.restore();
       } else birdNest = null;
@@ -8428,6 +8484,7 @@ const UI = (() => {
     if (step.spot) { const ch = $(step.spot); if (ch) ch.classList.add('spot'); }
     G.guideBlock = !!step.block;
     G.guideCells = null;
+    G.guideZenBoundary = !!step.zenBoundary;
     if (step.highlightTargets) {
       // en büyük hedef-renk grubunu bul ve ışıt
       const seen = new Set(); let best = null;
@@ -8452,7 +8509,7 @@ const UI = (() => {
   function coachHide() {
     const c = $('coach'); if (c) c.classList.add('hidden');
     document.querySelectorAll('.spot').forEach(e => e.classList.remove('spot'));
-    G.guideBlock = false; G.guideCells = null; coachWaitEvt = null; G.breathFrozen = false;
+    G.guideBlock = false; G.guideCells = null; G.guideZenBoundary = false; coachWaitEvt = null; G.breathFrozen = false;
   }
   function coachNext() {
     coachIdx++;
@@ -8465,7 +8522,7 @@ const UI = (() => {
     store.set('zx_zen_tut', true);
     coachSeq = [
       { msg: T('zt1'), block: true },
-      { msg: T('zt2'), block: true },
+      { msg: T('zt2'), block: true, zenBoundary: true },
       { msg: T('zt3'), spot: 'skillBtn', block: true },
       { msg: T('zt4'), block: true },
       { msg: T('zt5'), block: true },
