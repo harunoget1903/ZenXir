@@ -757,6 +757,9 @@
     position:absolute; left:0; right:0; bottom:max(104px, env(safe-area-inset-bottom)); z-index:18;
     display:flex; justify-content:center; pointer-events:none;
   }
+  /* Zen sınırı öğretilirken kart çizginin üstüne taşınır; uyarının kendisi
+     asla vurgulanan kayıp dalgasını örtmez. */
+  #coach.zen-boundary-tip { top:max(88px, env(safe-area-inset-top)); bottom:auto; }
   .coachcard {
     width:min(calc(100% - 28px), 370px); max-width:370px; max-height:36svh; overflow-x:hidden; overflow-y:auto; padding:11px 14px 10px;
     background:rgba(12,15,22,0.96);
@@ -774,7 +777,7 @@
     border:1px solid rgba(var(--th-a1),0.5); border-radius:10px;
     font-size:11.5px; letter-spacing:0.14em; cursor:pointer;
   }
-  .chip.spot, #jokerBtn.spot {
+  .chip.spot, #jokerBtn.spot, #skillBtn.spot {
     border-color:rgb(var(--th-a1)) !important;
     animation: chipSpot 1.2s ease-in-out infinite;
     position:relative; z-index:19;
@@ -3190,6 +3193,38 @@ const I18N_GARDEN_TARGET_HINTS = {
   vi:{birdHint:'🕊 Chạm vào tổ chim trên cây — đặt thức ăn ở đó.'}
 };
 Object.entries(I18N_GARDEN_TARGET_HINTS).forEach(([code, patch]) => Object.assign(LANGS[code], patch));
+/* İlk Zen akışında sınır yaklaşınca gösterilen bağlamsal uyarı: tüm etkin
+   diller kendi paketiyle taşır; İngilizce ya da Türkçe fallback'a düşmez. */
+const I18N_ZEN_BOUNDARY_WARNING = {
+  tr:{zenBoundaryWarn:'⚠ <b>Akış sınırına yaklaşıyorsun.</b> Bu dalga çizgisine inen semboller Zen akışını bitirir. Sıkışırsan sol alttaki <b>Özel Güçler</b> halkasını aç; Joker, Bomba veya Geri Sar sana alan açabilir.'},
+  en:{zenBoundaryWarn:'⚠ <b>You are nearing the flow boundary.</b> Any symbols that descend to this wave end your Zen flow. If you get boxed in, open the <b>Special Powers</b> ring at bottom left; Joker, Bomb, or Rewind can make room.'},
+  ar:{zenBoundaryWarn:'⚠ <b>أنت تقترب من حدّ التدفق.</b> أي رموز تهبط إلى هذا الخط المتموّج تُنهي تدفق الزن. إن حوصرت، افتح حلقة <b>القوى الخاصة</b> أسفل اليسار؛ المهرج أو القنبلة أو الإرجاع قد يفتحون لك مساحة.'},
+  cs:{zenBoundaryWarn:'⚠ <b>Blížíš se k hranici proudu.</b> Symboly, které klesnou k této vlně, ukončí tvůj Zen proud. Když se dostaneš do úzkých, otevři vlevo dole kruh <b>Speciální síly</b>; Joker, Bomba nebo Přetočení ti mohou vytvořit prostor.'},
+  da:{zenBoundaryWarn:'⚠ <b>Du nærmer dig flowgrænsen.</b> Symboler, der synker ned til denne bølge, afslutter dit Zen-flow. Bliver du klemt inde, så åbn ringen <b>Særlige kræfter</b> nederst til venstre; Joker, Bombe eller Tilbagespoling kan skabe plads.'},
+  nl:{zenBoundaryWarn:'⚠ <b>Je nadert de stroomgrens.</b> Symbolen die tot deze golf dalen, beëindigen je Zen-stroom. Raak je ingesloten, open dan linksonder de ring <b>Speciale krachten</b>; Joker, Bom of Terugdraaien kan ruimte maken.'},
+  fi:{zenBoundaryWarn:'⚠ <b>Lähestyt virtauksen rajaa.</b> Tähän aaltoon laskeutuvat symbolit päättävät Zen-virtauksesi. Jos jäät ahtaalle, avaa vasemmalta alhaalta <b>Erikoisvoimat</b>-rengas; Jokeri, Pommi tai Kelaus voi tehdä tilaa.'},
+  fr:{zenBoundaryWarn:'⚠ <b>Tu approches de la limite du flux.</b> Les symboles qui descendent jusqu’à cette vague mettent fin à ton flux Zen. Si tu es coincé, ouvre l’anneau des <b>Pouvoirs spéciaux</b> en bas à gauche : Joker, Bombe ou Retour peuvent libérer de la place.'},
+  de:{zenBoundaryWarn:'⚠ <b>Du näherst dich der Flussgrenze.</b> Symbole, die zu dieser Welle hinabsteigen, beenden deinen Zen-Fluss. Wenn es eng wird, öffne unten links den Ring der <b>Spezialkräfte</b>; Joker, Bombe oder Rücklauf können Platz schaffen.'},
+  el:{zenBoundaryWarn:'⚠ <b>Πλησιάζεις το όριο ροής.</b> Σύμβολα που κατεβαίνουν σε αυτό το κύμα τερματίζουν τη ροή Zen. Αν στριμωχτείς, άνοιξε τον δακτύλιο <b>Ειδικές Δυνάμεις</b> κάτω αριστερά· ο Joker, η Βόμβα ή η Επαναφορά μπορούν να ανοίξουν χώρο.'},
+  hi:{zenBoundaryWarn:'⚠ <b>आप प्रवाह-सीमा के पास हैं।</b> जो प्रतीक इस लहर तक उतरते हैं, वे आपका Zen प्रवाह समाप्त कर देते हैं। जगह कम लगे तो नीचे बाईं ओर <b>विशेष शक्तियाँ</b> खोलें; जोकर, बम या रिवाइंड जगह बना सकते हैं।'},
+  id:{zenBoundaryWarn:'⚠ <b>Kamu mendekati batas aliran.</b> Simbol yang turun ke gelombang ini mengakhiri aliran Zen-mu. Jika terdesak, buka lingkar <b>Kekuatan Khusus</b> di kiri bawah; Joker, Bom, atau Putar Balik dapat memberi ruang.'},
+  it:{zenBoundaryWarn:'⚠ <b>Ti stai avvicinando al confine del flusso.</b> I simboli che scendono fino a quest’onda interrompono il tuo flusso Zen. Se resti bloccato, apri l’anello dei <b>Poteri speciali</b> in basso a sinistra: Joker, Bomba o Riavvolgi possono liberare spazio.'},
+  ja:{zenBoundaryWarn:'⚠ <b>フローの境界に近づいています。</b> この波まで下がったシンボルは、Zenフローを終わらせます。行き詰まったら左下の<b>特殊パワー</b>の輪を開きましょう。ジョーカー、ボム、巻き戻しで空間を作れます。'},
+  ko:{zenBoundaryWarn:'⚠ <b>흐름 경계에 가까워지고 있습니다.</b> 이 물결선까지 내려온 심볼은 Zen 흐름을 끝냅니다. 막혔을 때는 왼쪽 아래의 <b>특수 능력</b> 고리를 여세요. 조커, 폭탄, 되감기로 공간을 만들 수 있습니다.'},
+  ms:{zenBoundaryWarn:'⚠ <b>Anda menghampiri sempadan aliran.</b> Simbol yang turun ke gelombang ini menamatkan aliran Zen anda. Jika tersepit, buka gelang <b>Kuasa Khas</b> di kiri bawah; Joker, Bom atau Undur boleh membuka ruang.'},
+  nb:{zenBoundaryWarn:'⚠ <b>Du nærmer deg flytgrensen.</b> Symboler som synker ned til denne bølgen, avslutter Zen-flyten din. Hvis du blir presset, åpne ringen <b>Spesialkrefter</b> nede til venstre; Joker, Bombe eller Tilbakespoling kan gi deg plass.'},
+  pl:{zenBoundaryWarn:'⚠ <b>Zbliżasz się do granicy przepływu.</b> Symbole, które opadną do tej fali, kończą twój przepływ Zen. Gdy robi się ciasno, otwórz pierścień <b>Mocy specjalnych</b> w lewym dolnym rogu; Joker, Bomba lub Cofnięcie mogą zrobić miejsce.'},
+  pt:{zenBoundaryWarn:'⚠ <b>Estás a aproximar-te do limite do fluxo.</b> Os símbolos que descem até esta onda terminam o teu fluxo Zen. Se ficares encurralado, abre o anel de <b>Poderes Especiais</b> no canto inferior esquerdo; Joker, Bomba ou Rebobinar podem abrir espaço.'},
+  ro:{zenBoundaryWarn:'⚠ <b>Te apropii de limita fluxului.</b> Simbolurile care coboară până la acest val îți încheie fluxul Zen. Dacă rămâi blocat, deschide cercul <b>Puterilor speciale</b> din stânga jos; Jokerul, Bomba sau Derularea înapoi pot face loc.'},
+  ru:{zenBoundaryWarn:'⚠ <b>Ты приближаешься к границе потока.</b> Символы, опустившиеся к этой волне, завершают твой поток Zen. Если стало тесно, открой кольцо <b>Особых сил</b> слева внизу: Джокер, Бомба или Перемотка могут освободить место.'},
+  sr:{zenBoundaryWarn:'⚠ <b>Приближаваш се граници тока.</b> Симболи који се спусте до овог таласа завршавају твој Zen ток. Ако останеш без простора, отвори круг <b>Посебних моћи</b> доле лево; Џокер, Бомба или Премотавање могу ослободити место.'},
+  zh:{zenBoundaryWarn:'⚠ <b>你正接近心流边界。</b> 降到这条波纹线的符号会结束你的 Zen 心流。若空间不足，打开左下角的<b>特殊力量</b>圆环；万能球、炸弹或回溯可以腾出空间。'},
+  es:{zenBoundaryWarn:'⚠ <b>Te acercas al límite del flujo.</b> Los símbolos que bajen hasta esta ola terminan tu flujo Zen. Si te quedas sin espacio, abre el anillo de <b>Poderes especiales</b> abajo a la izquierda; Joker, Bomba o Rebobinar pueden abrir espacio.'},
+  sv:{zenBoundaryWarn:'⚠ <b>Du närmar dig flödesgränsen.</b> Symboler som sjunker till den här vågen avslutar ditt Zen-flöde. Om du blir trängd, öppna ringen <b>Specialkrafter</b> nere till vänster; Joker, Bomb eller Spola tillbaka kan skapa plats.'},
+  th:{zenBoundaryWarn:'⚠ <b>คุณกำลังเข้าใกล้ขอบเขตของกระแส</b> สัญลักษณ์ที่ลดลงถึงคลื่นนี้จะจบกระแส Zen ของคุณ หากพื้นที่คับแคบ ให้เปิดวงแหวน <b>พลังพิเศษ</b> ด้านซ้ายล่าง; โจ๊กเกอร์ ระเบิด หรือย้อนกลับช่วยเปิดพื้นที่ได้'},
+  vi:{zenBoundaryWarn:'⚠ <b>Bạn đang đến gần ranh giới dòng chảy.</b> Những biểu tượng hạ xuống làn sóng này sẽ kết thúc dòng Zen của bạn. Khi bị chật chỗ, hãy mở vòng <b>Sức mạnh đặc biệt</b> ở góc dưới trái; Joker, Bom hoặc Tua lại có thể tạo khoảng trống.'}
+};
+Object.entries(I18N_ZEN_BOUNDARY_WARNING).forEach(([code, patch]) => Object.assign(LANGS[code], patch));
 /* HE paketi ve bayrağı ürün dil listesinden kalıcı olarak kaldırıldı. */
 delete LANGS.he;
 /* Removed systems must not remain as silent translation debt.  These were
@@ -3846,6 +3881,7 @@ const G = {
   zenTaps: 0,
   curRainbow: false,
   zenContinueUsed: false,
+  zenFirstRun: false, // ilk Zen akışında yaklaşan sınır için tek seferlik bağlamsal rehber
   zenStartBest: 0,
   zenStartTime: 0, breathNextAt: 0,
   viewWorld: 0,          // haritada görüntülenen dünya
@@ -4198,6 +4234,9 @@ function restoreZenSession() {
 }
 function startZen(fresh = false) {
   if (fresh) clearZenSession();
+  // İlk Zen oturumunda sınır yaklaşınca bir kez daha yol gösterilir. Sonraki
+  // oturumlar oyuncunun alanını sakin bırakır.
+  G.zenFirstRun = !store.get('zx_zen_tut', false);
   G.mode = 'zen'; G.state = 'playing';
   G.wind = null; G.zenLastTier = 0; G.lastChanceUsed = false;
   G.themeWorld = null;
@@ -5342,6 +5381,17 @@ function drawThemeParticles(now) {
 // Zen eşiği iki sıra yukarıdadır. Çizim ve kayıp denetimi aynı fonksiyonu
 // kullandığı için, görünen sessiz eşik ile gerçek oyun sınırı asla ayrışmaz.
 function zenFailY() { return H - 138 - ROWH * 2; }
+function warnFirstZenNearBoundary() {
+  if (!G.zenFirstRun || store.get('zx_zen_boundary_hint', false) || G.guideBlock || G.mode !== 'zen' || G.state !== 'playing') return;
+  let lowest = -Infinity;
+  for (const b of G.grid.values()) lowest = Math.max(lowest, cellPos(b.r, b.c).y + BALL_R);
+  // Yaklaşık 3,5 satır nefes alanı kaldığında oyuncuya eşiği ve kaçış
+  // araçlarını gösterir. Bu sadece ilk Zen akışında bir kez çalışır.
+  if (lowest < zenFailY() - ROWH * 3.5) return;
+  store.set('zx_zen_boundary_hint', true);
+  G.zenFirstRun = false;
+  if (typeof UI !== 'undefined' && UI.zenBoundaryCoach) UI.zenBoundaryCoach();
+}
 function render(now) {
   // combo sarsıntısı: 0.45 sn'de sönümlenen, yumuşak yaylı titreşim
   let shx = 0, shy = 0;
@@ -5375,6 +5425,7 @@ function render(now) {
   if (G.wind && G.state === 'playing') drawWind(now);
 
   if (G.mode === 'zen' && G.state === 'playing') {
+    warnFirstZenNearBoundary();
     const zy = zenFailY();
     const drift = now * 0.00125;
     const teachingBoundary = G.guideZenBoundary;
@@ -8480,6 +8531,7 @@ const UI = (() => {
     $('coachTxt').innerHTML = step.msg;
     $('coachBtn').style.display = step.until ? 'none' : '';
     c.classList.remove('hidden');
+    c.classList.toggle('zen-boundary-tip', !!step.zenBoundary);
     document.querySelectorAll('.spot').forEach(e => e.classList.remove('spot'));
     if (step.spot) { const ch = $(step.spot); if (ch) ch.classList.add('spot'); }
     G.guideBlock = !!step.block;
@@ -8508,6 +8560,7 @@ const UI = (() => {
   }
   function coachHide() {
     const c = $('coach'); if (c) c.classList.add('hidden');
+    if (c) c.classList.remove('zen-boundary-tip');
     document.querySelectorAll('.spot').forEach(e => e.classList.remove('spot'));
     G.guideBlock = false; G.guideCells = null; G.guideZenBoundary = false; coachWaitEvt = null; G.breathFrozen = false;
   }
@@ -8529,6 +8582,14 @@ const UI = (() => {
     ];
     coachIdx = -1;
     setTimeout(() => { if (G.state === 'playing' && G.mode === 'zen') coachNext(); }, 1100);
+  }
+  // İlk Zen oyunda, tahta sınırın birkaç satır üstüne geldiğinde bağlamsal
+  // bir ikinci ders açılır. Kart üstte kaldığı için parlayan dalga görünür;
+  // aynı anda Güçler halkası da gerçek bir kaçış seçeneği olarak işaretlenir.
+  function zenBoundaryCoach() {
+    if (G.state !== 'playing' || G.mode !== 'zen') return;
+    coachHide(); coachSeq = [{ msg: T('zenBoundaryWarn'), spot: 'skillBtn', block: true, zenBoundary: true }];
+    coachIdx = -1; coachNext();
   }
   function startGuide(n, L) {
     if (G.daily) return;                 // 🌸 mandala: koç susar
@@ -9421,7 +9482,7 @@ const UI = (() => {
     setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 400); }, 2300);
   }
 
-  return { init, boot, refresh, refreshScore, enterGame, showMenu, showWorlds, showMap, levelComplete, outOfShots, zenOver, floatText, toast, journeyDone, targetIntro, showTutorial, breathGuide, guideEvent, startGuide, jokerCoach, coachHide, winStamp, perfectCoach, showGarden, undoShot, refreshUndoBtn, armBomb, refreshBombBtn, showProfile, onboardProfile, refreshGardenBar, showGardenShop, hasDecor, saveCoins };
+  return { init, boot, refresh, refreshScore, enterGame, showMenu, showWorlds, showMap, levelComplete, outOfShots, zenOver, floatText, toast, journeyDone, targetIntro, showTutorial, breathGuide, guideEvent, startGuide, jokerCoach, coachHide, winStamp, perfectCoach, showGarden, undoShot, refreshUndoBtn, armBomb, refreshBombBtn, zenBoundaryCoach, showProfile, onboardProfile, refreshGardenBar, showGardenShop, hasDecor, saveCoins };
 })();
 
 /* ---------- Başlat ---------- */
