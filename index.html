@@ -3155,6 +3155,38 @@ const I18N_LANGUAGE_TITLE_CASE = {
   vi:{langTitle:'Chọn ngôn ngữ'}
 };
 Object.entries(I18N_LANGUAGE_TITLE_CASE).forEach(([code, patch]) => Object.assign(LANGS[code], patch));
+/* Bahçe hedefleri her dilde aynı netlikte anlatılır: yem rastgele zemine
+   değil, görünen canlı alanına bırakılır. */
+const I18N_GARDEN_TARGET_HINTS = {
+  tr:{birdHint:'🕊 Ağacın üstündeki kuş yuvasına dokun — yemi bırak.'},
+  en:{birdHint:'🕊 Tap the bird nest in the tree — leave the food there.'},
+  ar:{birdHint:'🕊 المس عش الطيور في الشجرة — ضع الطعام هناك.'},
+  cs:{birdHint:'🕊 Klepni na ptačí hnízdo ve stromě — nech tam krmivo.'},
+  da:{birdHint:'🕊 Tryk på fuglereden i træet — læg foderet dér.'},
+  nl:{birdHint:'🕊 Tik op het vogelnest in de boom — laat daar het voer achter.'},
+  fi:{birdHint:'🕊 Napauta puussa olevaa linnunpesää — jätä ruoka siihen.'},
+  fr:{birdHint:'🕊 Touche le nid dans l’arbre — dépose la nourriture ici.'},
+  de:{birdHint:'🕊 Tippe auf das Vogelnest im Baum — lege das Futter dort ab.'},
+  el:{birdHint:'🕊 Άγγιξε τη φωλιά στο δέντρο — άφησε εκεί την τροφή.'},
+  hi:{birdHint:'🕊 पेड़ में बने पक्षी-घोंसले को छुएँ — भोजन वहीं रखें।'},
+  id:{birdHint:'🕊 Ketuk sarang burung di pohon — letakkan makanan di sana.'},
+  it:{birdHint:'🕊 Tocca il nido sull’albero — lascia lì il cibo.'},
+  ja:{birdHint:'🕊 木の鳥の巣をタップして、そこに餌を置こう。'},
+  ko:{birdHint:'🕊 나무 위 새 둥지를 눌러 먹이를 놓아 주세요.'},
+  ms:{birdHint:'🕊 Ketik sarang burung di pokok — letakkan makanan di situ.'},
+  nb:{birdHint:'🕊 Trykk på fugleredet i treet — legg maten der.'},
+  pl:{birdHint:'🕊 Dotknij ptasiego gniazda na drzewie — zostaw tam pokarm.'},
+  pt:{birdHint:'🕊 Toca no ninho na árvore — deixa lá a comida.'},
+  ro:{birdHint:'🕊 Atinge cuibul din copac — lasă acolo hrana.'},
+  ru:{birdHint:'🕊 Коснитесь птичьего гнезда на дереве — оставьте корм там.'},
+  sr:{birdHint:'🕊 Додирни птичје гнездо на дрвету — остави храну тамо.'},
+  zh:{birdHint:'🕊 点击树上的鸟巢，把食物放在那里。'},
+  es:{birdHint:'🕊 Toca el nido del árbol — deja allí la comida.'},
+  sv:{birdHint:'🕊 Tryck på fågelboet i trädet — lämna maten där.'},
+  th:{birdHint:'🕊 แตะรังนกบนต้นไม้ แล้ววางอาหารไว้ที่นั่น'},
+  vi:{birdHint:'🕊 Chạm vào tổ chim trên cây — đặt thức ăn ở đó.'}
+};
+Object.entries(I18N_GARDEN_TARGET_HINTS).forEach(([code, patch]) => Object.assign(LANGS[code], patch));
 /* HE paketi ve bayrağı ürün dil listesinden kalıcı olarak kaldırıldı. */
 delete LANGS.he;
 /* Removed systems must not remain as silent translation debt.  These were
@@ -6446,7 +6478,7 @@ const UI = (() => {
     let ripples = [];      // su halkaları
     let waterDrops = [];   // 💧 sulama damlaları
     let gAction = null;    // aktif etkileşim: 'feed' | 'water'
-    let feedCount = 0, waterGlow = 0, feedingSpot = null, birdFood = null, birdNest = null;
+    let feedCount = 0, waterGlow = 0, feedingSpot = null, birdFood = null, birdNest = null, birdNestGuideUntil = 0;
     let dragTargets = {};
     let layout = {};          // 📍 sürükle-bırak konumları {anahtar:{x,y}} — oranlı (0..1)
     let editMode = false, dragKey = null, selectedKey = null, dragDX = 0, dragDY = 0, scaleControls = null;
@@ -6632,7 +6664,8 @@ const UI = (() => {
             gAction = null; if (el.gFeedBtn) el.gFeedBtn.classList.remove('on');
             UI.toast(T('feedCooldown', { h: left })); return;
           }
-          if (pondHit && Math.abs(p.x - pondHit.x) < pondHit.rx && Math.abs(p.y - pondHit.y) < pondHit.ry) {
+          const onPond = pondHit && ((p.x - pondHit.x) / pondHit.rx) ** 2 + ((p.y - pondHit.y) / pondHit.ry) ** 2 <= 1;
+          if (onPond) {
             // Bütün koi aynı öğüne yönelir; tek bir balığın kapması hissini önler.
             feedingSpot = { x:p.x, y:p.y, until:performance.now() + 5200 };
             for (let fi = 0; fi < 5; fi++) {
@@ -6665,20 +6698,22 @@ const UI = (() => {
             gAction = null; if (el.gBirdBtn) el.gBirdBtn.classList.remove('on');
             UI.toast(T('birdCooldown', { h:left })); return;
           }
-          // Yem göğe bırakılır; ağaçtaki yuvaya iner. Böylece kuş yemi
-          // kaybolan küçük bir nokta değil, ağacın üzerinde gerçek bir sahne olur.
-          if (p.y < gH * .48) {
-            const nest = birdNest || { x: treeHit ? treeHit.x + 26 : gW * .58, y: treeHit ? treeHit.y - 42 : gH * .38 };
+          // Kuş yemi yalnız yuvaya bırakılır. Yanlış dokunuşta hedef halkası
+          // tekrar parlayarak kullanıcıyı ağacın üstündeki doğru noktaya çağırır.
+          const nest = birdNest || { x: treeHit ? treeHit.x + 26 : gW * .58, y: treeHit ? treeHit.y - 42 : gH * .38, r:28 };
+          const onNest = (p.x - nest.x) ** 2 + (p.y - nest.y) ** 2 <= Math.max(28, (nest.r || 18) * 1.55) ** 2;
+          if (onNest) {
             const fedAt = performance.now();
             birdFood = {
               x:nest.x, y:nest.y, born:fedAt,
-              arriveEnd:fedAt + 1150, eatEnd:fedAt + 3550, until:fedAt + 5050
+              arriveEnd:fedAt + 2500, eatEnd:fedAt + 7600, departEnd:fedAt + 10500, until:fedAt + 11300
             };
             store.set('zx_bird_feed_at', birdNow);
             gAction = null; if (el.gBirdBtn) el.gBirdBtn.classList.remove('on');
             Sfx.softNote(1180, .03, .32); Sfx.softNote(1480, .025, .18);
             UI.toast(T('birdFed')); return;
           }
+          birdNestGuideUntil = performance.now() + 3000;
           UI.toast(T('birdHint')); return;
         }
         // 💧 sulama modu: ağaca dokunulunca damlalar yağar
@@ -6887,34 +6922,43 @@ const UI = (() => {
             // Yeme iniş: her kuş yuvanın farklı dalına yaklaşır.
             tx = birdFood.x + Math.cos(a) * (9 + bi % 3 * 4);
             ty = birdFood.y + Math.sin(a) * 4 - 4;
-            speed = 1.6;
+            speed = 1.05;
           } else if (fedAge < birdFood.eatEnd - birdFood.born) {
-            // Kısa, okunur yeme anı: kuşların başı yeme doğru usulca iner.
+            // Kuşlar yuvada oturur; başları yeme doğru sakince iner.
             tx = birdFood.x + Math.cos(a) * (7 + bi % 3 * 3);
             ty = birdFood.y + Math.sin(now * .009 + bi) * 1.5 + 1;
-            speed = 0.72;
+            speed = 0.38;
           } else {
-            // Doyan kuşlar tekrar göğe açılır; besleme sahnesi bitince normal süzülüş sürer.
+            // Doyan kuşlar acele etmeden yeniden göğe açılır.
             tx = bd.v >= 0 ? gW + 24 : -24;
             ty = gH * (.06 + (bi % 4) * .026);
-            speed = 2.35;
+            speed = 0.82;
           }
           bd.x += clamp(tx - bd.x, -speed, speed); bd.y += clamp(ty - bd.y, -speed * .58, speed * .58);
         } else {
           bd.x += bd.v; if (bd.x < -16) bd.x = gW + 16; if (bd.x > gW + 16) bd.x = -16;
           bd.y += Math.sin(now * 0.0007 + bd.ph) * 0.08;
         }
-        const flap = Math.sin(now * 0.009 + bd.ph) * 3.4;
+        const perchedFeed = birdFood && now >= birdFood.arriveEnd && now < birdFood.eatEnd;
+        const flap = perchedFeed ? Math.sin(now * 0.004 + bd.ph) * 0.7 : Math.sin(now * 0.009 + bd.ph) * 3.4;
         const dir = bd.v >= 0 ? 1 : -1;
-        // Gövde + iki kademeli kanat: uzaktan da gerçek bir süzülüş silüeti verir.
+        // Uçuşta kanatlar geniş; yuvada ise kuş oturur ve başıyla yeme uzanır.
         gx.save(); gx.translate(bd.x, bd.y); gx.scale(dir, 1);
-        gx.fillStyle = 'rgba(234,241,252,0.76)';
-        gx.beginPath();
-        gx.moveTo(-1.5, 0); gx.quadraticCurveTo(1.4, -1.7, 3.6, 0); gx.quadraticCurveTo(1.4, 1.7, -1.5, 0); gx.fill();
-        gx.strokeStyle = 'rgba(222,232,248,0.80)'; gx.lineWidth = 1.25; gx.lineCap = 'round';
-        gx.beginPath(); gx.moveTo(0, 0); gx.quadraticCurveTo(-3.2, 1.8, -7, -flap); gx.quadraticCurveTo(-3.7, 0.9, 0, 0); gx.stroke();
-        gx.strokeStyle = 'rgba(184,207,234,0.52)'; gx.lineWidth = 0.8;
-        gx.beginPath(); gx.moveTo(-1.4, 0.4); gx.quadraticCurveTo(-4.2, 3.1, -6.5, flap * 0.55 + 2); gx.stroke();
+        gx.fillStyle = 'rgba(234,241,252,0.80)';
+        if (perchedFeed) {
+          const peck = Math.max(0, Math.sin(now * .012 + bi * 1.7)) * 1.5;
+          gx.beginPath(); gx.ellipse(0, 0, 3.6, 2.35, -.08, 0, TAU); gx.fill();
+          gx.fillStyle = 'rgba(250,205,120,.88)'; gx.beginPath(); gx.arc(3.25, 1.05 + peck, .7, 0, TAU); gx.fill();
+          gx.strokeStyle = 'rgba(184,207,234,.64)'; gx.lineWidth = .9;
+          gx.beginPath(); gx.moveTo(-2.6, .2); gx.quadraticCurveTo(-4.2, -1.2, -5.4, -1.8); gx.stroke();
+        } else {
+          gx.beginPath();
+          gx.moveTo(-1.5, 0); gx.quadraticCurveTo(1.4, -1.7, 3.6, 0); gx.quadraticCurveTo(1.4, 1.7, -1.5, 0); gx.fill();
+          gx.strokeStyle = 'rgba(222,232,248,0.80)'; gx.lineWidth = 1.25; gx.lineCap = 'round';
+          gx.beginPath(); gx.moveTo(0, 0); gx.quadraticCurveTo(-3.2, 1.8, -7, -flap); gx.quadraticCurveTo(-3.7, 0.9, 0, 0); gx.stroke();
+          gx.strokeStyle = 'rgba(184,207,234,0.52)'; gx.lineWidth = 0.8;
+          gx.beginPath(); gx.moveTo(-1.4, 0.4); gx.quadraticCurveTo(-4.2, 3.1, -6.5, flap * 0.55 + 2); gx.stroke();
+        }
         gx.restore();
       }
       if (Math.floor((VV.best || 0) / 5000) > 8) {
@@ -7247,7 +7291,8 @@ const UI = (() => {
       gx.translate(TX, TY);
       gx.scale(TS, TS);
       // usul salınım: ağaç kökünden 1°'lik nefes gibi sallanır
-      gx.translate(34, 64); gx.rotate(Math.sin(now * 0.00045) * 0.018); gx.translate(-34, -64);
+      const feedingNest = birdFood && now >= birdFood.arriveEnd && now < birdFood.eatEnd;
+      gx.translate(34, 64); gx.rotate(Math.sin(now * 0.00045) * 0.018 + (feedingNest ? Math.sin(now * .006) * .006 : 0)); gx.translate(-34, -64);
       // taç ışıması: yaprakların ardında yumuşak nane halesi (derinlik hissi)
       const halo = gx.createRadialGradient(34, 26, 4, 34, 26, 30);
       halo.addColorStop(0, 'rgba(125,240,192,0.10)');
@@ -7341,6 +7386,13 @@ const UI = (() => {
         const nx = TX + 45 * TS, ny = TY + 29 * TS;
         birdNest = { x:nx, y:ny, r:16 * TS };
         gx.save();
+        const guideNest = gAction === 'bird' || now < birdNestGuideUntil;
+        if (guideNest) {
+          const gp = .5 + .5 * Math.sin(now * .006);
+          gx.strokeStyle = 'rgba(255,211,128,' + (0.42 + gp * .22) + ')'; gx.lineWidth = 1.15;
+          gx.setLineDash([2, 4]); gx.lineDashOffset = -now * .012;
+          gx.beginPath(); gx.arc(nx, ny, 18 * TS + gp * 4, 0, TAU); gx.stroke(); gx.setLineDash([]);
+        }
         const nestGlow = birdFood && now < birdFood.eatEnd ? .24 + .10 * Math.sin(now * .01) : .08;
         gx.fillStyle = 'rgba(255,204,122,' + nestGlow + ')';
         gx.beginPath(); gx.ellipse(nx, ny + 2, 18 * TS, 8 * TS, 0, 0, TAU); gx.fill();
@@ -7748,7 +7800,11 @@ const UI = (() => {
       }
     }
     function setView(card) { viewCard = card || null; }
-    function setAction(a) { gAction = (gAction === a) ? null : a; return gAction; }
+    function setAction(a) {
+      gAction = (gAction === a) ? null : a;
+      if (gAction === 'bird') birdNestGuideUntil = performance.now() + 5200;
+      return gAction;
+    }
     function setEdit(on) { editMode = on == null ? !editMode : on; dragKey = null; if (!editMode) { selectedKey = null; scaleControls = null; saveLayout(); } return editMode; }
     function resetLayout() { layout = {}; saveLayout(); }
     function getAction() { return gAction; }
@@ -7788,7 +7844,7 @@ const UI = (() => {
           notes.forEach((key, i) => setTimeout(() => { if (running) UI.toast(T(key)); }, i * 2600));
         }, 900);
       },
-      close() { running = false; if (Sfx.gardenStop) Sfx.gardenStop(); viewCard = null; gAction = null; editMode = false; dragKey = null; selectedKey = null; scaleControls = null; pellets = []; waterDrops = []; feedingSpot = null; birdFood = null; birdNest = null; Sfx.sandStop(); },
+      close() { running = false; if (Sfx.gardenStop) Sfx.gardenStop(); viewCard = null; gAction = null; editMode = false; dragKey = null; selectedKey = null; scaleControls = null; pellets = []; waterDrops = []; feedingSpot = null; birdFood = null; birdNest = null; birdNestGuideUntil = 0; Sfx.sandStop(); },
       setView, setAction, getAction, setEdit, resetLayout,
       isVisiting() { return !!viewCard; },
     };
