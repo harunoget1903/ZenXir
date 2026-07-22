@@ -6446,7 +6446,7 @@ const UI = (() => {
     let ripples = [];      // su halkaları
     let waterDrops = [];   // 💧 sulama damlaları
     let gAction = null;    // aktif etkileşim: 'feed' | 'water'
-    let feedCount = 0, waterGlow = 0, feedingSpot = null, birdFood = null;
+    let feedCount = 0, waterGlow = 0, feedingSpot = null, birdFood = null, birdNest = null;
     let dragTargets = {};
     let layout = {};          // 📍 sürükle-bırak konumları {anahtar:{x,y}} — oranlı (0..1)
     let editMode = false, dragKey = null, selectedKey = null, dragDX = 0, dragDY = 0, scaleControls = null;
@@ -6665,9 +6665,15 @@ const UI = (() => {
             gAction = null; if (el.gBirdBtn) el.gBirdBtn.classList.remove('on');
             UI.toast(T('birdCooldown', { h:left })); return;
           }
-          // Gökyüzünün üst yarısına bırakılan yem, her kuşu kendi küçük payına çağırır.
+          // Yem göğe bırakılır; ağaçtaki yuvaya iner. Böylece kuş yemi
+          // kaybolan küçük bir nokta değil, ağacın üzerinde gerçek bir sahne olur.
           if (p.y < gH * .48) {
-            birdFood = { x:p.x, y:p.y, until:performance.now() + 4600 };
+            const nest = birdNest || { x: treeHit ? treeHit.x + 26 : gW * .58, y: treeHit ? treeHit.y - 42 : gH * .38 };
+            const fedAt = performance.now();
+            birdFood = {
+              x:nest.x, y:nest.y, born:fedAt,
+              arriveEnd:fedAt + 1150, eatEnd:fedAt + 3550, until:fedAt + 5050
+            };
             store.set('zx_bird_feed_at', birdNow);
             gAction = null; if (el.gBirdBtn) el.gBirdBtn.classList.remove('on');
             Sfx.softNote(1180, .03, .32); Sfx.softNote(1480, .025, .18);
@@ -6874,9 +6880,26 @@ const UI = (() => {
       for (let bi = 0; bi < birds.length; bi++) {
         const bd = birds[bi];
         if (birdFood) {
-          // Kuşlar aynı noktaya üst üste binmesin diye yem çevresinde küçük bir halka kurar.
-          const a = bi * TAU / Math.max(1, birds.length), tx = birdFood.x + Math.cos(a) * (8 + bi % 3 * 5), ty = birdFood.y + Math.sin(a) * 5;
-          bd.x += clamp(tx - bd.x, -1.15, 1.15); bd.y += clamp(ty - bd.y, -0.7, 0.7);
+          const a = bi * TAU / Math.max(1, birds.length);
+          const fedAge = now - birdFood.born;
+          let tx, ty, speed;
+          if (fedAge < birdFood.arriveEnd - birdFood.born) {
+            // Yeme iniş: her kuş yuvanın farklı dalına yaklaşır.
+            tx = birdFood.x + Math.cos(a) * (9 + bi % 3 * 4);
+            ty = birdFood.y + Math.sin(a) * 4 - 4;
+            speed = 1.6;
+          } else if (fedAge < birdFood.eatEnd - birdFood.born) {
+            // Kısa, okunur yeme anı: kuşların başı yeme doğru usulca iner.
+            tx = birdFood.x + Math.cos(a) * (7 + bi % 3 * 3);
+            ty = birdFood.y + Math.sin(now * .009 + bi) * 1.5 + 1;
+            speed = 0.72;
+          } else {
+            // Doyan kuşlar tekrar göğe açılır; besleme sahnesi bitince normal süzülüş sürer.
+            tx = bd.v >= 0 ? gW + 24 : -24;
+            ty = gH * (.06 + (bi % 4) * .026);
+            speed = 2.35;
+          }
+          bd.x += clamp(tx - bd.x, -speed, speed); bd.y += clamp(ty - bd.y, -speed * .58, speed * .58);
         } else {
           bd.x += bd.v; if (bd.x < -16) bd.x = gW + 16; if (bd.x > gW + 16) bd.x = -16;
           bd.y += Math.sin(now * 0.0007 + bd.ph) * 0.08;
@@ -7311,13 +7334,36 @@ const UI = (() => {
         gx.restore();
       }
       gx.restore();
-      // 🕊 Hüzme Kuşları: rekor büyüdükçe bazıları dallarda küçük bir küme kurar.
+      // 🕊 Hüzme Kuşları: ağaçta görünür, dallardan örülmüş bir yuvaları vardır.
+      // Kuş yemi buraya iner; uçan kuşlar sırayla yuvaya konup sonra yeniden süzülür.
       if (birdN) {
         const perched = Math.min(birdN, 6);
+        const nx = TX + 45 * TS, ny = TY + 29 * TS;
+        birdNest = { x:nx, y:ny, r:16 * TS };
         gx.save();
+        const nestGlow = birdFood && now < birdFood.eatEnd ? .24 + .10 * Math.sin(now * .01) : .08;
+        gx.fillStyle = 'rgba(255,204,122,' + nestGlow + ')';
+        gx.beginPath(); gx.ellipse(nx, ny + 2, 18 * TS, 8 * TS, 0, 0, TAU); gx.fill();
+        // Örülü yuva: taban, ince dallar ve yaprak gölgesi.
+        gx.strokeStyle = 'rgba(151,111,78,.82)'; gx.lineWidth = Math.max(.8, TS * .72); gx.lineCap = 'round';
+        for (let ni = 0; ni < 5; ni++) {
+          const ox = (ni - 2) * 3.4 * TS;
+          gx.beginPath(); gx.moveTo(nx - 10 * TS, ny + 1 * TS + ox * .12); gx.quadraticCurveTo(nx + ox, ny + 7 * TS, nx + 10 * TS, ny + 1 * TS - ox * .10); gx.stroke();
+        }
+        gx.fillStyle = 'rgba(111,160,118,.42)';
+        gx.beginPath(); gx.ellipse(nx - 8 * TS, ny + 2 * TS, 5 * TS, 2.1 * TS, -.45, 0, TAU); gx.fill();
+        gx.beginPath(); gx.ellipse(nx + 8 * TS, ny + 2 * TS, 5 * TS, 2.1 * TS, .45, 0, TAU); gx.fill();
+        if (birdFood && now < birdFood.eatEnd) {
+          const peck = 0.5 + 0.5 * Math.sin(now * .014);
+          for (let si = 0; si < 9; si++) {
+            const sa = si * TAU / 9 + .2;
+            gx.fillStyle = si % 2 ? 'rgba(255,211,112,.96)' : 'rgba(220,177,92,.9)';
+            gx.beginPath(); gx.arc(nx + Math.cos(sa) * (3 + si % 3) * TS, ny + 1.5 * TS + Math.sin(sa) * 2.1 * TS + peck, Math.max(.8, TS * .68), 0, TAU); gx.fill();
+          }
+        }
         for (let pi = 0; pi < perched; pi++) {
-          const px = TX + (18 + (pi % 4) * 12) * TS;
-          const py = TY + (24 + ((pi * 7) % 3) * 8) * TS;
+          const px = nx - 7 * TS + (pi % 4) * 4.8 * TS;
+          const py = ny - 4.2 * TS + ((pi * 7) % 3) * 2.3 * TS;
           const bob = Math.sin(now * .002 + pi) * .55;
           gx.fillStyle = pi % 3 ? 'rgba(231,241,252,.83)' : 'rgba(170,198,226,.82)';
           gx.beginPath(); gx.ellipse(px, py + bob, 2.8, 2, 0, 0, TAU); gx.fill();
@@ -7325,7 +7371,7 @@ const UI = (() => {
           gx.beginPath(); gx.moveTo(px - 2.5, py + bob); gx.quadraticCurveTo(px, py - 3 + bob, px + 2.4, py + bob); gx.stroke();
         }
         gx.restore();
-      }
+      } else birdNest = null;
       // ağaç dokunma alanı (lotus toplama / bilgi) — mantıksal koordinatlarda sakla
       treeHit = { x: TX + 34 * TS, y: TY + 40 * TS, r: 70 * treePos.s * treeMaturity };
       // 📍 taşınabilir obje kaydı (sürükle-bırak için)
@@ -7742,7 +7788,7 @@ const UI = (() => {
           notes.forEach((key, i) => setTimeout(() => { if (running) UI.toast(T(key)); }, i * 2600));
         }, 900);
       },
-      close() { running = false; if (Sfx.gardenStop) Sfx.gardenStop(); viewCard = null; gAction = null; editMode = false; dragKey = null; selectedKey = null; scaleControls = null; pellets = []; waterDrops = []; feedingSpot = null; birdFood = null; Sfx.sandStop(); },
+      close() { running = false; if (Sfx.gardenStop) Sfx.gardenStop(); viewCard = null; gAction = null; editMode = false; dragKey = null; selectedKey = null; scaleControls = null; pellets = []; waterDrops = []; feedingSpot = null; birdFood = null; birdNest = null; Sfx.sandStop(); },
       setView, setAction, getAction, setEdit, resetLayout,
       isVisiting() { return !!viewCard; },
     };
