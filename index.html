@@ -3134,6 +3134,27 @@ const I18N_SAKURA_STORY = {
   vi:{sakuraInfo:'🌸 <b>Mưa sakura</b><br>Mỗi cánh hoa rơi là lời nhắc dịu dàng về tính vô thường — mang <b>sự đổi mới</b> và hơi thở mùa xuân yên tĩnh đến khu vườn của bạn.'}
 };
 Object.entries(I18N_SAKURA_STORY).forEach(([code, patch]) => Object.assign(LANGS[code], patch));
+/* Dil seçici, her dilin kendi yazım geleneğine göre başlıklaştırılır.
+   Özellikle İngilizce gibi Latin dillerde önceki küçük harfli kalıntılar
+   mobil arayüzde bitmemiş görünüyordu. Sadece kaynak metni değil, ekranda
+   görünen bütün etkin paketleri bu son katmanla birleştiriyoruz. */
+const I18N_LANGUAGE_TITLE_CASE = {
+  tr:{langTitle:'Dil Seç'}, en:{langTitle:'Choose Language'},
+  ar:{langTitle:'اختر اللغة'}, cs:{langTitle:'Vyber jazyk'},
+  da:{langTitle:'Vælg sprog'}, nl:{langTitle:'Kies taal'},
+  fi:{langTitle:'Valitse kieli'}, fr:{langTitle:'Choisir la langue'},
+  de:{langTitle:'Sprache wählen'}, el:{langTitle:'Επιλογή γλώσσας'},
+  hi:{langTitle:'भाषा चुनें'}, id:{langTitle:'Pilih bahasa'},
+  it:{langTitle:'Scegli lingua'}, ja:{langTitle:'言語を選択'},
+  ko:{langTitle:'언어 선택'}, ms:{langTitle:'Pilih bahasa'},
+  nb:{langTitle:'Velg språk'}, pl:{langTitle:'Wybierz język'},
+  pt:{langTitle:'Escolher idioma'}, ro:{langTitle:'Alege limba'},
+  ru:{langTitle:'Выберите язык'}, sr:{langTitle:'Изабери језик'},
+  zh:{langTitle:'选择语言'}, es:{langTitle:'Elegir idioma'},
+  sv:{langTitle:'Välj språk'}, th:{langTitle:'เลือกภาษา'},
+  vi:{langTitle:'Chọn ngôn ngữ'}
+};
+Object.entries(I18N_LANGUAGE_TITLE_CASE).forEach(([code, patch]) => Object.assign(LANGS[code], patch));
 /* HE paketi ve bayrağı ürün dil listesinden kalıcı olarak kaldırıldı. */
 delete LANGS.he;
 /* Removed systems must not remain as silent translation debt.  These were
@@ -5281,8 +5302,9 @@ function drawThemeParticles(now) {
   }
 }
 
-// Zen'de tehlike çizgisi, fırlatıcıya daha yakın ve yüksek kontrastlıdır.
-function zenFailY() { return H - 138; }
+// Zen eşiği iki sıra yukarıdadır. Çizim ve kayıp denetimi aynı fonksiyonu
+// kullandığı için, görünen sessiz eşik ile gerçek oyun sınırı asla ayrışmaz.
+function zenFailY() { return H - 138 - ROWH * 2; }
 function render(now) {
   // combo sarsıntısı: 0.45 sn'de sönümlenen, yumuşak yaylı titreşim
   let shx = 0, shy = 0;
@@ -5317,13 +5339,31 @@ function render(now) {
 
   if (G.mode === 'zen' && G.state === 'playing') {
     const zy = zenFailY();
-    ctx.save(); ctx.shadowColor = '#ff5d93'; ctx.shadowBlur = 12;
-    ctx.strokeStyle = 'rgba(255,112,160,0.82)';
-    ctx.setLineDash([8, 7]); ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(14, zy); ctx.lineTo(W - 14, zy); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(255,190,214,.88)'; ctx.font = '10px var(--font-ui)'; ctx.textAlign = 'center';
-    ctx.fillText(T('zenBoundary'), W / 2, zy - 7); ctx.restore();
+    const drift = now * 0.00125;
+    // Yazısız "sessiz eşik": yoğun bir uyarı çizgisi yerine, temayla nefes
+    // alan puslu bir dalga. Görünür kalır ama tahtayı bölüp dikkat dağıtmaz.
+    ctx.save();
+    const mist = ctx.createLinearGradient(0, zy - 18, 0, zy + 18);
+    mist.addColorStop(0, 'rgba(255,151,196,0)');
+    mist.addColorStop(0.5, 'rgba(255,151,196,0.045)');
+    mist.addColorStop(1, 'rgba(255,151,196,0)');
+    ctx.fillStyle = mist; ctx.fillRect(0, zy - 18, W, 36);
+    ctx.strokeStyle = 'rgba(255,174,207,0.28)';
+    ctx.lineWidth = 1.05; ctx.lineCap = 'round';
+    ctx.setLineDash([2, 10]); ctx.lineDashOffset = -drift * 16;
+    ctx.beginPath();
+    for (let x = 12; x <= W - 12; x += 6) {
+      const y = zy + Math.sin(x * 0.055 + drift * 1.7) * 1.25;
+      if (x === 12) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = 'rgba(178,224,255,0.13)'; ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    for (let x = 12; x <= W - 12; x += 7) {
+      const y = zy + 4 + Math.sin(x * 0.043 - drift * 1.25) * 0.75;
+      if (x === 12) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke(); ctx.restore();
   }
 
   // ızgara objeleri — doğuş dalgası + nefes salınımı
