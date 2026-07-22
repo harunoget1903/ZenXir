@@ -613,6 +613,7 @@
   .boardrow .brn { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .boardrow .brs { color:#FFD86B; letter-spacing:0.05em; }
   .boardrow.me { border-color:rgb(var(--th-a1)); background:rgba(var(--th-a1),0.09); }
+  .boardrow .brme { display:grid; place-items:center; width:20px; height:20px; border:1px solid rgb(var(--th-a1)); border-radius:50%; color:rgb(var(--th-a1)); font-size:12px; box-shadow:0 0 9px rgba(var(--th-a1),.34); }
   .boardempty { text-align:center; color:var(--dim); font-size:11.5px; padding:14px 0; }
   .txtinp {
     width:100%; margin-top:8px; padding:10px 11px; border-radius:11px;
@@ -657,7 +658,7 @@
   /* ---------- ◈ Zihin Sanatları: tek ekranda sakin, okunaklı ---------- */
   .mindstats { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:0 0 9px; }
   .mindstats div { min-width:0; padding:7px 3px; text-align:center; border:1px solid var(--line); border-radius:10px; background:rgba(255,255,255,.025); }
-  .mindstats i { display:block; color:var(--dim); font-size:8.5px; font-style:normal; letter-spacing:.08em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mindstats i { display:block; min-height:2.3em; color:var(--dim); font-size:8px; font-style:normal; letter-spacing:.045em; line-height:1.15; white-space:normal; overflow:visible; }
   .mindstats b { display:block; margin-top:2px; color:rgb(var(--th-a1)); font-size:15px; font-weight:500; }
   .powerwallet { float:right; margin:-2px 0 7px; color:#FFD86B; font-size:11px; letter-spacing:.08em; padding:5px 8px; border:1px solid rgba(255,216,107,.28); border-radius:999px; background:rgba(255,216,107,.06); }
   .artsgrid { display:grid; gap:6px; }
@@ -2203,11 +2204,11 @@ Object.assign(LANGS.tr, {
   avatarSection:'Zen Avatarları', avatarStarter:'Başlangıç avatarı', avatarReqLevel:'{n}. seviyeye ulaş', avatarReqScore:'Zen modunda {n} skor yap', avatarReqSeeds:'{n} ışık tohumu topla', avatarReqStones:'{n} anı taşı kazan',
   avatarMustEarn:'Önce {req}.', avatarOwned:'{n} artık senin.', avatarSelected:'{n} seçildi.', avatarOwnedLabel:'sahip olundu', avatarUnlock:'{n} ❖ ile aç', avatarEarnFirst:'Önce başarıyı tamamla', avatarUse:'Kullan', avatarSelectedLabel:'Seçili',
   avatarName_enso:'Enso', avatarName_reed:'Kamış', avatarName_moon:'Ay Mührü', avatarName_koi:'Sessiz Koi', avatarName_kitsune:'Sumi Kitsune', avatarName_crane:'Kızıl Turna', avatarName_spiritTree:'Ruh Ağacı', avatarName_void:'Sessiz Yıldız', avatarName_dragon:'Altın Ejderha', avatarName_shogun:'Gölge Şogun', avatarName_oracle:'Ay Kahini', avatarName_phoenix:'Kül Anka', avatarName_monolith:'Sessiz Monolit', avatarName_celestialKoi:'Yıldız Koi', avatarName_moonRegent:'Ay Naibi', avatarName_sunWarden:'Güneş Muhafızı', avatarName_voidArchivist:'Boşluk Arşivcisi',
-  profileCoins:'İnci bakiyesi', profileEdit:'Zen kimliğimi düzenle', windWhisper:'Rüzgâra Fısılda', windInvite:'Rüzgâra davet et', windInviteBody:'Rekor değil; yalnızca adın ve kısa rüzgâr yolun paylaşılır.', windAdd:'Rüzgâr yolu ekle', windAddBody:'Arkadaşının dört haneli rüzgâr kodunu gir. Rekor gerekmez.', windMissing:'Bu rüzgâr yolu henüz bulunamadı.', windOffline:'Bulutlara ulaşılamıyor… Sadece kendi bahçendesin.', windAdded:'{n} bahçesi eklendi.', windWishSent:'Dileğin rüzgâra bırakıldı.', passBody:'<b>%50 daha fazla İnci</b> · <b>ayda 10 Özel Güç Bombası</b> · <b>sınırsız Geri Sar</b> · <b>bahçende kuzey ışıkları</b>',
-  wishTitle:'Dilek Feneri', wishBody:'Gölete kısa bir dilek bırak.', wishPlaceholder:'Rüzgâr yumuşak essin…', wishDrop:'Feneri bırak', giftTitle:'İnci armağanı', giftBody:'Kendi incilerinden bir armağan gönder.', send:'Gönder', giftSent:'{n} ❖ rüzgâra karıştı.', windPath:'Rüzgâr yolu', windPathBody:'Bir bahçenin dört haneli rüzgâr kodunu fısılda.', visitGarden:'Bahçeyi ziyaret et', windCodeNeeded:'Dört haneli kod gerekli.', gardenReached:'{n} bahçesine ulaştın.', visit:'Ziyaret et', myWindCode:'Senin rüzgâr kodun:', windReadOnly:'Bu kodla bahçen salt okunur ziyaret edilebilir.', openWindPath:'Rüzgâr yolu aç',
-  copyZenCode:'Kodu kopyala', zenCodeCopied:'Rüzgâr yolu kopyalandı.', shareInviteText:'ZenXir’de bir nefeslik bahçe kurdum. {n} · rüzgâr yolu {code}. Gel, iz bırak ve kendi sakinliğini büyüt. #ZenXir', shareInstagram:'Instagram’da paylaş', instagramHint:'Metin kopyalandı; Instagram hikâyene yapıştırabilirsin.',
-  gardenShareTitle:'Bahçeyi paylaş', gardenShareBody:'Ekran görüntün için bahçeye kısa bir ZenXir imzası bırakabilir ya da rüzgâr yolunu paylaşabilirsin.', gardenShowStamp:'Paylaşım imzasını göster', gardenStamp:'ZENXIR · {n} · {code}',
-  gardenInventory:'Bahçe Envanteri', gardenStore:'Bahçe mağazası', gardenGuide:'Bahçe Rehberi', gardenPlaced:'{n} bahçene yerleştirildi.', gardenRemoved:'{n} bahçeden kaldırıldı; mağazadan yeniden yerleştirebilirsin.', gardenPlaceTitle:'Yeni bahçe izi', gardenPlaceBody:'<b>{n}</b> şimdi senin. Yerini kendin belirleyebilir ya da sonra yerleştirebilirsin.', gardenPlace:'Bahçede yerleştir', gardenLater:'Daha sonra', gardenEditHint:'Düzenleme açık: yeni objeyi halkasından tutup istediğin yere taşı.', gardenEditDelete:'Düzenleme açık: objeyi sürükle; bahçeden kaldırmak için aynı objeye iki kez dokun.', gardenReadyToPlace:'Yerleştir',
+  profileCoins:'İnci bakiyesi', profileEdit:'Zen kimliğimi düzenle', windWhisper:'Zen kartını aç', windInvite:'Zen kartını paylaş', windInviteBody:'Adını ve kısa Zen kartı kodunu paylaş; arkadaşın bahçeni ziyaret edebilsin.', windAdd:'Arkadaşının kartını ekle', windAddBody:'Arkadaşının dört haneli Zen kartı kodunu gir.', windMissing:'Bu Zen kartı henüz bulunamadı.', windOffline:'Bulutlara ulaşılamıyor… Sadece kendi bahçendesin.', windAdded:'{n} bahçesi eklendi.', windWishSent:'Dileğin bahçeye bırakıldı.', passBody:'<b>%50 daha fazla İnci</b> · <b>ayda 10 Özel Güç Bombası</b> · <b>sınırsız Geri Sar</b> · <b>bahçende kuzey ışıkları</b>',
+  wishTitle:'Dilek Feneri', wishBody:'Gölete kısa bir dilek bırak.', wishPlaceholder:'Rüzgâr yumuşak essin…', wishDrop:'Feneri bırak', giftTitle:'İnci armağanı', giftBody:'Kendi incilerinden bir armağan gönder.', send:'Gönder', giftSent:'{n} ❖ armağan edildi.', windPath:'Zen kartını ekle', windPathBody:'Bahçesini ziyaret etmek için dört haneli Zen kartı kodunu gir.', visitGarden:'Bahçeyi ziyaret et', windCodeNeeded:'Dört haneli kod gerekli.', gardenReached:'{n} bahçesine ulaştın.', visit:'Ziyaret et', myWindCode:'Zen kartı kodun:', windReadOnly:'Bu kodla bahçen salt okunur ziyaret edilebilir.', openWindPath:'Zen kartını aç',
+  copyZenCode:'Kodu kopyala', zenCodeCopied:'Zen kartı kodu kopyalandı.', shareInviteText:'ZenXir’de bir nefeslik bahçe kurdum. {n} · Zen kartı kodu {code}. Gel, iz bırak ve kendi sakinliğini büyüt. #ZenXir', shareInstagram:'Instagram’da paylaş', instagramHint:'Metin kopyalandı; Instagram hikâyene yapıştırabilirsin.',
+  gardenShareTitle:'Bahçeyi paylaş', gardenShareBody:'Ekran görüntün için bahçeye kısa bir ZenXir imzası bırakabilir ya da Zen kartını paylaşabilirsin.', gardenShowStamp:'Paylaşım imzasını göster', gardenStamp:'ZENXIR · {n} · {code}',
+  gardenInventory:'Bahçe Envanteri', gardenStore:'Bahçe mağazası', gardenGuide:'Bahçe Rehberi', gardenPlaced:'{n} bahçene yerleştirildi.', gardenRemoved:'{n} bahçeden kaldırıldı; mağazadan yeniden yerleştirebilirsin.', gardenPlaceTitle:'Yeni bahçe izi', gardenPlaceBody:'<b>{n}</b> şimdi senin. Yerini kendin belirleyebilir ya da sonra yerleştirebilirsin.', gardenPlace:'Bahçede yerleştir', gardenLater:'Daha sonra', gardenEditHint:'Düzenleme açık: yeni objeyi halkasından tutup istediğin yere taşı.', gardenEditDelete:'Düzenleme açık: objeyi sürükle; kaldırmak için seçili objenin sağ üstündeki × işaretine dokun.', gardenReadyToPlace:'Yerleştir',
   invStonesTitle:'Anı Taşları', invStonesBody:'<b>Nasıl kazanılır:</b> Bir bölümü hiç boşa atış yapmadan bitir — her bölümde bir kez. Satın alınamaz. <b>Ne işe yarar:</b> Her 3 taş göl çevresinde dengeli bir taş kulesi kurar; 6 taş Ay Taşı Çemberi’ni tamamlar. Bazı bahçe objeleri taşla açılır.', invSeedsTitle:'Işık Tohumları', invSeedsBody:'<b>Nasıl kazanılır:</b> Tek atışta 4 veya daha fazla sembol patlat (4x kombo) — 1 ışık tohumu düşer. <b>Ne işe yarar:</b> Her tohum bahçende bir ateş böceğine dönüşür; her <b>25 tohum</b> gökyüzüne yeni bir <b>Dilek Takımyıldızı</b> ekler — takımyıldızlar çoğaldıkça gökyüzün katman katman dolar. Tohumlar harcanmaz, hep seninle kalır.', invLotusTitle:'Lotusların', invLotusBody:'Ağacı günde bir kez sulayarak +2, koi balığı gölüne üç kez yem bırakarak +2, sulanmış ağacın çiçeğini toplayarak +3 kazanırsın. Yalnızca Bahçe Mağazası’ndaki anlamlı objelerde kullanılır.',
   gardenTracesTitle:'Bahçen Nasıl Büyür?', gardenTracesBody:'Bahçen, ilerlemenle kendiliğinden değişir: ✧ her <b>25 ışık tohumu</b> → gökyüzüne yeni bir <b>Dilek Takımyıldızı</b> eklenir · ⬢ <b>6 anı taşı</b> → <b>Ay Taşı Çemberi</b> kurulur · 🐟 Zen rekorunda her <b>2000 skor</b> → göle yeni bir <b>koi balığı</b> (en çok 20) · 🌳 her tamamlanan <b>dünya</b> → Ruh Ağacı’na yeni bir dal.', gardenCareTitle:'🪷 Lotus ve bakım', gardenCareBody:'Ağacı günde bir kez sula: +2 lotus. Koi balığı gölünde üç yem bırak: +2 lotus. Sulanmış ağacın gün içindeki çiçeğini topla: +3 lotus. Lotus yalnız bahçe süslerinde kullanılır.', gardenOwnedTitle:'Sahip oldukların', gardenInvitesTitle:'Bahçeye davet ettikleri', gardenEmpty:'Henüz bir bahçe objesi edinmedin.', gardenFull:'Koleksiyonun tamamlandı.',
   worldShareComplete:'Dünya {n} tamamlandı',
@@ -2661,6 +2662,17 @@ const I18N_ALL = {
 for (const zCode in I18N_ALL) {
   if (LANGS[zCode]) Object.assign(LANGS[zCode], I18N_ALL[zCode]);
 }
+/* Zen Kartı'ndaki iki bölüm için kısa, açık metinler. */
+Object.assign(LANGS.tr, {
+  myZenCard:'Zen kartım', friendsCards:'Arkadaşlarımın kartları',
+  friendsEmpty:'Henüz hiç arkadaş kartı eklemedin.',
+  friendCodeNote:'Bir arkadaşının dört haneli Zen Kartı kodunu ekleyerek bahçesini burada takip edebilirsin.'
+});
+Object.assign(LANGS.en, {
+  myZenCard:'My Zen card', friendsCards:'My friends’ cards',
+  friendsEmpty:'You have not added a friend’s card yet.',
+  friendCodeNote:'Add a friend’s four-character Zen Card code to follow their garden here.'
+});
 
 function T(k, v) {
   let s = (LANGS[LANG] && LANGS[LANG][k] != null) ? LANGS[LANG][k]
@@ -3278,22 +3290,31 @@ const Sfx = (() => {
     if (o.birds) {
       const chirp = () => {
         if (gardenAmb !== amb) return;
+        // İki sesli küçük cümleler: ana ötüş + daha ince cevap tonu.
+        // Düz sinüs yerine yumuşak üçgen dalga, kuş hissini daha doğal verir.
         const cnt = 2 + Math.floor(Math.random() * 3);
         for (let i = 0; i < cnt; i++) {
-          const t0 = ac.currentTime + i * 0.14 + Math.random() * 0.05;
-          const osc = ac.createOscillator(); osc.type = 'sine';
-          const f0 = 2100 + Math.random() * 900;
+          const t0 = ac.currentTime + i * (0.12 + Math.random() * 0.05) + Math.random() * 0.04;
+          const osc = ac.createOscillator(); osc.type = 'triangle';
+          const f0 = 2450 + Math.random() * 1050;
           osc.frequency.setValueAtTime(f0, t0);
-          osc.frequency.exponentialRampToValueAtTime(f0 * 1.45, t0 + 0.06);
-          osc.frequency.exponentialRampToValueAtTime(f0 * 0.9, t0 + 0.12);
+          osc.frequency.exponentialRampToValueAtTime(f0 * 1.30, t0 + 0.035);
+          osc.frequency.exponentialRampToValueAtTime(f0 * 0.82, t0 + 0.115);
           const og = ac.createGain();
           og.gain.setValueAtTime(0, t0);
-          og.gain.linearRampToValueAtTime(0.026, t0 + 0.02);
-          og.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.16);
+          og.gain.linearRampToValueAtTime(0.022, t0 + 0.014);
+          og.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.135);
           osc.connect(og); og.connect(g);
-          osc.start(t0); osc.stop(t0 + 0.2);
+          osc.start(t0); osc.stop(t0 + 0.16);
+          if (i % 2 === 0) {
+            const reply = ac.createOscillator(); reply.type = 'sine';
+            reply.frequency.setValueAtTime(f0 * 1.55, t0 + 0.055);
+            reply.frequency.exponentialRampToValueAtTime(f0 * 1.17, t0 + 0.115);
+            const rg = ac.createGain(); rg.gain.setValueAtTime(0.0001, t0 + 0.045); rg.gain.exponentialRampToValueAtTime(0.009, t0 + 0.064); rg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.13);
+            reply.connect(rg); rg.connect(g); reply.start(t0 + 0.045); reply.stop(t0 + 0.14);
+          }
         }
-        amb.timer = setTimeout(chirp, 3600 + Math.random() * 6400);
+        amb.timer = setTimeout(chirp, 4200 + Math.random() * 7200);
       };
       amb.timer = setTimeout(chirp, 1500 + Math.random() * 1800);
     }
@@ -3307,7 +3328,21 @@ const Sfx = (() => {
     setTimeout(() => amb.stops.forEach(s2 => { try { s2.stop(); } catch (e) {} }), 1300);
   }
 
-  return { start: () => { ensure(); introTheme(); startAmbient(); }, gardenStart, gardenStop, introTheme, stopIntro, setSilent, isSilent: () => SILENT, drop, whoosh, boom, click, softNote, levelUp, setTone, sandMove, sandStop, heartbeat, toggleMute, isMuted: () => muted };
+  // Koi hızlandığında duyulan çok kısa, yumuşak su izi. Her yüzüşte değil,
+  // render katmanının seyrek çağrısıyla çalışır; mobilde gereksiz ses/iş yükü yaratmaz.
+  function koiRipple() {
+    if (!ensure() || SILENT || !gardenAmb) return;
+    const t = ac.currentTime;
+    const n = ac.createBufferSource(); n.buffer = noiseBuffer(0.12);
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 740; bp.Q.value = 0.75;
+    const ng = ac.createGain(); ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(0.010, t + 0.012); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+    const o = ac.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(410, t); o.frequency.exponentialRampToValueAtTime(190, t + 0.12);
+    const og = ac.createGain(); og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.009, t + 0.016); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
+    n.connect(bp); bp.connect(ng); ng.connect(gardenAmb.g); o.connect(og); og.connect(gardenAmb.g);
+    n.start(t); n.stop(t + 0.14); o.start(t); o.stop(t + 0.15);
+  }
+
+  return { start: () => { ensure(); introTheme(); startAmbient(); }, gardenStart, gardenStop, koiRipple, introTheme, stopIntro, setSilent, isSilent: () => SILENT, drop, whoosh, boom, click, softNote, levelUp, setTone, sandMove, sandStop, heartbeat, toggleMute, isMuted: () => muted };
 })();
 
 /* ---------- Oyun Durumu ---------- */
@@ -5281,18 +5316,6 @@ function loop(t) {
 }
 
 /* ---------- Arayüz (DOM) ---------- */
-/* Kumbara görünür akıştan kaldırıldı; veri ve küçük API gelecekte geri açılabilsin diye korunur. */
-const PIGGY_ENABLED = false;
-function piggyRead() { return store.get('zx_piggy', { coins: 0, updatedAt: 0 }); }
-function piggyAdd(amount) {
-  const piggy = piggyRead();
-  if (!PIGGY_ENABLED || !Number.isFinite(amount) || amount <= 0) return piggy;
-  piggy.coins = Math.max(0, (piggy.coins || 0) + Math.floor(amount));
-  piggy.updatedAt = Date.now(); store.set('zx_piggy', piggy); return piggy;
-}
-function piggyFly() { return PIGGY_ENABLED; }
-function openPiggy() { return PIGGY_ENABLED ? piggyRead() : null; }
-
 const UI = (() => {
   const $ = id => document.getElementById(id);
   let el = {};
@@ -5536,7 +5559,11 @@ const UI = (() => {
       G.coins = 0; store.set('zx_coins', 0); store.set(economyRelease, true); saveCoins();
     }
     if (navigator.onLine !== false) SyncQueue.flush();
-    window.addEventListener('online', () => { ServerClock.sync(); SyncQueue.flush(); }, { passive: true });
+    window.addEventListener('online', () => {
+      ServerClock.sync(); SyncQueue.flush();
+      // Kayıtlı arkadaşların son kart/bahçe anlık görüntülerini sessizce yenile.
+      if (typeof Net !== 'undefined' && Net.refreshFriends) Net.refreshFriends();
+    }, { passive: true });
     window.addEventListener('pagehide', () => { if (G.mode === 'zen') saveZenSession(); }, { passive:true });
     el.splash.addEventListener('pointerdown', () => { Sfx.start(); proceedSplash(); });
     // ses izni varsa tema kendiliğinden başlasın (yoksa ilk dokunuşta)
@@ -5958,16 +5985,20 @@ const UI = (() => {
     let feedCount = 0, waterGlow = 0;
     let dragTargets = {};
     let layout = {};          // 📍 sürükle-bırak konumları {anahtar:{x,y}} — oranlı (0..1)
-    let editMode = false, dragKey = null, selectedKey = null, dragDX = 0, dragDY = 0, lastEditTap = { key: '', at: 0 }, scaleControls = null;
+    let editMode = false, dragKey = null, selectedKey = null, dragDX = 0, dragDY = 0, scaleControls = null;
     const DRAGGABLE = ['tree', 'pond', 'lantern', 'torii', 'pagoda', 'fountain', 'rock', 'cairn', 'mush'];
     function loadLayout() { layout = store.get('zx_layout', {}) || {}; }
     function saveLayout() { store.set('zx_layout', layout); }
     /* varsayılan konum ya da oyuncunun taşıdığı yer */
     const P = (key, dx, dy) => {
-      const l = layout[key];
+      const activeLayout = viewCard && viewCard.l && typeof viewCard.l === 'object' ? viewCard.l : layout;
+      const l = activeLayout[key];
       return l ? { x: l.x * gW, y: l.y * gH, s: clamp(Number(l.s) || 1, .65, 2) } : { x: dx, y: dy, s: 1 };
     };
     let viewCard = null;      // null = kendi bahçen
+    const hasGardenDecor = id => viewCard
+      ? Array.isArray(viewCard.d) && viewCard.d.includes(id)
+      : !!(UI.hasDecor && UI.hasDecor(id));
     const V = () => viewCard
       ? { stones: viewCard.s, seeds: viewCard.sd, best: viewCard.b, maxLevel: viewCard.m, pass: !!viewCard.p }
       : { stones: G.stones, seeds: G.seeds, best: G.best, maxLevel: G.maxLevel, pass: hasPass() };
@@ -6034,7 +6065,10 @@ const UI = (() => {
     function bind() {
       // 🤏 iki parmakla sıkıştır: seçili objeyi %65–%200 arası büyüt/küçült
       const pinch = { pts: new Map(), d0: 0, s0: 1 };
-      const pinchEnd = e => { pinch.pts.delete(e.pointerId); if (pinch.pts.size < 2) { if (pinch.d0) saveLayout(); pinch.d0 = 0; } };
+      const pinchEnd = e => {
+        pinch.pts.delete(e.pointerId);
+        if (pinch.pts.size < 2) { if (pinch.d0) { saveLayout(); refreshMyCard(); } pinch.d0 = 0; }
+      };
       gc.addEventListener('pointerdown', e => {
         pinch.pts.set(e.pointerId, toXY(e));
         if (pinch.pts.size === 2 && editMode && selectedKey && !viewCard) {
@@ -6066,10 +6100,19 @@ const UI = (() => {
           if (scaleControls) {
             const hitControl = Object.entries(scaleControls).find(([, q]) => (p.x - q.x) ** 2 + (p.y - q.y) ** 2 < 19 ** 2);
             if (hitControl) {
-              const delta = hitControl[0] === 'plus' ? .1 : -.1;
+            const control = hitControl[0];
+            if (control === 'remove') {
+              if (selectedKey !== 'tree' && selectedKey !== 'pond' && hasDecor(selectedKey)) {
+                removePlacedDecor(selectedKey);
+                selectedKey = null; dragKey = null; scaleControls = null;
+                saveLayout(); refreshMyCard(); Sfx.click();
+              }
+              return;
+            }
+            const delta = control === 'plus' ? .1 : -.1;
               const prev = layout[selectedKey] || { x: dragTargets[selectedKey].x / gW, y: dragTargets[selectedKey].y / gH, s: 1 };
               layout[selectedKey] = { ...prev, s: clamp((Number(prev.s) || 1) + delta, .65, 2) };
-              saveLayout(); Sfx.click(); UI.toast(T('gardenScale', { n: Math.round(layout[selectedKey].s * 100) }));
+              saveLayout(); refreshMyCard(); Sfx.click(); UI.toast(T('gardenScale', { n: Math.round(layout[selectedKey].s * 100) }));
               return;
             }
           }
@@ -6081,16 +6124,6 @@ const UI = (() => {
             if (d2 < bd && d2 < (t.r + 26) ** 2) { bd = d2; best = k; }
           }
           if (best) {
-            if ((best === 'tree' || best === 'pond') && lastEditTap.key === best && performance.now() - lastEditTap.at < 650) {
-              selectedKey = best;
-              UI.toast(T('gardenCoreLocked', { n: T(best === 'tree' ? 'treeName' : 'pondName') }));
-              return;
-            }
-            // Aynı satın alınmış objeye kısa aralıkla ikinci dokunuş: bahçeden kaldır.
-            if (best !== 'tree' && best !== 'pond' && hasDecor(best) && lastEditTap.key === best && performance.now() - lastEditTap.at < 650) {
-              removePlacedDecor(best); lastEditTap = { key: '', at: 0 }; dragKey = null; selectedKey = null; return;
-            }
-            lastEditTap = { key: best, at: performance.now() };
             selectedKey = best;
             dragKey = best;
             dragDX = p.x - dragTargets[best].x;
@@ -6147,7 +6180,7 @@ const UI = (() => {
             if (store.get('zx_watered', '') !== todayKey()) {
               store.set('zx_watered', todayKey());
               treeGrow = (Number(store.get('zx_tree_grow', 0)) || 0) + 1;
-              store.set('zx_tree_grow', treeGrow);   // her sulama: +%0.5 büyüme (gözle görülmez, aylarla belirginleşir)
+              store.set('zx_tree_grow', treeGrow); refreshMyCard();
               // Ödül sulama anında değil: oyuncu oluşan Lotus'a ikinci kez dokunur.
               UI.toast(T('wateredReady'));
             } else UI.toast(T(store.get('zx_treelotus', '') === todayKey() ? 'wateredDone' : 'watered'));
@@ -6204,7 +6237,7 @@ const UI = (() => {
       const up = () => {
         lastP = null;
         // Sürükle-bırak konumu hemen kaydedilir; düzenleme kapatılmasını beklemez.
-        if (editMode && dragKey) { saveLayout(); dragKey = null; }
+        if (editMode && dragKey) { saveLayout(); refreshMyCard(); dragKey = null; }
         Sfx.sandStop();
       };
       gc.addEventListener('pointerup', up);
@@ -6330,12 +6363,16 @@ const UI = (() => {
         bd.y += Math.sin(now * 0.0007 + bd.ph) * 0.08;
         const flap = Math.sin(now * 0.009 + bd.ph) * 3.4;
         const dir = bd.v >= 0 ? 1 : -1;
-        gx.strokeStyle = 'rgba(222,232,248,0.72)'; gx.lineWidth = 1.3; gx.lineCap = 'round';
+        // Gövde + iki kademeli kanat: uzaktan da gerçek bir süzülüş silüeti verir.
+        gx.save(); gx.translate(bd.x, bd.y); gx.scale(dir, 1);
+        gx.fillStyle = 'rgba(234,241,252,0.76)';
         gx.beginPath();
-        gx.moveTo(bd.x - 6 * dir, bd.y - flap);
-        gx.quadraticCurveTo(bd.x - 2 * dir, bd.y + 1.5, bd.x, bd.y);
-        gx.quadraticCurveTo(bd.x + 2 * dir, bd.y + 1.5, bd.x + 6 * dir, bd.y - flap);
-        gx.stroke();
+        gx.moveTo(-1.5, 0); gx.quadraticCurveTo(1.4, -1.7, 3.6, 0); gx.quadraticCurveTo(1.4, 1.7, -1.5, 0); gx.fill();
+        gx.strokeStyle = 'rgba(222,232,248,0.80)'; gx.lineWidth = 1.25; gx.lineCap = 'round';
+        gx.beginPath(); gx.moveTo(0, 0); gx.quadraticCurveTo(-3.2, 1.8, -7, -flap); gx.quadraticCurveTo(-3.7, 0.9, 0, 0); gx.stroke();
+        gx.strokeStyle = 'rgba(184,207,234,0.52)'; gx.lineWidth = 0.8;
+        gx.beginPath(); gx.moveTo(-1.4, 0.4); gx.quadraticCurveTo(-4.2, 3.1, -6.5, flap * 0.55 + 2); gx.stroke();
+        gx.restore();
       }
       if (Math.floor((VV.best || 0) / 5000) > 8) {
         gx.fillStyle = 'rgba(222,232,248,0.6)'; gx.font = '10px system-ui';
@@ -6343,7 +6380,7 @@ const UI = (() => {
       }
 
       // 🏯 pagoda: Dünya 9 — ufukta silüet
-      if (wDone >= 9 || (!viewCard && UI.hasDecor && UI.hasDecor('pagoda'))) {
+      if (wDone >= 9 || hasGardenDecor('pagoda')) {
         const pgPos = P('pagoda', gW * 0.24, gH * 0.14);
         const gx0 = pgPos.x, gy0 = pgPos.y;
         gx.fillStyle = 'rgba(40,48,66,0.75)';
@@ -6362,7 +6399,7 @@ const UI = (() => {
       } else pagodaHit = null;
 
       // 🎋 bambu korusu: Dünya 2 — dünya sayısıyla sıklaşır, rüzgarda salınır
-      if (wDone >= 2 || (!viewCard && UI.hasDecor && UI.hasDecor('bamboo'))) {
+      if (wDone >= 2 || hasGardenDecor('bamboo')) {
         const n5 = Math.min(3 + wDone, 11);
         for (let bi = 0; bi < n5; bi++) {
           // yarısı sol kenarda, yarısı sağ kenarda — sahne dengeli dolar
@@ -6406,7 +6443,7 @@ const UI = (() => {
       }
 
       // ⛰ kaya bahçesi (karesansui): Zen 2000+ — kayanın çevresinde tırmıklı halkalar
-      if (VV.best >= 2000 || (!viewCard && UI.hasDecor && UI.hasDecor('rock'))) {
+      if (VV.best >= 2000 || hasGardenDecor('rock')) {
         const rPos = P('rock', gW * 0.30, gH * 0.80);
         const rx3 = rPos.x, ry3 = rPos.y;
         gx.strokeStyle = 'rgba(255,255,255,0.10)'; gx.lineWidth = 1;
@@ -6500,7 +6537,7 @@ const UI = (() => {
       }
       // 🏮 taş fener: Dünya 5+ tamamlanınca bahçeye yerleşir
       const worldsDone = clamp(Math.floor((G.maxLevel - 1) / LEVELS_PER_WORLD), 0, WORLD_COUNT);
-      if (worldsDone >= 5 || (!viewCard && UI.hasDecor && UI.hasDecor('lantern'))) {
+      if (worldsDone >= 5 || hasGardenDecor('lantern')) {
         const lPos = P('lantern', gW * 0.84, gH * 0.44);
         const lx = lPos.x, ly = lPos.y;
         lanternHit = { x: lx, y: ly };
@@ -6516,7 +6553,7 @@ const UI = (() => {
         gx.shadowBlur = 0;
       }
       // ⛩ torii kapısı: Yolculuk (1000) tamamlanınca — bahçenin taçlanışı
-      if (VV.maxLevel > MAX_LEVEL || (!viewCard && UI.hasDecor && UI.hasDecor('torii'))) {
+      if (VV.maxLevel > MAX_LEVEL || hasGardenDecor('torii')) {
         const tPos = P('torii', gW * 0.70, gH * 0.26);
         const tx2 = tPos.x, ty2 = tPos.y, tw2 = 32;
         toriiHit = { x: tx2, y: ty2 };
@@ -6530,7 +6567,7 @@ const UI = (() => {
         gx.beginPath(); gx.moveTo(tx2 - tw2 / 2 - 3, ty2 + 12); gx.lineTo(tx2 + tw2 / 2 + 3, ty2 + 12); gx.stroke();
       }
       // 🎍 shishi-odoshi: Dünya 3 — bambu dolunca devrilir, 'tok' sesiyle boşalır
-      if (wDone >= 3 || (!viewCard && UI.hasDecor && UI.hasDecor('fountain'))) {
+      if (wDone >= 3 || hasGardenDecor('fountain')) {
         const fPos = P('fountain', gW * 0.14, gH * 0.56);
         const fx3 = fPos.x, fy3 = fPos.y;
         const cyc = (now % 5200) / 5200;              // 0..1 döngü
@@ -6573,7 +6610,7 @@ const UI = (() => {
       }
 
       // 🦢 turna heykeli: taş kaidede duran zarif silüet
-      if (!viewCard && UI.hasDecor && UI.hasDecor('crane')) {
+      if (hasGardenDecor('crane')) {
         const cr = P('crane', gW * 0.44, gH * 0.66);
         gx.fillStyle = 'rgba(150,155,175,0.5)';
         gx.beginPath(); gx.ellipse(cr.x, cr.y + 14, 11, 3.5, 0, 0, TAU); gx.fill();
@@ -6592,7 +6629,7 @@ const UI = (() => {
       } else craneHit = null;
 
       // 🪵 bahçe bankı
-      if (!viewCard && UI.hasDecor && UI.hasDecor('bench')) {
+      if (hasGardenDecor('bench')) {
         const bn = P('bench', gW * 0.22, gH * 0.62);
         gx.fillStyle = 'rgba(168,140,102,0.8)';
         gx.fillRect(bn.x - 14, bn.y, 28, 3.4);
@@ -6604,7 +6641,7 @@ const UI = (() => {
       } else benchHit = null;
 
       // 🕯 mum sırası: patikada titreşen alevler
-      if (!viewCard && UI.hasDecor && UI.hasDecor('candles')) {
+      if (hasGardenDecor('candles')) {
         const cd = P('candles', gW * 0.5, gH * 0.88);
         for (let ci2 = 0; ci2 < 5; ci2++) {
           const cx2 = cd.x - 40 + ci2 * 20, cy2 = cd.y + (ci2 % 2) * 5;
@@ -6620,7 +6657,7 @@ const UI = (() => {
       } else candleHit = null;
 
       // Yeni bahçe izleri: dekor yalnızca süs değil, sahneye sakin bir hikâye katıyor.
-      if (!viewCard && UI.hasDecor && UI.hasDecor('mistBowl')) {
+      if (hasGardenDecor('mistBowl')) {
         const mb = P('mistBowl', gW * 0.18, gH * 0.76);
         gx.save();
         gx.fillStyle = 'rgba(88,112,130,.55)'; gx.beginPath(); gx.ellipse(mb.x, mb.y, 18, 6, 0, 0, TAU); gx.fill();
@@ -6629,19 +6666,19 @@ const UI = (() => {
         for (let mi = 0; mi < 3; mi++) { const mx = mb.x - 7 + mi * 7 + Math.sin(now * .001 + mi) * 2; gx.beginPath(); gx.arc(mx, mb.y - 8 - mi * 4, 5 + mi * 2, Math.PI*.15, Math.PI*.88); gx.stroke(); }
         gx.restore();
       }
-      if (!viewCard && UI.hasDecor && UI.hasDecor('stonePath')) {
+      if (hasGardenDecor('stonePath')) {
         const sp = P('stonePath', gW * 0.67, gH * 0.78);
         gx.save(); gx.fillStyle = 'rgba(156,170,184,.42)';
         for (let si = 0; si < 6; si++) { const sx = sp.x - 36 + si * 14; const sy = sp.y + Math.sin(si * 1.8) * 7; gx.beginPath(); gx.ellipse(sx, sy, 6, 3.2, si * .35, 0, TAU); gx.fill(); }
         gx.restore();
       }
-      if (!viewCard && UI.hasDecor && UI.hasDecor('windBell')) {
+      if (hasGardenDecor('windBell')) {
         const wb = P('windBell', gW * 0.84, gH * 0.23), sway = Math.sin(now * .0017) * 4;
         gx.save(); gx.strokeStyle = 'rgba(206,226,245,.55)'; gx.lineWidth = 1; gx.beginPath(); gx.moveTo(wb.x, wb.y - 20); gx.lineTo(wb.x + sway, wb.y + 2); gx.stroke();
         gx.fillStyle = 'rgba(150,205,236,.68)'; gx.beginPath(); gx.moveTo(wb.x - 5 + sway, wb.y + 2); gx.lineTo(wb.x + 5 + sway, wb.y + 2); gx.lineTo(wb.x + 3 + sway, wb.y + 11); gx.lineTo(wb.x - 3 + sway, wb.y + 11); gx.closePath(); gx.fill();
         gx.strokeStyle = 'rgba(216,230,242,.48)'; gx.beginPath(); gx.moveTo(wb.x + sway, wb.y + 11); gx.lineTo(wb.x + sway, wb.y + 19); gx.stroke(); gx.restore();
       }
-      if (!viewCard && UI.hasDecor && UI.hasDecor('moonGate')) {
+      if (hasGardenDecor('moonGate')) {
         const mg = P('moonGate', gW * 0.20, gH * 0.38);
         gx.save(); gx.strokeStyle = 'rgba(198,212,226,.54)'; gx.lineWidth = 4; gx.beginPath(); gx.arc(mg.x, mg.y, 24, 0, TAU); gx.stroke();
         gx.strokeStyle = 'rgba(110,242,196,.28)'; gx.lineWidth = 1; gx.beginPath(); gx.arc(mg.x, mg.y, 29, 0, TAU); gx.stroke(); gx.restore();
@@ -6650,7 +6687,8 @@ const UI = (() => {
       // 🌳 Ruh Ağacı: merkezde — lotuslar burada açar
       const m = treeModel();
       const treePos = P('tree', gW / 2, gH * 0.50);
-      const TS = 2.05 * treePos.s * (1 + Math.min(0.45, treeGrow * 0.005)); // 🌳 sulandıkça yavaşça büyür (3 ayda belirginleşir)
+      const treeMaturity = 1 + Math.min(0.45, treeGrow * 0.005);
+      const TS = 2.05 * treePos.s * treeMaturity; // 🌳 sulandıkça yavaşça büyür (3 ayda belirginleşir)
       const TX = treePos.x - 34 * TS, TY = treePos.y - 62 * TS;
       gx.save();
       gx.translate(TX, TY);
@@ -6727,7 +6765,7 @@ const UI = (() => {
       }
 
       // 🎐 rüzgar çanı: zen rekoru 4000+ ustalık nişanı — daldan sallanır
-      if (VV.best >= 4000 || (!viewCard && UI.hasDecor && UI.hasDecor('chime'))) {
+      if (VV.best >= 4000 || hasGardenDecor('chime')) {
         const cx2 = 47, cy2 = 30;
         const sway2 = Math.sin(now * 0.0016) * 0.16;
         gx.save(); gx.translate(cx2, cy2); gx.rotate(sway2);
@@ -6743,10 +6781,10 @@ const UI = (() => {
       }
       gx.restore();
       // ağaç dokunma alanı (lotus toplama / bilgi) — mantıksal koordinatlarda sakla
-      treeHit = { x: TX + 34 * TS, y: TY + 40 * TS, r: 70 };
+      treeHit = { x: TX + 34 * TS, y: TY + 40 * TS, r: 70 * treePos.s * treeMaturity };
       // 📍 taşınabilir obje kaydı (sürükle-bırak için)
       dragTargets = {
-        tree: treeHit ? { x: treeHit.x, y: treeHit.y, r: 62 } : null,
+        tree: treeHit ? { x: treeHit.x, y: treeHit.y, r: Math.max(62, treeHit.r) } : null,
         pond: pondHit ? { x: pondHit.x, y: pondHit.y, r: Math.max(pondHit.rx, 46) } : null,
         lantern: lanternHit ? { x: lanternHit.x, y: lanternHit.y, r: 30 } : null,
         torii: toriiHit ? { x: toriiHit.x, y: toriiHit.y, r: 34 } : null,
@@ -6757,10 +6795,10 @@ const UI = (() => {
         bench: benchHit ? { x: benchHit.x, y: benchHit.y, r: 26 } : null,
         candles: candleHit ? { x: candleHit.x, y: candleHit.y, r: 34 } : null,
         floatLantern: flanternHit ? { x: flanternHit.x, y: flanternHit.y, r: 26 } : null,
-        mistBowl: !viewCard && UI.hasDecor && UI.hasDecor('mistBowl') ? { ...P('mistBowl', gW * 0.18, gH * 0.76), r: 26 } : null,
-        stonePath: !viewCard && UI.hasDecor && UI.hasDecor('stonePath') ? { ...P('stonePath', gW * 0.67, gH * 0.78), r: 36 } : null,
-        windBell: !viewCard && UI.hasDecor && UI.hasDecor('windBell') ? { ...P('windBell', gW * 0.84, gH * 0.23), r: 24 } : null,
-        moonGate: !viewCard && UI.hasDecor && UI.hasDecor('moonGate') ? { ...P('moonGate', gW * 0.20, gH * 0.38), r: 38 } : null,
+        mistBowl: hasGardenDecor('mistBowl') ? { ...P('mistBowl', gW * 0.18, gH * 0.76), r: 26 } : null,
+        stonePath: hasGardenDecor('stonePath') ? { ...P('stonePath', gW * 0.67, gH * 0.78), r: 36 } : null,
+        windBell: hasGardenDecor('windBell') ? { ...P('windBell', gW * 0.84, gH * 0.23), r: 24 } : null,
+        moonGate: hasGardenDecor('moonGate') ? { ...P('moonGate', gW * 0.20, gH * 0.38), r: 38 } : null,
       };
 
       // 📐 düzenleme modu: taşınabilir objelerin çevresinde kesikli halka
@@ -6782,13 +6820,18 @@ const UI = (() => {
           scaleControls = {
             minus: { x: selected.x - 26, y: selected.y - selected.r - 19 },
             plus: { x: selected.x + 26, y: selected.y - selected.r - 19 },
+            ...(selectedKey !== 'tree' && selectedKey !== 'pond' && hasDecor(selectedKey)
+              ? { remove: { x: selected.x + selected.r - 4, y: selected.y - selected.r + 4 } } : {}),
           };
           gx.save();
           gx.fillStyle = 'rgba(9,18,24,.90)'; gx.strokeStyle = 'rgba(125,240,192,.72)'; gx.lineWidth = 1;
           for (const [kind, q] of Object.entries(scaleControls)) {
-            gx.beginPath(); gx.arc(q.x, q.y, 15, 0, TAU); gx.fill(); gx.stroke();
+            const remove = kind === 'remove';
+            gx.fillStyle = remove ? 'rgba(44,13,26,.94)' : 'rgba(9,18,24,.90)';
+            gx.strokeStyle = remove ? 'rgba(255,150,185,.85)' : 'rgba(125,240,192,.72)';
+            gx.beginPath(); gx.arc(q.x, q.y, remove ? 13 : 15, 0, TAU); gx.fill(); gx.stroke();
             gx.fillStyle = 'rgba(190,255,230,.96)'; gx.font = '18px system-ui'; gx.textAlign = 'center'; gx.textBaseline = 'middle';
-            gx.fillText(kind === 'plus' ? '+' : '−', q.x, q.y - .5); gx.fillStyle = 'rgba(9,18,24,.90)';
+            gx.fillText(remove ? '×' : kind === 'plus' ? '+' : '−', q.x, q.y - .5); gx.fillStyle = 'rgba(9,18,24,.90)';
           }
           gx.fillStyle = 'rgba(190,255,230,.92)'; gx.font = '10px system-ui'; gx.textAlign = 'center'; gx.textBaseline = 'alphabetic';
           gx.fillText(Math.round(scale * 100) + '%', selected.x, selected.y - selected.r - 15);
@@ -6832,6 +6875,23 @@ const UI = (() => {
       blob(prx, pry);
       gx.fillStyle = wg; gx.fill();
       gx.strokeStyle = 'rgba(150,210,235,0.22)'; gx.lineWidth = 1; gx.stroke();
+      // İki katmanlı kıyı ve alttan gelen yumuşak derinlik: göleti düz bir
+      // mavi alan yerine taşla çevrili, derin bir su gözü gibi gösterir.
+      gx.save(); blob(prx - 5, pry - 4); gx.clip();
+      const deep = gx.createLinearGradient(px, py - pry, px, py + pry);
+      deep.addColorStop(0, 'rgba(142,212,235,0.10)');
+      deep.addColorStop(0.52, 'rgba(18,72,112,0.02)');
+      deep.addColorStop(1, 'rgba(8,31,62,0.20)');
+      gx.fillStyle = deep; gx.fillRect(px - prx, py - pry, prx * 2, pry * 2);
+      // Kırılmış ışık halkaları, özellikle hareketsiz anlarda suya canlılık verir.
+      gx.strokeStyle = 'rgba(190,235,250,0.075)'; gx.lineWidth = 0.75;
+      for (let ci = 0; ci < 4; ci++) {
+        const cy = py - pry * 0.34 + ci * pry * 0.22;
+        gx.beginPath();
+        gx.ellipse(px + Math.sin(now * 0.00032 + ci * 1.7) * prx * 0.16, cy, prx * (0.26 + ci * 0.025), 2.2 + ci * 0.25, 0.04, 0, TAU);
+        gx.stroke();
+      }
+      gx.restore();
       // 🌙 ay yansıması: suda titreşen ışık sütunu
       if (dayPhase() !== 'day') {
         gx.save(); blob(prx, pry); gx.clip();
@@ -6887,7 +6947,14 @@ const UI = (() => {
       const followP = lastP && ((lastP.x - px) ** 2 / (prx * prx) + (lastP.y - py) ** 2 / (pry * pry)) < 1.6 ? lastP : null;
       for (const k of kois) {
         // doğal yüzüş: her koi kendi hedefine yumuşak dönüşle gider, ara sıra hızlanır
-        if (k.tx == null) { k.tx = px; k.ty = py; k.hd = Math.random() * TAU; k.v = 0.25; k.rest = 0; }
+        if (k.tx == null) {
+          const a = Math.random() * TAU, r = 0.18 + Math.random() * 0.48;
+          // İlk hedef kadar ilk konum da atanmalı; aksi halde undefined koordinat
+          // NaN üretir ve koi hiç çizilmezdi.
+          k.x = px + Math.cos(a) * prx * r;
+          k.y = py + Math.sin(a) * pry * r;
+          k.tx = px; k.ty = py; k.hd = Math.random() * TAU; k.v = 0.25; k.rest = 0;
+        }
         // yem varsa ona, parmak yakınsa ona, yoksa gezinme hedefine
         let goal = null;
         if (pellets.length) {
@@ -6927,6 +6994,14 @@ const UI = (() => {
           k.y = py + ny2 / dd * 0.92 * pry;
           k.hd += Math.PI * 0.6;          // kıyıdan dönüş
           k.tx = px; k.ty = py;
+        }
+        // Hızlanan koi arkasında küçük bir su izi bırakır. Ses tetiklemesi
+        // balık başına seyrek tutulur; sakin göl hissi korunur.
+        if (k.v > 0.72 && now > (k.wakeAt || 0)) {
+          const tx = k.x - Math.cos(k.hd) * 7, ty = k.y - Math.sin(k.hd) * 7;
+          ripples.push({ x: tx, y: ty, t: now, wake: true, a: k.hd });
+          k.wakeAt = now + 850 + Math.random() * 950;
+          if (Sfx.koiRipple) Sfx.koiRipple();
         }
         // yem yeme
         for (let pi5 = pellets.length - 1; pi5 >= 0; pi5--) {
@@ -6984,7 +7059,7 @@ const UI = (() => {
       }
 
       // 🏵 nilüfer feneri: gölde salınan ışık
-      if (!viewCard && UI.hasDecor && UI.hasDecor('floatLantern')) {
+      if (hasGardenDecor('floatLantern')) {
         const fx9 = px + Math.sin(now * 0.0004) * prx * 0.35;
         const fy9 = py + Math.cos(now * 0.0005) * pry * 0.3;
         const gl9 = 0.6 + 0.4 * Math.sin(now * 0.0022);
@@ -7018,13 +7093,13 @@ const UI = (() => {
         const rp = ripples[ri3];
         const age = (now - rp.t) / 900;
         if (age > 1 || age < 0) { if (age > 1) ripples.splice(ri3, 1); continue; }
-        gx.strokeStyle = 'rgba(200,240,255,' + (0.35 * (1 - age)) + ')';
-        gx.lineWidth = 1.2 * (1 - age * 0.6);
+        gx.strokeStyle = rp.wake ? 'rgba(176,228,255,' + (0.28 * (1 - age)) + ')' : 'rgba(200,240,255,' + (0.35 * (1 - age)) + ')';
+        gx.lineWidth = (rp.wake ? 0.8 : 1.2) * (1 - age * 0.6);
         gx.beginPath(); gx.ellipse(rp.x, rp.y, 3 + age * 16, (3 + age * 16) * 0.45, 0, 0, TAU); gx.stroke();
       }
 
       // 🌉 taş köprü: Dünya 7 — gölün üzerinden kavisli geçit
-      if ((wDone >= 7 || (!viewCard && UI.hasDecor && UI.hasDecor('bridge'))) && pondHit) {
+      if ((wDone >= 7 || hasGardenDecor('bridge')) && pondHit) {
         const bx4 = pondHit.x, by4 = pondHit.y - pondHit.ry * 0.35, bw4 = pondHit.rx * 1.5;
         gx.strokeStyle = 'rgba(178,182,200,0.75)'; gx.lineWidth = 5; gx.lineCap = 'round';
         gx.beginPath();
@@ -7047,7 +7122,7 @@ const UI = (() => {
       } else bridgeHit = null;
 
       // 🌸 sakura yaprakları: Zen 6000+ — bahçeye usulca yağar
-      if (VV.best >= 6000 || (!viewCard && UI.hasDecor && UI.hasDecor('sakura'))) {
+      if (VV.best >= 6000 || hasGardenDecor('sakura')) {
         if (petals.length < 18) petals.push({ x: Math.random() * gW, y: -10, sp: 0.25 + Math.random() * 0.5, ph: Math.random() * TAU, r: 1.8 + Math.random() * 1.6 });
         for (const pt5 of petals) {
           pt5.y += pt5.sp;
@@ -7082,7 +7157,7 @@ const UI = (() => {
           if (first && gc) bind();
         }));
         const vv2 = V();
-        treeGrow = Number(store.get('zx_tree_grow', 0)) || 0;
+        treeGrow = viewCard ? (Number(viewCard.tg) || 0) : (Number(store.get('zx_tree_grow', 0)) || 0);
         // 🎧 bahçe atmosferi: esinti + (koi varsa) su + (kuş varsa) cıvıltı
         if (Sfx.gardenStart) Sfx.gardenStart({ koi: (vv2.best || 0) >= 2000, birds: (vv2.best || 0) >= 5000 });
         el.gardenStonesTxt.textContent = T('gardenStones', { n: vv2.stones });
@@ -7186,7 +7261,15 @@ const UI = (() => {
     return AVATAR_CATALOG[value] ? value : 'enso';
   }
   function gardenSnapshot() {
-    return { v: 2, w: windCode(), n: myName().slice(0, 18), a: myAvatar(), b: G.best, s: G.stones, sd: G.seeds, m: G.maxLevel, p: hasPass() ? 1 : 0 };
+    // Kart, yalnız rekoru değil ziyaretçinin göreceği bahçe düzenini de taşır.
+    // Böylece arkadaşın objelerini yerleştirdiğinde, güncel kartı çekildiğinde
+    // bahçesi de aynı biçimde görünür.
+    return {
+      v: 2, w: windCode(), n: myName().slice(0, 18), a: myAvatar(),
+      b: G.best, s: G.stones, sd: G.seeds, m: G.maxLevel, p: hasPass() ? 1 : 0,
+      d: ownedDecor().slice(), l: store.get('zx_layout', {}) || {},
+      tg: Number(store.get('zx_tree_grow', 0)) || 0, u: ServerClock.now(),
+    };
   }
   function encodeCard(o) {
     try {
@@ -7240,6 +7323,13 @@ const UI = (() => {
       if (navigator.onLine === false) throw new Error('offline');
       await new Promise(resolve => setTimeout(resolve, 120));
       const stream = store.get('zx_wind_stream', []); stream.push(item); store.set('zx_wind_stream', stream.slice(-120));
+      // Mock katmanda da son bahçe görüntüsünü sakla. Supabase adaptörü
+      // eklendiğinde aynı item doğrudan kullanıcının kartına yazılabilir.
+      if (item && item.type === 'garden-card' && item.payload && item.payload.w) {
+        const gardens = store.get('zx_wind_gardens', {});
+        gardens[item.payload.w] = item.payload;
+        store.set('zx_wind_gardens', gardens);
+      }
       return true;
     },
     async visit(code) {
@@ -7255,9 +7345,36 @@ const UI = (() => {
       store.set('zx_board', b.slice(0, 60));
       const gardens = store.get('zx_wind_gardens', {}); gardens[card.w] = card; store.set('zx_wind_gardens', gardens);
     },
-    top() { return store.get('zx_board', []).slice().sort((a, z) => z.b - a.b).slice(0, 20); },
+    cards() { return store.get('zx_board', []).slice().sort((a, z) => z.b - a.b); },
+    top() { return this.cards().slice(0, 20); },
+    async refreshFriend(card) {
+      if (!card || !card.w || card.w === windCode() || navigator.onLine === false) return card;
+      try {
+        const fresh = await SocialApi.visit(card.w);
+        if (fresh) { this.submit(fresh); return fresh; }
+      } catch (e) {}
+      return card;
+    },
+    async refreshFriends() {
+      if (navigator.onLine === false) return this.cards();
+      const cards = this.cards().filter(card => card.w && card.w !== windCode());
+      await Promise.all(cards.map(card => this.refreshFriend(card)));
+      return this.cards();
+    },
   };
-  function refreshMyCard() { Net.submit(gardenSnapshot()); }
+  function refreshMyCard() {
+    const card = gardenSnapshot();
+    Net.submit(card);
+    // Aynı kartı tekrar tekrar kuyruğa alma; yalnız bahçe/istatistik değişince
+    // çevrimiçi arkadaşlar için yeni bir anlık görüntü yayınla.
+    const signature = JSON.stringify({ b:card.b, s:card.s, sd:card.sd, m:card.m, d:card.d, l:card.l, tg:card.tg });
+    if (store.get('zx_card_signature', '') !== signature) {
+      store.set('zx_card_signature', signature);
+      SyncQueue.push({ type:'garden-card', payload:card });
+      SyncQueue.flush();
+    }
+    return card;
+  }
 
   function leaveWish(host) {
     showModal(T('wishTitle'), '<p>' + T('wishBody') + '</p><input id="wishInp" class="txtinp" maxlength="48" placeholder="' + T('wishPlaceholder') + '">', [
@@ -7316,13 +7433,13 @@ const UI = (() => {
   }
   function showWindPath() {
     showModal(T('windWhisper'), '<p>' + T('myWindCode') + '</p><p class="glowline">' + windCode() + '</p><p>' + T('windReadOnly') + '</p>', [
-      { label: T('copyZenCode'), cls: 'primary', cb: () => { const c = windCode(); if (navigator.clipboard) navigator.clipboard.writeText(c).then(() => toast(T('zenCodeCopied'))).catch(() => toast(c)); else toast(c); } },
+      { label: T('copyZenCode'), cls: 'primary', cb: () => copyToClipboard(windCode()) },
       { label: T('openWindPath'), cb: enterWindCode },
       { label: T('cancel'), cb: hideModal },
     ]);
   }
 
-  function showBoard() {
+  async function showBoard() {
     // ♛ İlk giriş: alan bir kez tanıtılır — kayıtlı kartlar, kod ekleme, bahçe ziyareti
     if (!store.get('zx_board_tut', false)) {
       store.set('zx_board_tut', true);
@@ -7332,25 +7449,41 @@ const UI = (() => {
       return;
     }
     refreshMyCard();
-    const rows = Net.top();
+    // Çevrimiçiyken önce kaydedilmiş arkadaş kartlarını yenile; bağlantı
+    // yoksa son güvenilir yerel kopya kesintisiz gösterilmeye devam eder.
+    if (navigator.onLine !== false) await Net.refreshFriends();
+    const rows = Net.cards();
     const me = myName();
-    const list = rows.length ? rows.map((r, i) => {
+    const mine = rows.find(r => r.w === windCode() || r.n === me) || gardenSnapshot();
+    const friends = rows.filter(r => r !== mine && r.w !== windCode() && r.n !== me);
+    const cardRow = (r, i, own) => {
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
-      return '<button class="boardrow' + (r.n === me ? ' me' : '') + '" data-i="' + i + '">' +
+      return '<button class="boardrow' + (own ? ' me' : '') + '" data-code="' + escapeHTML(r.w || '') + '">' +
         '<span class="brk">' + medal + '</span>' +
         '<span class="bra">' + avatarMarkup(safeAvatar(r.a), 'avatar-art-sm') + '</span>' +
         '<span class="brn">' + escapeHTML(r.n) + (r.p ? ' ✦' : '') + '</span>' +
+        (own ? '<span class="brme" aria-label="Benim kartım">⌂</span>' : '') +
         '<span class="brs">♛ ' + r.b + '</span></button>';
-    }).join('') : '<p class="boardempty">' + T('boardEmpty') + '</p>';
+    };
+    const ownCard = cardRow(mine, 0, true);
+    const friendsList = friends.length
+      ? friends.map((r, i) => cardRow(r, i, false)).join('')
+      : '<p class="boardempty">' + T('friendsEmpty') + '</p>';
     const cloudHint = navigator.onLine === false ? '<p class="boardempty">' + T('windOffline') + '</p>' : '';
-    showModal(T('boardTitle'), cloudHint + '<p class="decorsub">' + T('savedCards') + '</p><div class="boardlist">' + list + '</div>', [
+    showModal(T('boardTitle'), cloudHint +
+      '<p class="decorsub">' + T('myZenCard') + '</p><div class="boardlist">' + ownCard + '</div>' +
+      '<p class="decorsub">' + T('friendsCards') + '</p><div class="boardlist">' + friendsList + '</div>' +
+      '<p class="decorsub">' + T('friendCodeNote') + '</p>', [
       { label: T('boardShare'), cls: 'primary', cb: shareMyCard },
       { label: T('boardAdd'), cb: addCardFlow },
       { label: T('menuBtn'), cb: hideModal },
     ]);
-    el.modal.querySelectorAll('.boardrow').forEach(b => b.addEventListener('click', () => {
-      const r = rows[+b.getAttribute('data-i')];
-      hideModal(); showGarden(r);   // 👁 o oyuncunun bahçesini çiz
+    el.modal.querySelectorAll('.boardrow').forEach(b => b.addEventListener('click', async () => {
+      const code = b.getAttribute('data-code');
+      const r = rows.find(card => card.w === code) || mine;
+      if (r.w === windCode()) { hideModal(); showGarden(); return; }
+      const fresh = await Net.refreshFriend(r);
+      hideModal(); showGarden(fresh);   // 👁 güncel karttan bahçeyi çiz
     }));
   }
   function shareMyCard() {
@@ -7455,6 +7588,7 @@ const UI = (() => {
     waiting.splice(at, 1); store.set('zx_decor_pending', waiting);
     const placed = ownedDecor();
     if (!placed.includes(id)) { placed.push(id); store.set('zx_decor', placed); }
+    refreshMyCard();
     return true;
   }
   function removePlacedDecor(id) {
@@ -7464,6 +7598,7 @@ const UI = (() => {
     placed.splice(at, 1); store.set('zx_decor', placed);
     const waiting = pendingDecor();
     if (!waiting.includes(id)) { waiting.push(id); store.set('zx_decor_pending', waiting); }
+    refreshMyCard();
     toast(T('gardenRemoved', { n: T(id + 'Name') }));
     return true;
   }
@@ -7507,10 +7642,9 @@ const UI = (() => {
         '<span class="dccost">' + (has ? '✓' : pending ? T('gardenReadyToPlace') : lotusMark() + d.lotus + (d.stones ? '  ⬢ ' + d.stones : '')) + '</span></button>';
     }).join('');
     showModal(T('decorTitle'),
-      '<p class="decorsub">' + T('decorSub', { l: G.lotus, s: G.stones }) + '</p><div class="decorlist">' + rows + '</div>' +
-      '<p class="decorsub swapline">' + T('swapLine', { c: LOTUS_RATE }) + '</p>',
+      '<p class="decorsub">' + T('decorSub', { l: G.lotus, s: G.stones }) + '</p><div class="decorlist">' + rows + '</div>',
       [
-        { label: T('swapBtn', { c: LOTUS_RATE }), disabled: G.coins < LOTUS_RATE, cb: () => {
+        { label: lotusMark() + ' 1 &larr; ❖ ' + LOTUS_RATE, disabled: G.coins < LOTUS_RATE, cb: () => {
             if (G.coins < LOTUS_RATE) { toast(T('needGold', { n: LOTUS_RATE })); return; }
             G.coins -= LOTUS_RATE; saveCoins();
             addLotus(1); Sfx.softNote(880, 0.03, 0.6);
@@ -7523,8 +7657,11 @@ const UI = (() => {
       const id = b.getAttribute('data-id');
       const d = DECOR.find(x => x.id === id);
       const name = T(id + 'Name');
-      const infoKey = id + 'Info';
-      const story = T(infoKey) === infoKey ? '<p>' + T('gardenPlaceBody', { n: name }) + '</p>' : T(infoKey);
+      // Mağazadaki Rüzgâr Çanı, bahçedeki "windBell" çizimiyle aynı anlam
+      // metnini taşır; böylece diğer objeler gibi hikâyesi görünür.
+      const infoKey = id === 'chime' ? 'windBellInfo' : id + 'Info';
+      // Satın alınmamış bir obje asla "şimdi senin" anlatımına düşmez.
+      const story = T(infoKey) === infoKey ? '<p>' + escapeHTML(name) + '</p>' : T(infoKey);
       const buy = () => {
         if (G.lotus < d.lotus || G.stones < d.stones) { toast(T('decorNeed', { l: d.lotus, s: d.stones })); return; }
         G.lotus -= d.lotus; store.set('zx_lotus', G.lotus);
@@ -7537,7 +7674,7 @@ const UI = (() => {
       } else if (hasPendingDecor(id)) {
         showModal(name, story + cost, [{ label:T('gardenPlace'), cls:'primary', cb:() => chooseDecorPlacement(id) }, { label:T('close'), cb:hideModal }]);
       } else {
-        showModal(name, story + cost, [{ label:T('gardenPlace'), cls:'primary', disabled:G.lotus < d.lotus || G.stones < d.stones, cb:buy }, { label:T('close'), cb:hideModal }]);
+        showModal(name, story + cost + '<p class="decorsub">' + T('decorNeed', { l:d.lotus, s:d.stones }) + '</p>', [{ label:T('confirm'), cls:'primary', disabled:G.lotus < d.lotus || G.stones < d.stones, cb:buy }, { label:T('close'), cb:hideModal }]);
       }
     }));
   }
