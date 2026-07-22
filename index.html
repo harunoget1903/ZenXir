@@ -615,6 +615,8 @@
   .boardrow.me { border-color:rgb(var(--th-a1)); background:rgba(var(--th-a1),0.09); }
   .boardrow .brme { display:grid; place-items:center; width:20px; height:20px; border:1px solid rgb(var(--th-a1)); border-radius:50%; color:rgb(var(--th-a1)); font-size:12px; box-shadow:0 0 9px rgba(var(--th-a1),.34); }
   .boardempty { text-align:center; color:var(--dim); font-size:11.5px; padding:14px 0; }
+  .boardsection { margin:11px 0 6px; text-align:center; color:rgb(var(--th-a1)); font:600 12px/1.2 var(--mono); letter-spacing:.18em; text-shadow:0 0 12px rgba(var(--th-a1),.5); }
+  .boardsection:first-child { margin-top:2px; }
   .txtinp {
     width:100%; margin-top:8px; padding:10px 11px; border-radius:11px;
     background:rgba(255,255,255,0.05); border:1px solid var(--line);
@@ -2666,7 +2668,12 @@ for (const zCode in I18N_ALL) {
 Object.assign(LANGS.tr, {
   myZenCard:'Zen kartım', friendsCards:'Arkadaşlarımın kartları',
   friendsEmpty:'Henüz hiç arkadaş kartı eklemedin.',
-  friendCodeNote:'Bir arkadaşının dört haneli Zen Kartı kodunu ekleyerek bahçesini burada takip edebilirsin.'
+  friendCodeNote:'Bir arkadaşının dört haneli Zen Kartı kodunu ekleyerek bahçesini burada takip edebilirsin.',
+  invBirdsTitle:'Hüzme Kuşları',
+  invBirdsBody:'Zen Modu rekorunun her <b>5000 puanı</b> bahçene bir <b>Hüzme Kuşu</b> getirir — sabah ışığını taşıdığına inanılan bu küçük gezginler gökyüzünde süzülür, cıvıltıları bahçene eşlik eder.',
+  gardenTracesBody:'Bahçen ilerlemenle kendiliğinden canlanır: ✧ her <b>25 ışık tohumu</b> → gökyüzünde bir <b>Dilek Takımyıldızı</b> · ⬢ <b>6 anı taşı</b> → <b>Ay Taşı Çemberi</b> · 🐟 Zen rekorunda her <b>2000 skor</b> → göle renkli bir <b>koi balığı</b> · 🕊 her <b>5000 skor</b> → gökyüzüne bir <b>Hüzme Kuşu</b> · 🌳 her tamamlanan <b>dünya</b> → Ruh Ağacı’na yeni bir dal.',
+  pondInfo:'🐟 <b>Koi Gölü</b><br>Zen Modu rekorunda her <b>2000 puan</b> göle renkli bir koi balığı getirir · sayı büyüdükçe göl daha canlı, su izleri daha zengin olur · parmağını suya yaklaştırdığında yanına süzülürler.',
+  zt4:'🐟 <b>Koi Gölü:</b> Zen Modunda <b>2000 puana</b> ulaştığında bahçene renkli bir koi gelir. <br>🕊 Her <b>5000 puanda</b> ise gökyüzünde bir <b>Hüzme Kuşu</b> süzülür.'
 });
 Object.assign(LANGS.en, {
   myZenCard:'My Zen card', friendsCards:'My friends’ cards',
@@ -2688,6 +2695,8 @@ function T(k, v) {
 }
 /* Lotus, every screen uses the same drawn petal mark rather than platform emoji. */
 function lotusMark() { return '<span class="lotus-mark" aria-label="Lotus"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="M12 3.6c1.9 2.5 2.8 4.9 2.8 7.2 0 3.1-1.3 5.2-2.8 6.3-1.5-1.1-2.8-3.2-2.8-6.3 0-2.3.9-4.7 2.8-7.2Z" fill="#ff9ec8"/><path d="M4.2 8.6c2.9.4 5.1 1.6 6.5 3.4 1.1 1.5 1.6 3.3 1.4 5-2.1-.1-4.1-1.1-5.5-2.9-1.2-1.6-2-3.5-2.4-5.5Z" fill="#f77fb2"/><path d="M19.8 8.6c-2.9.4-5.1 1.6-6.5 3.4-1.1 1.5-1.6 3.3-1.4 5 2.1-.1 4.1-1.1 5.5-2.9 1.2-1.6 2-3.5 2.4-5.5Z" fill="#f77fb2"/><path d="M2.2 14.2c2.4-.2 4.4.3 6 1.5 1.3 1 2.2 2.4 2.5 3.8-2 .4-4 0-5.6-1.2-1.4-1.1-2.4-2.5-2.9-4.1Z" fill="#e765a2"/><path d="M21.8 14.2c-2.4-.2-4.4.3-6 1.5-1.3 1-2.2 2.4-2.5 3.8 2 .4 4 0 5.6-1.2 1.4-1.1 2.4-2.5 2.9-4.1Z" fill="#e765a2"/></svg></span>'; }
+/* HTML ile basılan bilgi alanlarında platform emojisi yerine tek, çizilmiş lotus işareti kullan. */
+function lotusHTML(s) { return String(s == null ? '' : s).replace(/🪷/g, lotusMark()); }
 /* --------------------------------------------------------------------------
    Locale completion
 
@@ -3705,7 +3714,8 @@ function startLevel(n, daily) {
 }
 
 function saveZenSession() {
-  if (G.mode !== 'zen' || !G.grid || !G.grid.size || G.fly || G.pendingPops > 0) return;
+  // Yenilgi ekranı ya da bitmiş akış asla "devam edilecek" bir oturum değildir.
+  if (G.mode !== 'zen' || G.state !== 'playing' || !G.grid || !G.grid.size || G.fly || G.pendingPops > 0) return;
   store.set('zx_zen_session', {
     v: 1, grid: [...G.grid.entries()].map(([k, b]) => [k, { ...b }]), score: G.score,
     dispScore: G.dispScore, combo: G.combo, topRow: G.topRow, scrollY: G.scrollY,
@@ -5706,7 +5716,7 @@ const UI = (() => {
         '<div><i>' + T('profLevel') + '</i><b>' + Math.min(G.maxLevel, MAX_LEVEL) + '</b></div>' +
         '<div><i>' + T('profWorlds') + '</i><b>' + worlds + ' / ' + WORLD_COUNT + '</b></div>' +
         '<div><i>' + T('profZen') + '</i><b>♛ ' + G.best + '</b></div>' +
-        '<div><i>' + T('profLotus') + '</i><b>🪷 ' + G.lotus + '</b></div>' +
+        '<div><i>' + T('profLotus') + '</i><b>' + lotusMark() + G.lotus + '</b></div>' +
         '<div><i>' + T('stonesLabel') + '</i><b>⬢ ' + G.stones + '</b></div>' +
         '<div><i>' + T('profileCoins') + '</i><b>❖ ' + G.coins + '</b></div>' +
       '</div>';
@@ -6039,12 +6049,13 @@ const UI = (() => {
       grain = [];
       for (let i = 0; i < 220; i++) grain.push([Math.random() * gW, Math.random() * gH, Math.random() * 1.1 + 0.3]);
       // 🐟 İlk koi 2000 Zen puanında gelir. Gölet boşken besleme yapılamaz.
-      const koiN = clamp(Math.floor(G.best / 2000), 0, 20);
+      // Sayıyı ekrana yazmadan, rekor büyüdükçe gölü gerçekten kalabalıklaştır.
+      const koiN = clamp(Math.floor(G.best / 2000), 0, 100);
       kois = [];
       for (let i = 0; i < koiN; i++) kois.push({
-        a: Math.random() * TAU, r: 14 + Math.random() * 16,
+        a: Math.random() * TAU, r: 8 + Math.random() * 9,
         sp: 0.0006 + Math.random() * 0.0005, ph: Math.random() * TAU,
-        tone: i % 2, // beyaz-turuncu dönüşümlü
+        tone: i % 5, sz: 0.48 + Math.random() * 0.18,
       });
       // ateş böcekleri: ışık tohumlarından
       const n = Math.min(G.seeds, 36);
@@ -6098,7 +6109,7 @@ const UI = (() => {
         // 📍 düzenleme modu: en yakın objeyi yakala
         if (editMode && !viewCard) {
           if (scaleControls) {
-            const hitControl = Object.entries(scaleControls).find(([, q]) => (p.x - q.x) ** 2 + (p.y - q.y) ** 2 < 19 ** 2);
+            const hitControl = Object.entries(scaleControls).find(([, q]) => (p.x - q.x) ** 2 + (p.y - q.y) ** 2 < (q.hit || 24) ** 2);
             if (hitControl) {
             const control = hitControl[0];
             if (control === 'remove') {
@@ -6244,6 +6255,9 @@ const UI = (() => {
       gc.addEventListener('pointercancel', up);
     }
     function draw(now) {
+      // Eski kareden kalan hit alanları sil: kaldırılan objenin hayalet halkası kalmaz.
+      lanternHit = toriiHit = pagodaHit = bambooHit = rockHit = bridgeHit = fountainHit = null;
+      craneHit = benchHit = candleHit = flanternHit = null;
       const pal = palette();
       const g0 = gx.createLinearGradient(0, 0, 0, gH);
       g0.addColorStop(0, pal.top); g0.addColorStop(1, pal.bot);
@@ -6383,6 +6397,7 @@ const UI = (() => {
       if (wDone >= 9 || hasGardenDecor('pagoda')) {
         const pgPos = P('pagoda', gW * 0.24, gH * 0.14);
         const gx0 = pgPos.x, gy0 = pgPos.y;
+        gx.save(); gx.translate(gx0, gy0); gx.scale(pgPos.s, pgPos.s); gx.translate(-gx0, -gy0);
         gx.fillStyle = 'rgba(40,48,66,0.75)';
         gx.strokeStyle = 'rgba(150,165,195,0.35)'; gx.lineWidth = 0.8;
         for (let ti = 0; ti < 3; ti++) {
@@ -6395,11 +6410,13 @@ const UI = (() => {
         }
         gx.fillStyle = 'rgba(150,165,195,0.5)';
         gx.fillRect(gx0 - 1, gy0 - 16, 2, 10);
-        pagodaHit = { x: gx0, y: gy0 + 20 };
+        gx.restore(); pagodaHit = { x: gx0, y: gy0 + 20 * pgPos.s, s: pgPos.s };
       } else pagodaHit = null;
 
       // 🎋 bambu korusu: Dünya 2 — dünya sayısıyla sıklaşır, rüzgarda salınır
       if (wDone >= 2 || hasGardenDecor('bamboo')) {
+        const bambooPos = P('bamboo', 26, gH * 0.5);
+        gx.save(); gx.translate(bambooPos.x, bambooPos.y); gx.scale(bambooPos.s, bambooPos.s); gx.translate(-26, -gH * 0.5);
         const n5 = Math.min(3 + wDone, 11);
         for (let bi = 0; bi < n5; bi++) {
           // yarısı sol kenarda, yarısı sağ kenarda — sahne dengeli dolar
@@ -6423,7 +6440,7 @@ const UI = (() => {
             gx.restore();
           }
         }
-        bambooHit = { x: 26, y: gH * 0.5 };
+        gx.restore(); bambooHit = { x: bambooPos.x, y: bambooPos.y, s: bambooPos.s };
       } else bambooHit = null;
 
       // 🍀 yosun yamaları: ilerledikçe bahçe yeşillenir
@@ -6446,6 +6463,7 @@ const UI = (() => {
       if (VV.best >= 2000 || hasGardenDecor('rock')) {
         const rPos = P('rock', gW * 0.30, gH * 0.80);
         const rx3 = rPos.x, ry3 = rPos.y;
+        gx.save(); gx.translate(rx3, ry3); gx.scale(rPos.s, rPos.s); gx.translate(-rx3, -ry3);
         gx.strokeStyle = 'rgba(255,255,255,0.10)'; gx.lineWidth = 1;
         for (let ri = 1; ri <= 4; ri++) {
           gx.beginPath(); gx.ellipse(rx3, ry3, 12 + ri * 6.5, (12 + ri * 6.5) * 0.42, 0, 0, TAU); gx.stroke();
@@ -6457,7 +6475,7 @@ const UI = (() => {
         gx.moveTo(rx3 - 14, ry3 + 5); gx.lineTo(rx3 - 9, ry3 - 9); gx.lineTo(rx3 + 2, ry3 - 13);
         gx.lineTo(rx3 + 13, ry3 - 4); gx.lineTo(rx3 + 11, ry3 + 5);
         gx.closePath(); gx.fill();
-        rockHit = { x: rx3, y: ry3 };
+        gx.restore(); rockHit = { x: rx3, y: ry3, s: rPos.s };
       } else rockHit = null;
 
       // 🪨 basamak taşları: 9+ anı taşı — bahçede bir patika belirir
@@ -6540,7 +6558,7 @@ const UI = (() => {
       if (worldsDone >= 5 || hasGardenDecor('lantern')) {
         const lPos = P('lantern', gW * 0.84, gH * 0.44);
         const lx = lPos.x, ly = lPos.y;
-        lanternHit = { x: lx, y: ly };
+        gx.save(); gx.translate(lx, ly); gx.scale(lPos.s, lPos.s); gx.translate(-lx, -ly);
         gx.fillStyle = 'rgba(150,155,175,0.8)';
         gx.fillRect(lx - 1.8, ly, 3.6, 19);                     // ayak
         gx.beginPath(); gx.ellipse(lx, ly + 20, 7.5, 2.4, 0, 0, TAU); gx.fill(); // taban
@@ -6551,12 +6569,13 @@ const UI = (() => {
         gx.shadowColor = '#FFC86E'; gx.shadowBlur = PERF.f() * 14 * lp2;
         gx.fillRect(lx - 3.6, ly - 5.5, 7.2, 4.6);              // ışık odası
         gx.shadowBlur = 0;
+        gx.restore(); lanternHit = { x: lx, y: ly, s: lPos.s };
       }
       // ⛩ torii kapısı: Yolculuk (1000) tamamlanınca — bahçenin taçlanışı
       if (VV.maxLevel > MAX_LEVEL || hasGardenDecor('torii')) {
         const tPos = P('torii', gW * 0.70, gH * 0.26);
         const tx2 = tPos.x, ty2 = tPos.y, tw2 = 32;
-        toriiHit = { x: tx2, y: ty2 };
+        gx.save(); gx.translate(tx2, ty2); gx.scale(tPos.s, tPos.s); gx.translate(-tx2, -ty2);
         gx.strokeStyle = 'rgba(226,88,62,0.85)'; gx.lineCap = 'round';
         gx.lineWidth = 5;
         gx.beginPath(); gx.moveTo(tx2 - tw2 / 2, ty2 + 44); gx.lineTo(tx2 - tw2 / 2 + 2, ty2); gx.stroke();
@@ -6565,11 +6584,13 @@ const UI = (() => {
         gx.beginPath(); gx.moveTo(tx2 - tw2 / 2 - 9, ty2 + 2); gx.quadraticCurveTo(tx2, ty2 - 7, tx2 + tw2 / 2 + 9, ty2 + 2); gx.stroke();
         gx.lineWidth = 3;
         gx.beginPath(); gx.moveTo(tx2 - tw2 / 2 - 3, ty2 + 12); gx.lineTo(tx2 + tw2 / 2 + 3, ty2 + 12); gx.stroke();
+        gx.restore(); toriiHit = { x: tx2, y: ty2, s: tPos.s };
       }
       // 🎍 shishi-odoshi: Dünya 3 — bambu dolunca devrilir, 'tok' sesiyle boşalır
       if (wDone >= 3 || hasGardenDecor('fountain')) {
         const fPos = P('fountain', gW * 0.14, gH * 0.56);
         const fx3 = fPos.x, fy3 = fPos.y;
+        gx.save(); gx.translate(fx3, fy3); gx.scale(fPos.s, fPos.s); gx.translate(-fx3, -fy3);
         const cyc = (now % 5200) / 5200;              // 0..1 döngü
         const tipT = cyc > 0.78 ? (cyc - 0.78) / 0.22 : 0;
         const tilt = tipT > 0 ? Math.sin(tipT * Math.PI) * 0.85 : cyc * 0.12;
@@ -6597,7 +6618,7 @@ const UI = (() => {
         if (tipT > 0.42 && tipT < 0.52) {
           if (!fountainClack) { fountainClack = true; Sfx.softNote(196, 0.05, 0.35); Sfx.softNote(392, 0.03, 0.2); }
         } else if (tipT === 0) fountainClack = false;
-        fountainHit = { x: fx3, y: fy3 };
+        gx.restore(); fountainHit = { x: fx3, y: fy3, s: fPos.s };
       } else fountainHit = null;
 
       // 💧 sulama parıltısı: ağaç kısa süre yeşil ışıkla dolar
@@ -6612,6 +6633,7 @@ const UI = (() => {
       // 🦢 turna heykeli: taş kaidede duran zarif silüet
       if (hasGardenDecor('crane')) {
         const cr = P('crane', gW * 0.44, gH * 0.66);
+        gx.save(); gx.translate(cr.x, cr.y); gx.scale(cr.s, cr.s); gx.translate(-cr.x, -cr.y);
         gx.fillStyle = 'rgba(150,155,175,0.5)';
         gx.beginPath(); gx.ellipse(cr.x, cr.y + 14, 11, 3.5, 0, 0, TAU); gx.fill();
         gx.strokeStyle = 'rgba(232,238,250,0.75)'; gx.lineWidth = 2; gx.lineCap = 'round';
@@ -6625,24 +6647,26 @@ const UI = (() => {
         gx.stroke();
         gx.fillStyle = 'rgba(255,120,110,0.85)';
         gx.beginPath(); gx.arc(cr.x + 5, cr.y - 21, 1.8, 0, TAU); gx.fill();                        // tepelik
-        craneHit = { x: cr.x, y: cr.y - 6 };
+        gx.restore(); craneHit = { x: cr.x, y: cr.y - 6 * cr.s, s: cr.s };
       } else craneHit = null;
 
       // 🪵 bahçe bankı
       if (hasGardenDecor('bench')) {
         const bn = P('bench', gW * 0.22, gH * 0.62);
+        gx.save(); gx.translate(bn.x, bn.y); gx.scale(bn.s, bn.s); gx.translate(-bn.x, -bn.y);
         gx.fillStyle = 'rgba(168,140,102,0.8)';
         gx.fillRect(bn.x - 14, bn.y, 28, 3.4);
         gx.fillRect(bn.x - 14, bn.y - 7, 28, 2.4);
         gx.fillStyle = 'rgba(140,116,84,0.85)';
         gx.fillRect(bn.x - 11, bn.y + 3, 2.6, 8);
         gx.fillRect(bn.x + 8.5, bn.y + 3, 2.6, 8);
-        benchHit = { x: bn.x, y: bn.y };
+        gx.restore(); benchHit = { x: bn.x, y: bn.y, s: bn.s };
       } else benchHit = null;
 
       // 🕯 mum sırası: patikada titreşen alevler
       if (hasGardenDecor('candles')) {
         const cd = P('candles', gW * 0.5, gH * 0.88);
+        gx.save(); gx.translate(cd.x, cd.y); gx.scale(cd.s, cd.s); gx.translate(-cd.x, -cd.y);
         for (let ci2 = 0; ci2 < 5; ci2++) {
           const cx2 = cd.x - 40 + ci2 * 20, cy2 = cd.y + (ci2 % 2) * 5;
           gx.fillStyle = 'rgba(226,222,210,0.75)';
@@ -6653,13 +6677,13 @@ const UI = (() => {
           gx.beginPath(); gx.ellipse(cx2, cy2 - 3, 1.7, 3.2 * fl + 1.4, 0, 0, TAU); gx.fill();
           gx.shadowBlur = 0;
         }
-        candleHit = { x: cd.x, y: cd.y };
+        gx.restore(); candleHit = { x: cd.x, y: cd.y, s: cd.s };
       } else candleHit = null;
 
       // Yeni bahçe izleri: dekor yalnızca süs değil, sahneye sakin bir hikâye katıyor.
       if (hasGardenDecor('mistBowl')) {
         const mb = P('mistBowl', gW * 0.18, gH * 0.76);
-        gx.save();
+        gx.save(); gx.translate(mb.x, mb.y); gx.scale(mb.s, mb.s); gx.translate(-mb.x, -mb.y);
         gx.fillStyle = 'rgba(88,112,130,.55)'; gx.beginPath(); gx.ellipse(mb.x, mb.y, 18, 6, 0, 0, TAU); gx.fill();
         gx.strokeStyle = 'rgba(190,230,240,.35)'; gx.lineWidth = 1; gx.stroke();
         gx.strokeStyle = 'rgba(184,230,230,.24)'; gx.lineWidth = 1.2;
@@ -6668,19 +6692,19 @@ const UI = (() => {
       }
       if (hasGardenDecor('stonePath')) {
         const sp = P('stonePath', gW * 0.67, gH * 0.78);
-        gx.save(); gx.fillStyle = 'rgba(156,170,184,.42)';
+        gx.save(); gx.translate(sp.x, sp.y); gx.scale(sp.s, sp.s); gx.translate(-sp.x, -sp.y); gx.fillStyle = 'rgba(156,170,184,.42)';
         for (let si = 0; si < 6; si++) { const sx = sp.x - 36 + si * 14; const sy = sp.y + Math.sin(si * 1.8) * 7; gx.beginPath(); gx.ellipse(sx, sy, 6, 3.2, si * .35, 0, TAU); gx.fill(); }
         gx.restore();
       }
       if (hasGardenDecor('windBell')) {
         const wb = P('windBell', gW * 0.84, gH * 0.23), sway = Math.sin(now * .0017) * 4;
-        gx.save(); gx.strokeStyle = 'rgba(206,226,245,.55)'; gx.lineWidth = 1; gx.beginPath(); gx.moveTo(wb.x, wb.y - 20); gx.lineTo(wb.x + sway, wb.y + 2); gx.stroke();
+        gx.save(); gx.translate(wb.x, wb.y); gx.scale(wb.s, wb.s); gx.translate(-wb.x, -wb.y); gx.strokeStyle = 'rgba(206,226,245,.55)'; gx.lineWidth = 1; gx.beginPath(); gx.moveTo(wb.x, wb.y - 20); gx.lineTo(wb.x + sway, wb.y + 2); gx.stroke();
         gx.fillStyle = 'rgba(150,205,236,.68)'; gx.beginPath(); gx.moveTo(wb.x - 5 + sway, wb.y + 2); gx.lineTo(wb.x + 5 + sway, wb.y + 2); gx.lineTo(wb.x + 3 + sway, wb.y + 11); gx.lineTo(wb.x - 3 + sway, wb.y + 11); gx.closePath(); gx.fill();
         gx.strokeStyle = 'rgba(216,230,242,.48)'; gx.beginPath(); gx.moveTo(wb.x + sway, wb.y + 11); gx.lineTo(wb.x + sway, wb.y + 19); gx.stroke(); gx.restore();
       }
       if (hasGardenDecor('moonGate')) {
         const mg = P('moonGate', gW * 0.20, gH * 0.38);
-        gx.save(); gx.strokeStyle = 'rgba(198,212,226,.54)'; gx.lineWidth = 4; gx.beginPath(); gx.arc(mg.x, mg.y, 24, 0, TAU); gx.stroke();
+        gx.save(); gx.translate(mg.x, mg.y); gx.scale(mg.s, mg.s); gx.translate(-mg.x, -mg.y); gx.strokeStyle = 'rgba(198,212,226,.54)'; gx.lineWidth = 4; gx.beginPath(); gx.arc(mg.x, mg.y, 24, 0, TAU); gx.stroke();
         gx.strokeStyle = 'rgba(110,242,196,.28)'; gx.lineWidth = 1; gx.beginPath(); gx.arc(mg.x, mg.y, 29, 0, TAU); gx.stroke(); gx.restore();
       }
 
@@ -6766,9 +6790,10 @@ const UI = (() => {
 
       // 🎐 rüzgar çanı: zen rekoru 4000+ ustalık nişanı — daldan sallanır
       if (VV.best >= 4000 || hasGardenDecor('chime')) {
-        const cx2 = 47, cy2 = 30;
+        const chPos = P('chime', 47, 30);
+        const cx2 = chPos.x, cy2 = chPos.y;
         const sway2 = Math.sin(now * 0.0016) * 0.16;
-        gx.save(); gx.translate(cx2, cy2); gx.rotate(sway2);
+        gx.save(); gx.translate(cx2, cy2); gx.scale(chPos.s, chPos.s); gx.rotate(sway2);
         gx.strokeStyle = 'rgba(220,224,240,0.6)'; gx.lineWidth = 0.5;
         gx.beginPath(); gx.moveTo(0, 0); gx.lineTo(0, 7); gx.stroke();
         gx.fillStyle = 'rgba(180,215,255,0.75)';
@@ -6786,19 +6811,22 @@ const UI = (() => {
       dragTargets = {
         tree: treeHit ? { x: treeHit.x, y: treeHit.y, r: Math.max(62, treeHit.r) } : null,
         pond: pondHit ? { x: pondHit.x, y: pondHit.y, r: Math.max(pondHit.rx, 46) } : null,
-        lantern: lanternHit ? { x: lanternHit.x, y: lanternHit.y, r: 30 } : null,
-        torii: toriiHit ? { x: toriiHit.x, y: toriiHit.y, r: 34 } : null,
-        pagoda: pagodaHit ? { x: pagodaHit.x, y: pagodaHit.y, r: 34 } : null,
-        fountain: fountainHit ? { x: fountainHit.x, y: fountainHit.y, r: 30 } : null,
-        rock: rockHit ? { x: rockHit.x, y: rockHit.y, r: 32 } : null,
-        crane: craneHit ? { x: craneHit.x, y: craneHit.y, r: 26 } : null,
-        bench: benchHit ? { x: benchHit.x, y: benchHit.y, r: 26 } : null,
-        candles: candleHit ? { x: candleHit.x, y: candleHit.y, r: 34 } : null,
-        floatLantern: flanternHit ? { x: flanternHit.x, y: flanternHit.y, r: 26 } : null,
-        mistBowl: hasGardenDecor('mistBowl') ? { ...P('mistBowl', gW * 0.18, gH * 0.76), r: 26 } : null,
-        stonePath: hasGardenDecor('stonePath') ? { ...P('stonePath', gW * 0.67, gH * 0.78), r: 36 } : null,
-        windBell: hasGardenDecor('windBell') ? { ...P('windBell', gW * 0.84, gH * 0.23), r: 24 } : null,
-        moonGate: hasGardenDecor('moonGate') ? { ...P('moonGate', gW * 0.20, gH * 0.38), r: 38 } : null,
+        bamboo: bambooHit ? { x: bambooHit.x, y: bambooHit.y, r: 34 * (bambooHit.s || 1) } : null,
+        lantern: lanternHit ? { x: lanternHit.x, y: lanternHit.y, r: 30 * (lanternHit.s || 1) } : null,
+        torii: toriiHit ? { x: toriiHit.x, y: toriiHit.y, r: 34 * (toriiHit.s || 1) } : null,
+        pagoda: pagodaHit ? { x: pagodaHit.x, y: pagodaHit.y, r: 34 * (pagodaHit.s || 1) } : null,
+        fountain: fountainHit ? { x: fountainHit.x, y: fountainHit.y, r: 30 * (fountainHit.s || 1) } : null,
+        rock: rockHit ? { x: rockHit.x, y: rockHit.y, r: 32 * (rockHit.s || 1) } : null,
+        bridge: (wDone >= 7 || hasGardenDecor('bridge')) ? (() => { const p = P('bridge', pondHit ? pondHit.x : gW * .5, pondHit ? pondHit.y - pondHit.ry * .35 : gH * .78); return { ...p, r: 42 * p.s }; })() : null,
+        crane: craneHit ? { x: craneHit.x, y: craneHit.y, r: 26 * (craneHit.s || 1) } : null,
+        bench: benchHit ? { x: benchHit.x, y: benchHit.y, r: 26 * (benchHit.s || 1) } : null,
+        candles: candleHit ? { x: candleHit.x, y: candleHit.y, r: 34 * (candleHit.s || 1) } : null,
+        chime: hasGardenDecor('chime') ? (() => { const p = P('chime', 47, 30); return { ...p, r: 26 * p.s }; })() : null,
+        floatLantern: flanternHit ? { x: flanternHit.x, y: flanternHit.y, r: 26 * (flanternHit.s || 1) } : null,
+        mistBowl: hasGardenDecor('mistBowl') ? (() => { const p = P('mistBowl', gW * 0.18, gH * 0.76); return { ...p, r: 26 * p.s }; })() : null,
+        stonePath: hasGardenDecor('stonePath') ? (() => { const p = P('stonePath', gW * 0.67, gH * 0.78); return { ...p, r: 36 * p.s }; })() : null,
+        windBell: hasGardenDecor('windBell') ? (() => { const p = P('windBell', gW * 0.84, gH * 0.23); return { ...p, r: 24 * p.s }; })() : null,
+        moonGate: hasGardenDecor('moonGate') ? (() => { const p = P('moonGate', gW * 0.20, gH * 0.38); return { ...p, r: 38 * p.s }; })() : null,
       };
 
       // 📐 düzenleme modu: taşınabilir objelerin çevresinde kesikli halka
@@ -6818,10 +6846,10 @@ const UI = (() => {
         if (selected) {
           const scale = P(selectedKey, selected.x, selected.y).s;
           scaleControls = {
-            minus: { x: selected.x - 26, y: selected.y - selected.r - 19 },
-            plus: { x: selected.x + 26, y: selected.y - selected.r - 19 },
+            minus: { x: selected.x - 30, y: selected.y + selected.r + 25, hit: 27 },
+            plus: { x: selected.x + 30, y: selected.y + selected.r + 25, hit: 27 },
             ...(selectedKey !== 'tree' && selectedKey !== 'pond' && hasDecor(selectedKey)
-              ? { remove: { x: selected.x + selected.r - 4, y: selected.y - selected.r + 4 } } : {}),
+              ? { remove: { x: selected.x + selected.r + 18, y: selected.y - selected.r - 12, hit: 22 } } : {}),
           };
           gx.save();
           gx.fillStyle = 'rgba(9,18,24,.90)'; gx.strokeStyle = 'rgba(125,240,192,.72)'; gx.lineWidth = 1;
@@ -6829,12 +6857,12 @@ const UI = (() => {
             const remove = kind === 'remove';
             gx.fillStyle = remove ? 'rgba(44,13,26,.94)' : 'rgba(9,18,24,.90)';
             gx.strokeStyle = remove ? 'rgba(255,150,185,.85)' : 'rgba(125,240,192,.72)';
-            gx.beginPath(); gx.arc(q.x, q.y, remove ? 13 : 15, 0, TAU); gx.fill(); gx.stroke();
-            gx.fillStyle = 'rgba(190,255,230,.96)'; gx.font = '18px system-ui'; gx.textAlign = 'center'; gx.textBaseline = 'middle';
+            gx.beginPath(); gx.arc(q.x, q.y, remove ? 15 : 20, 0, TAU); gx.fill(); gx.stroke();
+            gx.fillStyle = 'rgba(190,255,230,.96)'; gx.font = (remove ? '22px' : '27px') + ' system-ui'; gx.textAlign = 'center'; gx.textBaseline = 'middle';
             gx.fillText(remove ? '×' : kind === 'plus' ? '+' : '−', q.x, q.y - .5); gx.fillStyle = 'rgba(9,18,24,.90)';
           }
           gx.fillStyle = 'rgba(190,255,230,.92)'; gx.font = '10px system-ui'; gx.textAlign = 'center'; gx.textBaseline = 'alphabetic';
-          gx.fillText(Math.round(scale * 100) + '%', selected.x, selected.y - selected.r - 15);
+          gx.fillText(Math.round(scale * 100) + '%', selected.x, selected.y + selected.r + 54);
           gx.restore();
         } else scaleControls = null;
       }
@@ -7017,10 +7045,16 @@ const UI = (() => {
         const heading = k.hd;
         const wig = Math.sin(now * (0.008 + k.v * 0.012) + k.ph) * (0.3 + k.v * 0.5);
         gx.save();
-        gx.translate(kx, ky); gx.rotate(heading);
+        gx.translate(kx, ky); gx.rotate(heading); gx.scale(k.sz || 0.58, k.sz || 0.58);
         // 🐟 gerçek koi silüeti: uzun gövde + çatal kuyruk + yüzgeçler + benekler
-        const bodyC = k.tone ? 'rgba(255,132,72,0.92)' : 'rgba(244,247,252,0.92)';
-        const spotC = k.tone ? 'rgba(244,247,252,0.88)' : 'rgba(255,120,60,0.85)';
+        const koiPal = [
+          ['rgba(244,247,252,0.92)', 'rgba(255,120,60,0.85)'],
+          ['rgba(255,132,72,0.92)', 'rgba(244,247,252,0.88)'],
+          ['rgba(246,195,76,0.92)', 'rgba(252,246,228,0.88)'],
+          ['rgba(235,90,106,0.92)', 'rgba(245,241,230,0.86)'],
+          ['rgba(82,62,56,0.90)', 'rgba(245,174,84,0.88)'],
+        ][k.tone % 5];
+        const bodyC = koiPal[0], spotC = koiPal[1];
         const tailW = wig * 3.4;
         // hafif su gölgesi
         gx.fillStyle = 'rgba(0,0,0,0.14)';
@@ -7060,9 +7094,11 @@ const UI = (() => {
 
       // 🏵 nilüfer feneri: gölde salınan ışık
       if (hasGardenDecor('floatLantern')) {
-        const fx9 = px + Math.sin(now * 0.0004) * prx * 0.35;
-        const fy9 = py + Math.cos(now * 0.0005) * pry * 0.3;
+        const fp9 = P('floatLantern', px, py);
+        const fx9 = fp9.x + Math.sin(now * 0.0004) * Math.min(prx * 0.16, 16);
+        const fy9 = fp9.y + Math.cos(now * 0.0005) * Math.min(pry * 0.16, 9);
         const gl9 = 0.6 + 0.4 * Math.sin(now * 0.0022);
+        gx.save(); gx.translate(fx9, fy9); gx.scale(fp9.s, fp9.s); gx.translate(-fx9, -fy9);
         const gr9 = gx.createRadialGradient(fx9, fy9, 1, fx9, fy9, 22);
         gr9.addColorStop(0, 'rgba(255,190,120,' + (0.5 * gl9) + ')');
         gr9.addColorStop(1, 'rgba(255,170,90,0)');
@@ -7076,7 +7112,7 @@ const UI = (() => {
         }
         gx.fillStyle = 'rgba(255,214,150,' + (0.7 + 0.3 * gl9) + ')';
         gx.beginPath(); gx.arc(fx9, fy9, 2.6, 0, TAU); gx.fill();
-        flanternHit = { x: fx9, y: fy9 };
+        gx.restore(); flanternHit = { x: fx9, y: fy9, s: fp9.s };
       } else flanternHit = null;
 
       // 🌾 yem taneleri: suya düşer, batar, kaybolur
@@ -7100,7 +7136,10 @@ const UI = (() => {
 
       // 🌉 taş köprü: Dünya 7 — gölün üzerinden kavisli geçit
       if ((wDone >= 7 || hasGardenDecor('bridge')) && pondHit) {
-        const bx4 = pondHit.x, by4 = pondHit.y - pondHit.ry * 0.35, bw4 = pondHit.rx * 1.5;
+        const bDefX = pondHit.x, bDefY = pondHit.y - pondHit.ry * 0.35;
+        const bp4 = P('bridge', bDefX, bDefY);
+        const bx4 = bp4.x, by4 = bp4.y, bw4 = pondHit.rx * 1.5;
+        gx.save(); gx.translate(bx4, by4); gx.scale(bp4.s, bp4.s); gx.translate(-bx4, -by4);
         gx.strokeStyle = 'rgba(178,182,200,0.75)'; gx.lineWidth = 5; gx.lineCap = 'round';
         gx.beginPath();
         gx.moveTo(bx4 - bw4 / 2, by4 + 14);
@@ -7118,7 +7157,7 @@ const UI = (() => {
           gx.strokeStyle = 'rgba(200,206,226,0.3)'; gx.lineWidth = 1;
           gx.beginPath(); gx.moveTo(px4, py4 - 6); gx.lineTo(px4, py4 + 1); gx.stroke();
         }
-        bridgeHit = { x: bx4, y: by4 };
+        gx.restore(); bridgeHit = { x: bx4, y: by4, s: bp4.s };
       } else bridgeHit = null;
 
       // 🌸 sakura yaprakları: Zen 6000+ — bahçeye usulca yağar
@@ -7471,8 +7510,8 @@ const UI = (() => {
       : '<p class="boardempty">' + T('friendsEmpty') + '</p>';
     const cloudHint = navigator.onLine === false ? '<p class="boardempty">' + T('windOffline') + '</p>' : '';
     showModal(T('boardTitle'), cloudHint +
-      '<p class="decorsub">' + T('myZenCard') + '</p><div class="boardlist">' + ownCard + '</div>' +
-      '<p class="decorsub">' + T('friendsCards') + '</p><div class="boardlist">' + friendsList + '</div>' +
+      '<h3 class="boardsection">' + T('myZenCard') + '</h3><div class="boardlist">' + ownCard + '</div>' +
+      '<h3 class="boardsection">' + T('friendsCards') + '</h3><div class="boardlist">' + friendsList + '</div>' +
       '<p class="decorsub">' + T('friendCodeNote') + '</p>', [
       { label: T('boardShare'), cls: 'primary', cb: shareMyCard },
       { label: T('boardAdd'), cb: addCardFlow },
@@ -7642,7 +7681,7 @@ const UI = (() => {
         '<span class="dccost">' + (has ? '✓' : pending ? T('gardenReadyToPlace') : lotusMark() + d.lotus + (d.stones ? '  ⬢ ' + d.stones : '')) + '</span></button>';
     }).join('');
     showModal(T('decorTitle'),
-      '<p class="decorsub">' + T('decorSub', { l: G.lotus, s: G.stones }) + '</p><div class="decorlist">' + rows + '</div>',
+      '<p class="decorsub">' + lotusMark() + ' ' + G.lotus + ' · ⬢ ' + G.stones + '</p><div class="decorlist">' + rows + '</div>',
       [
         { label: lotusMark() + ' 1 &larr; ❖ ' + LOTUS_RATE, disabled: G.coins < LOTUS_RATE, cb: () => {
             if (G.coins < LOTUS_RATE) { toast(T('needGold', { n: LOTUS_RATE })); return; }
@@ -7674,7 +7713,8 @@ const UI = (() => {
       } else if (hasPendingDecor(id)) {
         showModal(name, story + cost, [{ label:T('gardenPlace'), cls:'primary', cb:() => chooseDecorPlacement(id) }, { label:T('close'), cb:hideModal }]);
       } else {
-        showModal(name, story + cost + '<p class="decorsub">' + T('decorNeed', { l:d.lotus, s:d.stones }) + '</p>', [{ label:T('confirm'), cls:'primary', disabled:G.lotus < d.lotus || G.stones < d.stones, cb:buy }, { label:T('close'), cb:hideModal }]);
+        // Maliyet tek yerde verilir; alt satırda aynı lotus miktarını tekrar etmeyiz.
+        showModal(name, story + cost, [{ label:T('confirm'), cls:'primary', disabled:G.lotus < d.lotus || G.stones < d.stones, cb:buy }, { label:T('close'), cb:hideModal }]);
       }
     }));
   }
@@ -7689,7 +7729,7 @@ const UI = (() => {
       '<section><b><span class="mark-seed">✧</span> ' + T('invSeedsTitle') + '</b><p>' + T('invSeedsBody') + '</p></section>' +
         '<section><b><span class="mark-stone">⬢</span> ' + T('invStonesTitle') + '</b><p>' + T('invStonesBody') + '</p></section>' +
         '<section><b>' + T('gardenTracesTitle') + '</b><p>' + T('gardenTracesBody') + '</p></section>' +
-        '<section><b>' + T('gardenCareTitle') + '</b><p>' + T('gardenCareBody') + '</p></section>' +
+        '<section><b>' + lotusMark() + ' ' + lotusHTML(T('gardenCareTitle').replace(/^🪷\s*/, '')) + '</b><p>' + lotusHTML(T('gardenCareBody')) + '</p></section>' +
         '<section><b>' + T('gardenOwnedTitle') + '</b><p>' + escapeHTML(ownedNames) + '</p></section>' +
       '</div>';
     showModal(T('gardenGuide'), body, [
@@ -8287,7 +8327,7 @@ const UI = (() => {
   /* ⏳ SON ŞANS: rekoruna ya da yeni koiye çok yakınken yanma — 10 sn'lik kurtarma penceresi */
   function zenNearMiss() {
     if (G.lastChanceUsed) return null;
-    const nextKoi = Math.floor(G.best / 2000) >= 20 ? Infinity : (Math.floor(G.best / 2000) + 1) * 2000; // bir sonraki koi eşiği (en çok 20)
+    const nextKoi = (Math.floor(G.best / 2000) + 1) * 2000; // rekor uzadıkça koi yolu da sürer
     if (G.score >= G.best * 0.85 && G.score < G.best) return { kind: 'rec', n: G.best - G.score };
     if (G.score >= nextKoi * 0.85 && G.score < nextKoi) return { kind: 'koi', n: nextKoi - G.score };
     return null;
@@ -8343,6 +8383,8 @@ const UI = (() => {
     zenOverReal();
   }
   function zenOverReal() {
+    // Yenilgi kesinleşti: Menüye dönerken showMenu bu tahtayı tekrar kaydetmemeli.
+    G.state = 'over';
     clearZenSession();
     const nb = Math.max(G.best, G.score);
     const isNew = G.score > G.best;
@@ -8549,9 +8591,9 @@ const UI = (() => {
     for (const lp of SHOP.lotusPacks) {
       const c = document.createElement('div'); c.className = 'packcard' + (lp.best ? ' best' : '');
       c.innerHTML = (lp.best ? '<div class="packtag">' + T('bestValue') + '</div>' : '') +
-        '<div class="packcoins lotusc">🪷 ' + lp.lotus + '</div>' +
+        '<div class="packcoins lotusc">' + lotusMark() + ' ' + lp.lotus + '</div>' +
         (lp.bonus ? '<div class="packbonus">' + lp.bonus + '</div>' : '<div class="packbonus">&nbsp;</div>');
-      c.appendChild(mkBtn(lp.usd, () => buyMoney('🪷 ' + lp.lotus, lp.usd, () => {
+      c.appendChild(mkBtn(lp.usd, () => buyMoney(T('lotusPacks') + ' ' + lp.lotus, lp.usd, () => {
         addLotus(lp.lotus);
         toast(T('gotLotus', { n: lp.lotus }));
         showShop();
@@ -8561,7 +8603,7 @@ const UI = (() => {
     el.shopList.appendChild(lrow);
     const linfo = document.createElement('div');
     linfo.className = 'shopcard lotusinfo';
-    linfo.innerHTML = '<div class="lotusguide">' + T('lotusInfo') + '</div>';
+    linfo.innerHTML = '<div class="lotusguide">' + lotusHTML(T('lotusInfo')) + '</div>';
     el.shopList.appendChild(linfo);
     }
 
