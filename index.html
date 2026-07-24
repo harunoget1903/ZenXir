@@ -785,15 +785,16 @@
     border:1px solid rgba(var(--th-a1),0.5); border-radius:10px;
     font-size:11.5px; letter-spacing:0.14em; cursor:pointer;
   }
+  /* Odak halkası sabittir: vurgulanan öğe yerinden oynamaz, yalnız ışır.
+     (Eski nabız animasyonu düğmeyi büyütüp küçülterek kaydırıyordu.) */
   .chip.spot, #jokerBtn.spot, #skillBtn.spot {
     border-color:rgb(var(--th-a1)) !important;
-    animation: chipSpot 1.2s ease-in-out infinite;
-    position:relative; z-index:19;
+    box-shadow:0 0 0 2px rgba(var(--th-a1),0.55), 0 0 20px rgba(var(--th-a1),0.45) !important;
+    animation:none !important;
+    transform:none !important;
+    z-index:19;
   }
-  @keyframes chipSpot {
-    0%,100% { box-shadow:0 0 0 rgba(var(--th-a1),0); transform:scale(1); }
-    50% { box-shadow:0 0 16px rgba(var(--th-a1),0.75); transform:scale(1.07); }
-  }
+  .chip.spot { position:relative; }
 
   /* ---------- Zen Bahçesi ---------- */
   #gardenOverlay {
@@ -3247,6 +3248,611 @@ Object.keys(LANGS).forEach(code => {
   });
 });
 
+/* ==========================================================================
+   🎓 Eğitim metinleri v2 — daha resmî, daha açıklayıcı.
+   · Mükemmel atışın (Nefes) YALNIZ Yolculuk modunda geçerli olduğu vurgulanır.
+   · Günlük Mandala açıklaması gereksinim/zorluk/ödül başlıklarıyla resmîleştirildi.
+   · Koi tavanı 20 → 100 olarak düzeltildi.
+   27 dilin tamamı elle yazılmıştır; hiçbir dil İngilizceye düşmez.
+   ========================================================================== */
+const I18N_COACH_V2 = {
+  tr: {
+    g1a:'◎ <b>Bölüm hedefi.</b> Üstte gösterilen sembolden <b>{n} adet</b> patlatman gerekir. Sayaç sıfıra ulaştığında bölüm tamamlanır.',
+    g1b:'➳ <b>Atış hakkın: {s}.</b> Sınırlıdır ve yenilenmez. Bölümü hiç boşa atış yapmadan bitirirsen ödül olarak bir <b>anı taşı</b> kazanırsın.',
+    g1c:'✨ <b>Temel kural:</b> aynı renkten <b>en az üç</b> sembol birbirine değdiğinde grup erir. Şimdi parlayan grubu tamamla.',
+    g1d:'✓ Hedef sayacı azaldı. Sayacı sıfıra indirdiğinde bölüm tamamlanır.',
+    g1e:'⇄ <b>Yer değiştirme.</b> Sıradaki topa dokunarak elindeki topla takas edebilirsin. Ücretsizdir, sınırsızdır ve atış hakkından düşmez.',
+    g2a:'✦ <b>Nefes — Mükemmel Atış.</b> Fırlatıcı halkası düzenli olarak nefes alır. Halka <b>altın renge döndüğü anda</b> bıraktığın atış mükemmel sayılır ve iniş noktasındaki tüm komşular renk fark etmeksizin patlar.<br>⚠ Bu özellik <b>yalnızca Yolculuk modunda</b> geçerlidir; Zen Modu\'nda nefes penceresi bulunmaz.',
+    g2b:'✦ <b>Özel Güçler.</b> Sol alttaki halkada <b>Joker</b>, <b>Bomba</b> ve <b>Geri Sar</b> yer alır. Sıkıştığın anda halkayı aç ve bir kart seç.',
+    gJoker2:'◈ <b>Joker</b> elindeki topu her renge uyumlu hâle getirir. İlk kullanım hediyedir; sonraki kullanımlar {c} ❖.',
+    g3a:'⬢ <b>Anı taşı.</b> Bir bölümü tek bir boşa atış yapmadan tamamladığında kazanılır. Satın alınamaz; Zen Bahçesi\'nde kalıcı olarak sergilenir.',
+    g3b:'✧ <b>Işık tohumu.</b> Dört ve üzeri combo yaptığında düşer. Bahçende her 25 tohum bir dilek takımyıldızına dönüşür.',
+    gBomb:'✹ <b>Bomba.</b> Renk gözetmez; iniş noktasının çevresini tek dalgada temizler. Zincirin ya da taşın arkasında sıkıştığında Özel Güçler halkasından hazırla.',
+    gUndo:'↶ <b>Geri Sar.</b> Son atıştan önceki tahtayı geri getirir. Top tamamen durduktan sonra Özel Güçler halkasında görünür; yanlış bir hamleyi sakince düzeltmek içindir.',
+    gPerfect:'✦ <b>Şimdi.</b> Halka altın parlıyor — mükemmel atış penceresi açık. Tam bu anda bırakırsan iniş noktasındaki tüm komşular renk fark etmeksizin patlar. <small>(yalnız Yolculuk modu)</small>',
+    perfectWhy:'✦ Nefes halkası altın rengindeyken bıraktın; bu nedenle iniş noktasındaki tüm komşular renk fark etmeksizin patladı. Bu özellik yalnız Yolculuk modunda bulunur.',
+    gWaste:'💭 Bu atış boşa gitti. Bir grubun erimesi için aynı renkten <b>en az üç</b> sembolün birbirine değmesi gerekir.',
+    zt4:'🐟 <b>2000 skora</b> ulaştığında Zen Bahçesi\'ndeki göle bir <b>koi balığı</b> gelir; her 2000 skorda bir yenisi eklenir (en çok 100). Rekorun büyüdükçe bahçen canlanır.',
+    dailyLocked:'🌸 Günlük Mandala henüz kilitli. <b>Gereksinim:</b> Yolculuk modunda 3. bölümü tamamla.',
+    dailyBody:'<b>Nedir?</b> Her gün tüm oyunculara aynı tahta verilir. Tahta her gün değişir ve <b>günde yalnız bir kez</b> oynanır.<br><b>Zorluk:</b> 10. dünyanın son bölümleri düzeyinde, simetrik.<br><b>Ödül:</b> reklamı izleyip tamamladığında <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 Günlük Mandala  +300 ❖ · +3 Lotus',
+  },
+  en: {
+    g1a:'◎ <b>Level objective.</b> Pop <b>{n}</b> of the symbol shown above. The level is complete when the counter reaches zero.',
+    g1b:'➳ <b>Shots available: {s}.</b> They are limited and do not refill. Finish the level without a single wasted shot to earn a <b>memory stone</b>.',
+    g1c:'✨ <b>Core rule:</b> a group melts when <b>three or more</b> orbs of the same colour touch. Complete the highlighted group now.',
+    g1d:'✓ The objective counter went down. Bring it to zero to complete the level.',
+    g1e:'⇄ <b>Swap.</b> Tap the next orb to trade it with the one in hand. It is free, unlimited and costs no shot.',
+    g2a:'✦ <b>Breath — the Perfect Shot.</b> The launcher ring breathes steadily. Release <b>the moment the ring turns gold</b> and the shot counts as perfect: every neighbour at the landing point pops, whatever its colour.<br>⚠ This applies <b>only in Journey mode</b>; Zen Mode has no breath window.',
+    g2b:'✦ <b>Special Powers.</b> The ring at the bottom left holds <b>Joker</b>, <b>Bomb</b> and <b>Rewind</b>. Open it and pick a card whenever you are stuck.',
+    gJoker2:'◈ <b>Joker</b> tunes the orb in hand to every colour. The first use is a gift; after that it costs {c} ❖.',
+    g3a:'⬢ <b>Memory stone.</b> Earned by completing a level without a single wasted shot. It cannot be bought and is displayed permanently in your Zen Garden.',
+    g3b:'✧ <b>Light seed.</b> Drops on a combo of four or more. In your garden every 25 seeds become a wish constellation.',
+    gBomb:'✹ <b>Bomb.</b> Ignores colour and clears the area around its landing point in one wave. Arm it from the Special Powers ring when a chain or a stone blocks you.',
+    gUndo:'↶ <b>Rewind.</b> Restores the board as it was before your last shot. It appears in the Special Powers ring once the orb has come to rest — for calmly correcting a misjudged move.',
+    gPerfect:'✦ <b>Now.</b> The ring is glowing gold — the perfect-shot window is open. Release at this exact moment and every neighbour at the landing point pops, whatever its colour. <small>(Journey mode only)</small>',
+    perfectWhy:'✦ You released while the breath ring was gold, so every neighbour at the landing point popped regardless of colour. This feature exists only in Journey mode.',
+    gWaste:'💭 That shot was wasted. A group only melts when <b>three or more</b> orbs of the same colour touch.',
+    zt4:'🐟 At <b>2000 points</b> a <b>koi</b> arrives in the pond of your Zen Garden, and another with every 2000 points after that (up to 100). Your garden grows livelier as your record grows.',
+    dailyLocked:'🌸 The Daily Mandala is still locked. <b>Requirement:</b> complete level 3 in Journey mode.',
+    dailyBody:'<b>What is it?</b> Every player receives the same board each day. The board changes daily and can be played <b>once per day</b>.<br><b>Difficulty:</b> on par with the final levels of world 10, symmetric.<br><b>Reward:</b> watch the ad and finish it for <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 daily mandala  +300 ❖ · +3 Lotus',
+  },
+  de: {
+    g1a:'◎ <b>Levelziel.</b> Lass <b>{n}</b> des oben gezeigten Symbols platzen. Erreicht der Zähler null, ist das Level geschafft.',
+    g1b:'➳ <b>Verfügbare Schüsse: {s}.</b> Sie sind begrenzt und füllen sich nicht auf. Beende das Level ohne einen einzigen Fehlschuss und du erhältst einen <b>Erinnerungsstein</b>.',
+    g1c:'✨ <b>Grundregel:</b> Eine Gruppe zerfällt, wenn <b>drei oder mehr</b> Kugeln derselben Farbe sich berühren. Vervollständige jetzt die leuchtende Gruppe.',
+    g1d:'✓ Der Zielzähler ist gesunken. Bring ihn auf null, um das Level abzuschließen.',
+    g1e:'⇄ <b>Tauschen.</b> Tippe die nächste Kugel an, um sie mit der in der Hand zu tauschen. Kostenlos, unbegrenzt und ohne Schussverlust.',
+    g2a:'✦ <b>Atem — der perfekte Schuss.</b> Der Abschussring atmet gleichmäßig. Löst du <b>genau in dem Moment aus, in dem der Ring golden wird</b>, gilt der Schuss als perfekt: Alle Nachbarn am Aufschlagpunkt platzen, unabhängig von der Farbe.<br>⚠ Das gilt <b>nur im Reise-Modus</b>; im Zen-Modus gibt es kein Atemfenster.',
+    g2b:'✦ <b>Besondere Kräfte.</b> Im Ring unten links liegen <b>Joker</b>, <b>Bombe</b> und <b>Zurückspulen</b>. Öffne ihn und wähle eine Karte, wenn du feststeckst.',
+    gJoker2:'◈ <b>Joker</b> stimmt die Kugel in deiner Hand auf jede Farbe ab. Die erste Nutzung ist ein Geschenk, danach kostet sie {c} ❖.',
+    g3a:'⬢ <b>Erinnerungsstein.</b> Du erhältst ihn, wenn du ein Level ohne einen einzigen Fehlschuss beendest. Er ist nicht käuflich und steht dauerhaft in deinem Zen-Garten.',
+    g3b:'✧ <b>Lichtsame.</b> Fällt bei einem Combo ab vier. In deinem Garten werden je 25 Samen zu einem Wunschsternbild.',
+    gBomb:'✹ <b>Bombe.</b> Sie kennt keine Farbe und räumt den Bereich um ihren Aufschlagpunkt in einer Welle frei. Aktiviere sie im Ring der besonderen Kräfte, wenn dich eine Kette oder ein Stein blockiert.',
+    gUndo:'↶ <b>Zurückspulen.</b> Stellt das Brett vor deinem letzten Schuss wieder her. Es erscheint im Ring der besonderen Kräfte, sobald die Kugel zur Ruhe gekommen ist — um einen Fehlzug in Ruhe zu korrigieren.',
+    gPerfect:'✦ <b>Jetzt.</b> Der Ring leuchtet golden — das Fenster für den perfekten Schuss ist offen. Löse genau jetzt aus und alle Nachbarn am Aufschlagpunkt platzen, egal welche Farbe. <small>(nur im Reise-Modus)</small>',
+    perfectWhy:'✦ Du hast ausgelöst, während der Atemring golden war; deshalb sind alle Nachbarn am Aufschlagpunkt unabhängig von der Farbe geplatzt. Diese Funktion gibt es nur im Reise-Modus.',
+    gWaste:'💭 Dieser Schuss war vergeudet. Eine Gruppe zerfällt nur, wenn sich <b>drei oder mehr</b> Kugeln derselben Farbe berühren.',
+    zt4:'🐟 Bei <b>2000 Punkten</b> kommt ein <b>Koi</b> in den Teich deines Zen-Gartens, und mit jeden weiteren 2000 Punkten ein neuer (bis zu 100). Je größer dein Rekord, desto lebendiger dein Garten.',
+    dailyLocked:'🌸 Das Tages-Mandala ist noch gesperrt. <b>Voraussetzung:</b> Schließe Level 3 im Reise-Modus ab.',
+    dailyBody:'<b>Was ist das?</b> Jeden Tag erhalten alle Spielenden dasselbe Brett. Es wechselt täglich und kann <b>einmal pro Tag</b> gespielt werden.<br><b>Schwierigkeit:</b> auf dem Niveau der letzten Level von Welt 10, symmetrisch.<br><b>Belohnung:</b> Werbung ansehen und abschließen für <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 Tages-Mandala  +300 ❖ · +3 Lotus',
+  },
+  fr: {
+    g1a:'◎ <b>Objectif du niveau.</b> Fais éclater <b>{n}</b> exemplaires du symbole affiché en haut. Le niveau est réussi lorsque le compteur atteint zéro.',
+    g1b:'➳ <b>Tirs disponibles : {s}.</b> Ils sont limités et ne se rechargent pas. Termine le niveau sans un seul tir perdu pour gagner une <b>pierre de mémoire</b>.',
+    g1c:'✨ <b>Règle de base :</b> un groupe fond quand <b>trois billes ou plus</b> de la même couleur se touchent. Complète maintenant le groupe qui brille.',
+    g1d:'✓ Le compteur d\'objectif a baissé. Ramène-le à zéro pour terminer le niveau.',
+    g1e:'⇄ <b>Échange.</b> Touche la bille suivante pour l\'échanger avec celle en main. C\'est gratuit, illimité et cela ne consomme aucun tir.',
+    g2a:'✦ <b>Souffle — le tir parfait.</b> L\'anneau du lanceur respire régulièrement. Relâche <b>à l\'instant précis où l\'anneau devient doré</b> et le tir devient parfait : tous les voisins du point d\'arrivée éclatent, quelle que soit leur couleur.<br>⚠ Cela ne vaut <b>qu\'en mode Voyage</b> ; le mode Zen n\'a pas de fenêtre de souffle.',
+    g2b:'✦ <b>Pouvoirs spéciaux.</b> L\'anneau en bas à gauche contient <b>Joker</b>, <b>Bombe</b> et <b>Rembobiner</b>. Ouvre-le et choisis une carte dès que tu bloques.',
+    gJoker2:'◈ <b>Joker</b> accorde la bille en main à toutes les couleurs. La première utilisation est offerte ; ensuite elle coûte {c} ❖.',
+    g3a:'⬢ <b>Pierre de mémoire.</b> Obtenue en terminant un niveau sans un seul tir perdu. Elle ne s\'achète pas et reste exposée dans ton jardin zen.',
+    g3b:'✧ <b>Graine de lumière.</b> Elle tombe à partir d\'un combo de quatre. Dans ton jardin, chaque groupe de 25 graines devient une constellation de vœux.',
+    gBomb:'✹ <b>Bombe.</b> Elle ignore les couleurs et dégage la zone autour de son point d\'arrivée en une seule onde. Prépare-la depuis l\'anneau des pouvoirs quand une chaîne ou une pierre te bloque.',
+    gUndo:'↶ <b>Rembobiner.</b> Restaure le plateau tel qu\'il était avant ton dernier tir. L\'option apparaît dans l\'anneau des pouvoirs une fois la bille immobilisée — pour corriger calmement un mauvais coup.',
+    gPerfect:'✦ <b>Maintenant.</b> L\'anneau brille en doré — la fenêtre du tir parfait est ouverte. Relâche à cet instant précis et tous les voisins du point d\'arrivée éclatent, quelle que soit leur couleur. <small>(mode Voyage uniquement)</small>',
+    perfectWhy:'✦ Tu as relâché pendant que l\'anneau de souffle était doré ; c\'est pourquoi tous les voisins du point d\'arrivée ont éclaté sans distinction de couleur. Cette fonction n\'existe qu\'en mode Voyage.',
+    gWaste:'💭 Ce tir est perdu. Un groupe ne fond que si <b>trois billes ou plus</b> de la même couleur se touchent.',
+    zt4:'🐟 À <b>2000 points</b>, un <b>koï</b> rejoint le bassin de ton jardin zen, puis un autre tous les 2000 points (jusqu\'à 100). Plus ton record grandit, plus ton jardin s\'anime.',
+    dailyLocked:'🌸 Le mandala du jour est encore verrouillé. <b>Condition :</b> termine le niveau 3 en mode Voyage.',
+    dailyBody:'<b>Qu\'est-ce que c\'est ?</b> Chaque jour, tous les joueurs reçoivent le même plateau. Il change quotidiennement et se joue <b>une fois par jour</b>.<br><b>Difficulté :</b> équivalente aux derniers niveaux du monde 10, symétrique.<br><b>Récompense :</b> regarde la publicité et termine-le pour <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala du jour  +300 ❖ · +3 Lotus',
+  },
+  es: {
+    g1a:'◎ <b>Objetivo del nivel.</b> Revienta <b>{n}</b> del símbolo mostrado arriba. El nivel se completa cuando el contador llega a cero.',
+    g1b:'➳ <b>Tiros disponibles: {s}.</b> Son limitados y no se recargan. Termina el nivel sin un solo tiro perdido y ganarás una <b>piedra de memoria</b>.',
+    g1c:'✨ <b>Regla básica:</b> un grupo se funde cuando <b>tres o más</b> orbes del mismo color se tocan. Completa ahora el grupo iluminado.',
+    g1d:'✓ El contador del objetivo bajó. Llévalo a cero para completar el nivel.',
+    g1e:'⇄ <b>Intercambio.</b> Toca el siguiente orbe para cambiarlo por el que tienes en mano. Es gratis, ilimitado y no consume tiros.',
+    g2a:'✦ <b>Respiración — el tiro perfecto.</b> El anillo del lanzador respira de forma constante. Suelta <b>justo cuando el anillo se vuelve dorado</b> y el tiro será perfecto: todos los vecinos del punto de aterrizaje revientan, sea cual sea su color.<br>⚠ Solo es válido <b>en el modo Viaje</b>; el modo Zen no tiene ventana de respiración.',
+    g2b:'✦ <b>Poderes especiales.</b> El anillo de abajo a la izquierda contiene <b>Comodín</b>, <b>Bomba</b> y <b>Rebobinar</b>. Ábrelo y elige una carta cuando te atasques.',
+    gJoker2:'◈ <b>Comodín</b> afina el orbe en mano a todos los colores. El primer uso es un regalo; después cuesta {c} ❖.',
+    g3a:'⬢ <b>Piedra de memoria.</b> Se gana al completar un nivel sin un solo tiro perdido. No se puede comprar y se exhibe de forma permanente en tu jardín zen.',
+    g3b:'✧ <b>Semilla de luz.</b> Cae con un combo de cuatro o más. En tu jardín, cada 25 semillas forman una constelación de deseos.',
+    gBomb:'✹ <b>Bomba.</b> Ignora el color y despeja la zona alrededor de su punto de aterrizaje en una sola onda. Prepárala desde el anillo de poderes cuando una cadena o una piedra te bloquee.',
+    gUndo:'↶ <b>Rebobinar.</b> Restaura el tablero tal como estaba antes de tu último tiro. Aparece en el anillo de poderes cuando el orbe se detiene por completo, para corregir con calma una jugada errónea.',
+    gPerfect:'✦ <b>Ahora.</b> El anillo brilla dorado: la ventana del tiro perfecto está abierta. Suelta en este instante y todos los vecinos del punto de aterrizaje reventarán sin importar el color. <small>(solo modo Viaje)</small>',
+    perfectWhy:'✦ Soltaste mientras el anillo de respiración estaba dorado; por eso todos los vecinos del punto de aterrizaje reventaron sin importar el color. Esta función solo existe en el modo Viaje.',
+    gWaste:'💭 Ese tiro se perdió. Un grupo solo se funde cuando <b>tres o más</b> orbes del mismo color se tocan.',
+    zt4:'🐟 Al llegar a <b>2000 puntos</b>, un <b>koi</b> llega al estanque de tu jardín zen, y otro con cada 2000 puntos más (hasta 100). Tu jardín se anima a medida que crece tu récord.',
+    dailyLocked:'🌸 El mandala diario aún está bloqueado. <b>Requisito:</b> completa el nivel 3 en el modo Viaje.',
+    dailyBody:'<b>¿Qué es?</b> Cada día todos los jugadores reciben el mismo tablero. Cambia a diario y se juega <b>una vez al día</b>.<br><b>Dificultad:</b> al nivel de los últimos niveles del mundo 10, simétrico.<br><b>Recompensa:</b> mira el anuncio y complétalo para <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala diario  +300 ❖ · +3 Lotus',
+  },
+  it: {
+    g1a:'◎ <b>Obiettivo del livello.</b> Fai scoppiare <b>{n}</b> del simbolo mostrato in alto. Il livello è superato quando il contatore arriva a zero.',
+    g1b:'➳ <b>Tiri disponibili: {s}.</b> Sono limitati e non si ricaricano. Completa il livello senza un solo tiro sprecato per ottenere una <b>pietra della memoria</b>.',
+    g1c:'✨ <b>Regola base:</b> un gruppo si dissolve quando <b>tre o più</b> sfere dello stesso colore si toccano. Completa ora il gruppo illuminato.',
+    g1d:'✓ Il contatore dell\'obiettivo è calato. Portalo a zero per completare il livello.',
+    g1e:'⇄ <b>Scambio.</b> Tocca la sfera successiva per scambiarla con quella in mano. È gratuito, illimitato e non consuma tiri.',
+    g2a:'✦ <b>Respiro — il tiro perfetto.</b> L\'anello del lanciatore respira con regolarità. Rilascia <b>nell\'istante in cui l\'anello diventa dorato</b> e il tiro sarà perfetto: tutti i vicini del punto di atterraggio scoppiano, qualunque sia il colore.<br>⚠ Vale <b>solo nella modalità Viaggio</b>; la modalità Zen non ha finestra del respiro.',
+    g2b:'✦ <b>Poteri speciali.</b> L\'anello in basso a sinistra contiene <b>Jolly</b>, <b>Bomba</b> e <b>Riavvolgi</b>. Aprilo e scegli una carta quando ti blocchi.',
+    gJoker2:'◈ <b>Jolly</b> accorda la sfera in mano a ogni colore. Il primo utilizzo è in regalo; poi costa {c} ❖.',
+    g3a:'⬢ <b>Pietra della memoria.</b> Si ottiene completando un livello senza un solo tiro sprecato. Non è acquistabile ed è esposta stabilmente nel tuo giardino zen.',
+    g3b:'✧ <b>Seme di luce.</b> Cade con una combo di quattro o più. Nel tuo giardino ogni 25 semi formano una costellazione dei desideri.',
+    gBomb:'✹ <b>Bomba.</b> Ignora il colore e libera l\'area attorno al punto di atterraggio con una sola onda. Preparala dall\'anello dei poteri quando una catena o una pietra ti blocca.',
+    gUndo:'↶ <b>Riavvolgi.</b> Ripristina la griglia com\'era prima dell\'ultimo tiro. Compare nell\'anello dei poteri quando la sfera si è fermata del tutto: serve a correggere con calma una mossa sbagliata.',
+    gPerfect:'✦ <b>Adesso.</b> L\'anello brilla d\'oro: la finestra del tiro perfetto è aperta. Rilascia in questo istante e tutti i vicini del punto di atterraggio scoppieranno, qualunque sia il colore. <small>(solo modalità Viaggio)</small>',
+    perfectWhy:'✦ Hai rilasciato mentre l\'anello del respiro era dorato: per questo tutti i vicini del punto di atterraggio sono scoppiati senza distinzione di colore. Questa funzione esiste solo nella modalità Viaggio.',
+    gWaste:'💭 Quel tiro è andato sprecato. Un gruppo si dissolve solo quando <b>tre o più</b> sfere dello stesso colore si toccano.',
+    zt4:'🐟 A <b>2000 punti</b> una <b>carpa koi</b> arriva nello stagno del tuo giardino zen, e un\'altra ogni 2000 punti (fino a 100). Più cresce il tuo record, più il giardino si anima.',
+    dailyLocked:'🌸 Il Mandala quotidiano è ancora bloccato. <b>Requisito:</b> completa il livello 3 nella modalità Viaggio.',
+    dailyBody:'<b>Che cos\'è?</b> Ogni giorno tutti i giocatori ricevono la stessa griglia. Cambia ogni giorno e si gioca <b>una volta al giorno</b>.<br><b>Difficoltà:</b> pari agli ultimi livelli del mondo 10, simmetrica.<br><b>Ricompensa:</b> guarda la pubblicità e completala per <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala del giorno  +300 ❖ · +3 Lotus',
+  },
+  pt: {
+    g1a:'◎ <b>Objetivo do nível.</b> Estoure <b>{n}</b> do símbolo mostrado acima. O nível termina quando o contador chega a zero.',
+    g1b:'➳ <b>Tiros disponíveis: {s}.</b> São limitados e não se recarregam. Conclua o nível sem um único tiro desperdiçado para ganhar uma <b>pedra da memória</b>.',
+    g1c:'✨ <b>Regra básica:</b> um grupo se dissolve quando <b>três ou mais</b> orbes da mesma cor se tocam. Complete agora o grupo iluminado.',
+    g1d:'✓ O contador do objetivo diminuiu. Leve-o a zero para concluir o nível.',
+    g1e:'⇄ <b>Troca.</b> Toque no próximo orbe para trocá-lo pelo que está em mãos. É grátis, ilimitado e não consome tiros.',
+    g2a:'✦ <b>Respiração — o tiro perfeito.</b> O anel do lançador respira com regularidade. Solte <b>no instante em que o anel fica dourado</b> e o tiro será perfeito: todos os vizinhos do ponto de chegada estouram, seja qual for a cor.<br>⚠ Isso vale <b>apenas no modo Jornada</b>; o modo Zen não tem janela de respiração.',
+    g2b:'✦ <b>Poderes especiais.</b> O anel no canto inferior esquerdo reúne <b>Coringa</b>, <b>Bomba</b> e <b>Retroceder</b>. Abra-o e escolha uma carta quando travar.',
+    gJoker2:'◈ <b>Coringa</b> ajusta o orbe em mãos a todas as cores. O primeiro uso é um presente; depois custa {c} ❖.',
+    g3a:'⬢ <b>Pedra da memória.</b> Ganha-se ao concluir um nível sem um único tiro desperdiçado. Não pode ser comprada e fica exposta permanentemente no seu jardim zen.',
+    g3b:'✧ <b>Semente de luz.</b> Cai com um combo de quatro ou mais. No seu jardim, a cada 25 sementes surge uma constelação de desejos.',
+    gBomb:'✹ <b>Bomba.</b> Ignora a cor e limpa a área ao redor do ponto de chegada em uma única onda. Prepare-a no anel de poderes quando uma corrente ou pedra bloquear você.',
+    gUndo:'↶ <b>Retroceder.</b> Restaura o tabuleiro como estava antes do seu último tiro. Aparece no anel de poderes assim que o orbe para por completo — para corrigir com calma uma jogada errada.',
+    gPerfect:'✦ <b>Agora.</b> O anel brilha dourado: a janela do tiro perfeito está aberta. Solte neste instante e todos os vizinhos do ponto de chegada estourarão, seja qual for a cor. <small>(somente no modo Jornada)</small>',
+    perfectWhy:'✦ Você soltou enquanto o anel da respiração estava dourado; por isso todos os vizinhos do ponto de chegada estouraram sem distinção de cor. Este recurso existe apenas no modo Jornada.',
+    gWaste:'💭 Esse tiro foi desperdiçado. Um grupo só se dissolve quando <b>três ou mais</b> orbes da mesma cor se tocam.',
+    zt4:'🐟 Aos <b>2000 pontos</b>, uma <b>carpa koi</b> chega ao lago do seu jardim zen, e outra a cada 2000 pontos (até 100). Quanto maior o seu recorde, mais vivo fica o jardim.',
+    dailyLocked:'🌸 A Mandala Diária ainda está bloqueada. <b>Requisito:</b> conclua o nível 3 no modo Jornada.',
+    dailyBody:'<b>O que é?</b> Todo dia todos os jogadores recebem o mesmo tabuleiro. Ele muda diariamente e pode ser jogado <b>uma vez por dia</b>.<br><b>Dificuldade:</b> equivalente aos últimos níveis do mundo 10, simétrica.<br><b>Recompensa:</b> assista ao anúncio e conclua para <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala diária  +300 ❖ · +3 Lotus',
+  },
+  nl: {
+    g1a:'◎ <b>Doel van het level.</b> Laat <b>{n}</b> van het symbool hierboven knappen. Het level is voltooid zodra de teller nul bereikt.',
+    g1b:'➳ <b>Beschikbare schoten: {s}.</b> Ze zijn beperkt en vullen niet aan. Rond het level af zonder één verspild schot en je verdient een <b>herinneringssteen</b>.',
+    g1c:'✨ <b>Basisregel:</b> een groep lost op wanneer <b>drie of meer</b> bollen van dezelfde kleur elkaar raken. Maak de oplichtende groep nu compleet.',
+    g1d:'✓ De doelteller is gedaald. Breng hem naar nul om het level te voltooien.',
+    g1e:'⇄ <b>Wisselen.</b> Tik op de volgende bol om hem te ruilen met die in je hand. Gratis, onbeperkt en het kost geen schot.',
+    g2a:'✦ <b>Adem — het perfecte schot.</b> De lanceerring ademt gelijkmatig. Laat los <b>op het moment dat de ring goud wordt</b> en het schot telt als perfect: alle buren op het landingspunt knappen, ongeacht hun kleur.<br>⚠ Dit geldt <b>alleen in de Reis-modus</b>; de Zen-modus heeft geen ademvenster.',
+    g2b:'✦ <b>Speciale krachten.</b> De ring linksonder bevat <b>Joker</b>, <b>Bom</b> en <b>Terugspoelen</b>. Open hem en kies een kaart wanneer je vastloopt.',
+    gJoker2:'◈ <b>Joker</b> stemt de bol in je hand af op elke kleur. Het eerste gebruik is een geschenk; daarna kost het {c} ❖.',
+    g3a:'⬢ <b>Herinneringssteen.</b> Verdiend door een level af te ronden zonder één verspild schot. Niet te koop en blijvend te zien in je zentuin.',
+    g3b:'✧ <b>Lichtzaadje.</b> Valt bij een combo van vier of meer. In je tuin worden elke 25 zaadjes een wensconstellatie.',
+    gBomb:'✹ <b>Bom.</b> Kent geen kleur en ruimt het gebied rond het landingspunt in één golf op. Activeer hem in de krachtenring wanneer een ketting of steen je blokkeert.',
+    gUndo:'↶ <b>Terugspoelen.</b> Herstelt het bord zoals het vóór je laatste schot was. Verschijnt in de krachtenring zodra de bol volledig stilligt — om rustig een misgreep te corrigeren.',
+    gPerfect:'✦ <b>Nu.</b> De ring gloeit goud — het venster voor het perfecte schot staat open. Laat precies nu los en alle buren op het landingspunt knappen, ongeacht kleur. <small>(alleen Reis-modus)</small>',
+    perfectWhy:'✦ Je liet los terwijl de ademring goud was; daarom knapten alle buren op het landingspunt ongeacht hun kleur. Deze functie bestaat alleen in de Reis-modus.',
+    gWaste:'💭 Dat schot was verspild. Een groep lost alleen op als <b>drie of meer</b> bollen van dezelfde kleur elkaar raken.',
+    zt4:'🐟 Bij <b>2000 punten</b> komt er een <b>koi</b> in de vijver van je zentuin, en bij elke volgende 2000 punten nog een (tot 100). Hoe hoger je record, hoe levendiger je tuin.',
+    dailyLocked:'🌸 De dagelijkse mandala is nog vergrendeld. <b>Vereiste:</b> voltooi level 3 in de Reis-modus.',
+    dailyBody:'<b>Wat is het?</b> Elke dag krijgen alle spelers hetzelfde bord. Het wisselt dagelijks en kan <b>één keer per dag</b> gespeeld worden.<br><b>Moeilijkheid:</b> vergelijkbaar met de laatste levels van wereld 10, symmetrisch.<br><b>Beloning:</b> bekijk de advertentie en rond het af voor <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 dagelijkse mandala  +300 ❖ · +3 Lotus',
+  },
+};
+Object.assign(I18N_COACH_V2, {
+  ru: {
+    g1a:'◎ <b>Цель уровня.</b> Лопни <b>{n}</b> символов, показанных сверху. Уровень пройден, когда счётчик достигнет нуля.',
+    g1b:'➳ <b>Доступно выстрелов: {s}.</b> Они ограничены и не пополняются. Заверши уровень без единого промаха — и получишь <b>камень памяти</b>.',
+    g1c:'✨ <b>Основное правило:</b> группа рассыпается, когда соприкасаются <b>три и более</b> сферы одного цвета. Заверши подсвеченную группу.',
+    g1d:'✓ Счётчик цели уменьшился. Доведи его до нуля, чтобы пройти уровень.',
+    g1e:'⇄ <b>Обмен.</b> Коснись следующей сферы, чтобы поменять её с той, что в руке. Бесплатно, без ограничений и не тратит выстрел.',
+    g2a:'✦ <b>Дыхание — идеальный выстрел.</b> Кольцо пусковой площадки дышит ровно. Отпусти <b>в тот миг, когда кольцо станет золотым</b>, и выстрел будет идеальным: лопнут все соседи в точке приземления, независимо от цвета.<br>⚠ Это работает <b>только в режиме Путешествия</b>; в режиме дзен окна дыхания нет.',
+    g2b:'✦ <b>Особые силы.</b> В кольце слева внизу — <b>Джокер</b>, <b>Бомба</b> и <b>Перемотка</b>. Открой его и выбери карту, когда застрянешь.',
+    gJoker2:'◈ <b>Джокер</b> настраивает сферу в руке на любой цвет. Первое применение — подарок, далее {c} ❖.',
+    g3a:'⬢ <b>Камень памяти.</b> Достаётся за прохождение уровня без единого промаха. Его нельзя купить; он навсегда остаётся в твоём дзен-саду.',
+    g3b:'✧ <b>Семя света.</b> Выпадает при комбо от четырёх. В саду каждые 25 семян становятся созвездием желаний.',
+    gBomb:'✹ <b>Бомба.</b> Не различает цвета и одной волной расчищает область вокруг точки приземления. Готовь её в кольце особых сил, когда мешает цепь или камень.',
+    gUndo:'↶ <b>Перемотка.</b> Возвращает доску к состоянию до последнего выстрела. Появляется в кольце особых сил, как только сфера полностью остановится, — чтобы спокойно исправить ошибку.',
+    gPerfect:'✦ <b>Сейчас.</b> Кольцо горит золотом — окно идеального выстрела открыто. Отпусти именно сейчас, и лопнут все соседи в точке приземления, независимо от цвета. <small>(только режим Путешествия)</small>',
+    perfectWhy:'✦ Ты отпустил, пока кольцо дыхания было золотым, — поэтому лопнули все соседи в точке приземления, независимо от цвета. Эта возможность есть только в режиме Путешествия.',
+    gWaste:'💭 Этот выстрел пропал. Группа рассыпается, только когда соприкасаются <b>три и более</b> сферы одного цвета.',
+    zt4:'🐟 На <b>2000 очках</b> в пруду твоего дзен-сада появляется <b>кои</b>, и ещё одна за каждые следующие 2000 очков (до 100). Чем выше рекорд, тем живее сад.',
+    dailyLocked:'🌸 Ежедневная мандала пока закрыта. <b>Условие:</b> пройди уровень 3 в режиме Путешествия.',
+    dailyBody:'<b>Что это?</b> Каждый день все игроки получают одну и ту же доску. Она меняется ежедневно и играется <b>один раз в день</b>.<br><b>Сложность:</b> на уровне последних этапов мира 10, симметричная.<br><b>Награда:</b> посмотри рекламу и пройди её ради <b>+300 ❖ · +3 Лотоса</b>',
+    dailyReward:'🌸 ежедневная мандала  +300 ❖ · +3 Лотоса',
+  },
+  pl: {
+    g1a:'◎ <b>Cel poziomu.</b> Rozbij <b>{n}</b> symboli pokazanych u góry. Poziom kończy się, gdy licznik osiągnie zero.',
+    g1b:'➳ <b>Dostępne strzały: {s}.</b> Są ograniczone i się nie odnawiają. Ukończ poziom bez ani jednego zmarnowanego strzału, a zdobędziesz <b>kamień pamięci</b>.',
+    g1c:'✨ <b>Zasada podstawowa:</b> grupa znika, gdy stykają się <b>trzy lub więcej</b> kul tego samego koloru. Dokończ teraz podświetloną grupę.',
+    g1d:'✓ Licznik celu zmalał. Doprowadź go do zera, aby ukończyć poziom.',
+    g1e:'⇄ <b>Zamiana.</b> Dotknij następnej kuli, aby zamienić ją z tą w ręce. Za darmo, bez limitu i bez utraty strzału.',
+    g2a:'✦ <b>Oddech — strzał doskonały.</b> Pierścień wyrzutni oddycha równomiernie. Zwolnij <b>dokładnie wtedy, gdy pierścień zrobi się złoty</b>, a strzał będzie doskonały: pękną wszyscy sąsiedzi w punkcie lądowania, niezależnie od koloru.<br>⚠ Działa to <b>tylko w trybie Podróży</b>; tryb zen nie ma okna oddechu.',
+    g2b:'✦ <b>Moce specjalne.</b> Pierścień w lewym dolnym rogu zawiera <b>Jokera</b>, <b>Bombę</b> i <b>Przewijanie</b>. Otwórz go i wybierz kartę, gdy utkniesz.',
+    gJoker2:'◈ <b>Joker</b> dostraja kulę w ręce do każdego koloru. Pierwsze użycie to prezent, kolejne kosztują {c} ❖.',
+    g3a:'⬢ <b>Kamień pamięci.</b> Zdobywasz go, kończąc poziom bez ani jednego zmarnowanego strzału. Nie da się go kupić i pozostaje na stałe w twoim ogrodzie zen.',
+    g3b:'✧ <b>Nasiono światła.</b> Spada przy combo od czterech. W ogrodzie każde 25 nasion tworzy konstelację życzeń.',
+    gBomb:'✹ <b>Bomba.</b> Nie zważa na kolor i jedną falą oczyszcza obszar wokół punktu lądowania. Przygotuj ją w pierścieniu mocy, gdy blokuje cię łańcuch lub kamień.',
+    gUndo:'↶ <b>Przewijanie.</b> Przywraca planszę sprzed ostatniego strzału. Pojawia się w pierścieniu mocy, gdy kula całkowicie się zatrzyma — służy spokojnemu naprawieniu błędu.',
+    gPerfect:'✦ <b>Teraz.</b> Pierścień lśni złotem — okno strzału doskonałego jest otwarte. Zwolnij dokładnie teraz, a pękną wszyscy sąsiedzi w punkcie lądowania, niezależnie od koloru. <small>(tylko tryb Podróży)</small>',
+    perfectWhy:'✦ Zwolniłeś, gdy pierścień oddechu był złoty — dlatego pękli wszyscy sąsiedzi w punkcie lądowania, bez względu na kolor. Ta funkcja istnieje tylko w trybie Podróży.',
+    gWaste:'💭 Ten strzał przepadł. Grupa znika tylko wtedy, gdy stykają się <b>trzy lub więcej</b> kul tego samego koloru.',
+    zt4:'🐟 Przy <b>2000 punktach</b> do stawu w twoim ogrodzie zen przypływa <b>karp koi</b>, a potem kolejny co 2000 punktów (do 100). Im większy rekord, tym żywszy ogród.',
+    dailyLocked:'🌸 Codzienna mandala jest jeszcze zablokowana. <b>Wymaganie:</b> ukończ poziom 3 w trybie Podróży.',
+    dailyBody:'<b>Co to jest?</b> Każdego dnia wszyscy gracze otrzymują tę samą planszę. Zmienia się codziennie i można ją zagrać <b>raz dziennie</b>.<br><b>Trudność:</b> na poziomie ostatnich etapów świata 10, symetryczna.<br><b>Nagroda:</b> obejrzyj reklamę i ukończ ją, aby zdobyć <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala dnia  +300 ❖ · +3 Lotus',
+  },
+  cs: {
+    g1a:'◎ <b>Cíl úrovně.</b> Rozbij <b>{n}</b> symbolů zobrazených nahoře. Úroveň je splněná, jakmile počítadlo dosáhne nuly.',
+    g1b:'➳ <b>Dostupné výstřely: {s}.</b> Jsou omezené a nedoplňují se. Dokonči úroveň bez jediného zmařeného výstřelu a získáš <b>kámen paměti</b>.',
+    g1c:'✨ <b>Základní pravidlo:</b> skupina se rozplyne, když se dotknou <b>tři a více</b> koulí stejné barvy. Dokonči teď svítící skupinu.',
+    g1d:'✓ Počítadlo cíle kleslo. Sniž ho na nulu a úroveň bude hotová.',
+    g1e:'⇄ <b>Výměna.</b> Klepni na další kouli a vyměň ji s tou v ruce. Zdarma, bez omezení a bez ztráty výstřelu.',
+    g2a:'✦ <b>Dech — dokonalý výstřel.</b> Prsten vrhače pravidelně dýchá. Uvolni <b>přesně ve chvíli, kdy prsten zezlátne</b>, a výstřel bude dokonalý: prasknou všichni sousedé v místě dopadu bez ohledu na barvu.<br>⚠ Platí to <b>jen v režimu Cesta</b>; zenový režim okno dechu nemá.',
+    g2b:'✦ <b>Zvláštní síly.</b> Prsten vlevo dole obsahuje <b>Žolíka</b>, <b>Bombu</b> a <b>Přetočení</b>. Otevři jej a vyber kartu, kdykoli uvázneš.',
+    gJoker2:'◈ <b>Žolík</b> naladí kouli v ruce na každou barvu. První použití je dar, další stojí {c} ❖.',
+    g3a:'⬢ <b>Kámen paměti.</b> Získáš ho dokončením úrovně bez jediného zmařeného výstřelu. Nedá se koupit a trvale zdobí tvou zenovou zahradu.',
+    g3b:'✧ <b>Semínko světla.</b> Padá při combu od čtyř. V zahradě se z každých 25 semínek stane souhvězdí přání.',
+    gBomb:'✹ <b>Bomba.</b> Nehledí na barvu a jedinou vlnou vyčistí okolí místa dopadu. Připrav ji v prstenu sil, když tě blokuje řetěz nebo kámen.',
+    gUndo:'↶ <b>Přetočení.</b> Obnoví desku do stavu před posledním výstřelem. Objeví se v prstenu sil, jakmile se koule úplně zastaví — pro klidnou nápravu chybného tahu.',
+    gPerfect:'✦ <b>Teď.</b> Prsten září zlatě — okno dokonalého výstřelu je otevřené. Uvolni právě teď a prasknou všichni sousedé v místě dopadu bez ohledu na barvu. <small>(jen režim Cesta)</small>',
+    perfectWhy:'✦ Uvolnil jsi ve chvíli, kdy byl dechový prsten zlatý; proto praskli všichni sousedé v místě dopadu bez ohledu na barvu. Tato funkce existuje jen v režimu Cesta.',
+    gWaste:'💭 Tento výstřel přišel vniveč. Skupina se rozplyne jen tehdy, když se dotknou <b>tři a více</b> koulí stejné barvy.',
+    zt4:'🐟 Při <b>2000 bodech</b> připluje do jezírka tvé zenové zahrady <b>koi</b> a další s každými dalšími 2000 body (až 100). Čím vyšší rekord, tím živější zahrada.',
+    dailyLocked:'🌸 Denní mandala je zatím zamčená. <b>Požadavek:</b> dokonči úroveň 3 v režimu Cesta.',
+    dailyBody:'<b>Co to je?</b> Každý den dostanou všichni hráči stejnou desku. Mění se denně a hraje se <b>jednou za den</b>.<br><b>Obtížnost:</b> na úrovni závěrečných kol světa 10, symetrická.<br><b>Odměna:</b> zhlédni reklamu a dokonči ji za <b>+300 ❖ · +3 lotus</b>',
+    dailyReward:'🌸 denní mandala  +300 ❖ · +3 lotus',
+  },
+  sr: {
+    g1a:'◎ <b>Циљ нивоа.</b> Разбиј <b>{n}</b> симбола приказаних горе. Ниво је завршен када бројач стигне до нуле.',
+    g1b:'➳ <b>Доступни хици: {s}.</b> Ограничени су и не обнављају се. Заврши ниво без иједног промашеног хица и добићеш <b>камен сећања</b>.',
+    g1c:'✨ <b>Основно правило:</b> група нестаје када се додирну <b>три или више</b> кугли исте боје. Доврши сада осветљену групу.',
+    g1d:'✓ Бројач циља се смањио. Сведи га на нулу да завршиш ниво.',
+    g1e:'⇄ <b>Замена.</b> Додирни следећу куглу да је замениш оном у руци. Бесплатно је, неограничено и не троши хитац.',
+    g2a:'✦ <b>Дах — савршен хитац.</b> Прстен лансера равномерно дише. Пусти <b>тачно у тренутку када прстен постане златан</b> и хитац ће бити савршен: пуцају сви суседи на месту слетања, без обзира на боју.<br>⚠ Ово важи <b>само у режиму Путовање</b>; зен режим нема прозор даха.',
+    g2b:'✦ <b>Посебне моћи.</b> Прстен доле лево садржи <b>Џокера</b>, <b>Бомбу</b> и <b>Премотавање</b>. Отвори га и изабери карту кад заглавиш.',
+    gJoker2:'◈ <b>Џокер</b> подешава куглу у руци на сваку боју. Прва употреба је поклон, а затим кошта {c} ❖.',
+    g3a:'⬢ <b>Камен сећања.</b> Осваја се завршетком нивоа без иједног промашеног хица. Не може да се купи и трајно стоји у твојој зен башти.',
+    g3b:'✧ <b>Семе светлости.</b> Пада при комбу од четири и више. У башти сваких 25 семена постаје сазвежђе жеља.',
+    gBomb:'✹ <b>Бомба.</b> Не гледа боју и једним таласом чисти околину места слетања. Припреми је у прстену моћи када те блокира ланац или камен.',
+    gUndo:'↶ <b>Премотавање.</b> Враћа таблу у стање пре последњег хица. Појављује се у прстену моћи чим се кугла потпуно заустави — да смирено исправиш погрешан потез.',
+    gPerfect:'✦ <b>Сада.</b> Прстен сија златно — прозор савршеног хица је отворен. Пусти баш сада и пуцаће сви суседи на месту слетања, без обзира на боју. <small>(само режим Путовање)</small>',
+    perfectWhy:'✦ Пустио си док је прстен даха био златан; зато су пукли сви суседи на месту слетања без обзира на боју. Ова могућност постоји само у режиму Путовање.',
+    gWaste:'💭 Овај хитац је пропао. Група нестаје само када се додирну <b>три или више</b> кугли исте боје.',
+    zt4:'🐟 На <b>2000 поена</b> у језерце твоје зен баште долази <b>кои</b>, а затим још један на сваких 2000 поена (највише 100). Како расте рекорд, башта оживљава.',
+    dailyLocked:'🌸 Дневна мандала је још закључана. <b>Услов:</b> заврши ниво 3 у режиму Путовање.',
+    dailyBody:'<b>Шта је то?</b> Сваког дана сви играчи добијају исту таблу. Мења се свакодневно и игра се <b>једном дневно</b>.<br><b>Тежина:</b> на нивоу завршних нивоа света 10, симетрична.<br><b>Награда:</b> погледај оглас и заврши је за <b>+300 ❖ · +3 лотоса</b>',
+    dailyReward:'🌸 дневна мандала  +300 ❖ · +3 лотоса',
+  },
+  ro: {
+    g1a:'◎ <b>Obiectivul nivelului.</b> Sparge <b>{n}</b> dintre simbolurile afișate sus. Nivelul se încheie când contorul ajunge la zero.',
+    g1b:'➳ <b>Lovituri disponibile: {s}.</b> Sunt limitate și nu se reîncarcă. Termină nivelul fără nicio lovitură irosită și primești o <b>piatră a memoriei</b>.',
+    g1c:'✨ <b>Regula de bază:</b> un grup se destramă când se ating <b>trei sau mai multe</b> sfere de aceeași culoare. Completează acum grupul luminat.',
+    g1d:'✓ Contorul obiectivului a scăzut. Adu-l la zero pentru a termina nivelul.',
+    g1e:'⇄ <b>Schimb.</b> Atinge sfera următoare pentru a o schimba cu cea din mână. Este gratuit, nelimitat și nu consumă lovituri.',
+    g2a:'✦ <b>Respirația — lovitura perfectă.</b> Inelul lansatorului respiră constant. Eliberează <b>exact în clipa în care inelul devine auriu</b> și lovitura va fi perfectă: toți vecinii din punctul de aterizare se sparg, indiferent de culoare.<br>⚠ Acest lucru este valabil <b>doar în modul Călătorie</b>; modul Zen nu are fereastră a respirației.',
+    g2b:'✦ <b>Puteri speciale.</b> Inelul din stânga jos conține <b>Joker</b>, <b>Bombă</b> și <b>Derulare</b>. Deschide-l și alege o carte când te blochezi.',
+    gJoker2:'◈ <b>Jokerul</b> acordează sfera din mână la orice culoare. Prima utilizare este un cadou; apoi costă {c} ❖.',
+    g3a:'⬢ <b>Piatra memoriei.</b> Se câștigă terminând un nivel fără nicio lovitură irosită. Nu poate fi cumpărată și rămâne expusă permanent în grădina ta zen.',
+    g3b:'✧ <b>Sămânța de lumină.</b> Cade la o combinație de patru sau mai multe. În grădină, fiecare 25 de semințe formează o constelație a dorințelor.',
+    gBomb:'✹ <b>Bomba.</b> Nu ține cont de culoare și curăță zona din jurul punctului de aterizare într-un singur val. Pregătește-o din inelul puterilor când te blochează un lanț sau o piatră.',
+    gUndo:'↶ <b>Derulare.</b> Readuce tabla la starea dinaintea ultimei lovituri. Apare în inelul puterilor imediat ce sfera s-a oprit complet — pentru a corecta calm o mutare greșită.',
+    gPerfect:'✦ <b>Acum.</b> Inelul strălucește auriu — fereastra loviturii perfecte este deschisă. Eliberează chiar acum și toți vecinii din punctul de aterizare se vor sparge, indiferent de culoare. <small>(doar modul Călătorie)</small>',
+    perfectWhy:'✦ Ai eliberat cât timp inelul respirației era auriu; de aceea toți vecinii din punctul de aterizare s-au spart indiferent de culoare. Această funcție există doar în modul Călătorie.',
+    gWaste:'💭 Lovitura aceasta s-a irosit. Un grup se destramă doar când se ating <b>trei sau mai multe</b> sfere de aceeași culoare.',
+    zt4:'🐟 La <b>2000 de puncte</b>, un <b>koi</b> ajunge în iazul grădinii tale zen, apoi încă unul la fiecare 2000 de puncte (până la 100). Cu cât recordul crește, cu atât grădina prinde viață.',
+    dailyLocked:'🌸 Mandala Zilnică este încă blocată. <b>Cerință:</b> termină nivelul 3 în modul Călătorie.',
+    dailyBody:'<b>Ce este?</b> În fiecare zi toți jucătorii primesc aceeași tablă. Se schimbă zilnic și poate fi jucată <b>o dată pe zi</b>.<br><b>Dificultate:</b> la nivelul ultimelor niveluri din lumea 10, simetrică.<br><b>Recompensă:</b> urmărește reclama și termin-o pentru <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala zilnică  +300 ❖ · +3 Lotus',
+  },
+  el: {
+    g1a:'◎ <b>Στόχος πίστας.</b> Έσκασε <b>{n}</b> από το σύμβολο που φαίνεται πάνω. Η πίστα ολοκληρώνεται όταν ο μετρητής φτάσει στο μηδέν.',
+    g1b:'➳ <b>Διαθέσιμες βολές: {s}.</b> Είναι περιορισμένες και δεν ανανεώνονται. Τελείωσε την πίστα χωρίς ούτε μία χαμένη βολή για να κερδίσεις μια <b>πέτρα μνήμης</b>.',
+    g1c:'✨ <b>Βασικός κανόνας:</b> μια ομάδα διαλύεται όταν ακουμπούν <b>τρεις ή περισσότερες</b> σφαίρες ίδιου χρώματος. Ολοκλήρωσε τώρα τη φωτισμένη ομάδα.',
+    g1d:'✓ Ο μετρητής στόχου μειώθηκε. Φέρ\' τον στο μηδέν για να ολοκληρώσεις την πίστα.',
+    g1e:'⇄ <b>Ανταλλαγή.</b> Άγγιξε την επόμενη σφαίρα για να την ανταλλάξεις με αυτή στο χέρι. Είναι δωρεάν, απεριόριστη και δεν κοστίζει βολή.',
+    g2a:'✦ <b>Αναπνοή — η τέλεια βολή.</b> Ο δακτύλιος του εκτοξευτή αναπνέει σταθερά. Άφησε <b>ακριβώς τη στιγμή που ο δακτύλιος γίνεται χρυσός</b> και η βολή γίνεται τέλεια: σκάνε όλοι οι γείτονες στο σημείο προσγείωσης, ανεξαρτήτως χρώματος.<br>⚠ Ισχύει <b>μόνο στη λειτουργία Ταξίδι</b>· η λειτουργία Ζεν δεν έχει παράθυρο αναπνοής.',
+    g2b:'✦ <b>Ειδικές δυνάμεις.</b> Ο δακτύλιος κάτω αριστερά περιέχει <b>Μπαλαντέρ</b>, <b>Βόμβα</b> και <b>Επαναφορά</b>. Άνοιξέ τον και διάλεξε κάρτα όποτε κολλήσεις.',
+    gJoker2:'◈ Ο <b>Μπαλαντέρ</b> συντονίζει τη σφαίρα στο χέρι με κάθε χρώμα. Η πρώτη χρήση είναι δώρο· μετά κοστίζει {c} ❖.',
+    g3a:'⬢ <b>Πέτρα μνήμης.</b> Κερδίζεται ολοκληρώνοντας μια πίστα χωρίς ούτε μία χαμένη βολή. Δεν αγοράζεται και εκτίθεται μόνιμα στον κήπο ζεν σου.',
+    g3b:'✧ <b>Σπόρος φωτός.</b> Πέφτει σε κόμπο τεσσάρων ή περισσότερων. Στον κήπο σου κάθε 25 σπόροι γίνονται αστερισμός ευχών.',
+    gBomb:'✹ <b>Βόμβα.</b> Αγνοεί το χρώμα και καθαρίζει την περιοχή γύρω από το σημείο προσγείωσης με ένα κύμα. Ετοίμασέ τη από τον δακτύλιο δυνάμεων όταν σε μπλοκάρει αλυσίδα ή πέτρα.',
+    gUndo:'↶ <b>Επαναφορά.</b> Επαναφέρει την πίστα όπως ήταν πριν από την τελευταία βολή. Εμφανίζεται στον δακτύλιο δυνάμεων μόλις ακινητοποιηθεί η σφαίρα — για να διορθώσεις ήρεμα μια λάθος κίνηση.',
+    gPerfect:'✦ <b>Τώρα.</b> Ο δακτύλιος λάμπει χρυσός — το παράθυρο της τέλειας βολής είναι ανοιχτό. Άφησε αυτή ακριβώς τη στιγμή και θα σκάσουν όλοι οι γείτονες στο σημείο προσγείωσης, ανεξαρτήτως χρώματος. <small>(μόνο λειτουργία Ταξίδι)</small>',
+    perfectWhy:'✦ Άφησες όσο ο δακτύλιος αναπνοής ήταν χρυσός· γι\' αυτό έσκασαν όλοι οι γείτονες στο σημείο προσγείωσης ανεξαρτήτως χρώματος. Αυτή η δυνατότητα υπάρχει μόνο στη λειτουργία Ταξίδι.',
+    gWaste:'💭 Αυτή η βολή χάθηκε. Μια ομάδα διαλύεται μόνο όταν ακουμπούν <b>τρεις ή περισσότερες</b> σφαίρες ίδιου χρώματος.',
+    zt4:'🐟 Στους <b>2000 πόντους</b> ένα <b>κόι</b> φτάνει στη λίμνη του κήπου ζεν σου, και άλλο ένα κάθε 2000 πόντους (έως 100). Όσο μεγαλώνει το ρεκόρ σου, τόσο ζωντανεύει ο κήπος.',
+    dailyLocked:'🌸 Το Καθημερινό Μάνταλα είναι ακόμη κλειδωμένο. <b>Προϋπόθεση:</b> ολοκλήρωσε το επίπεδο 3 στη λειτουργία Ταξίδι.',
+    dailyBody:'<b>Τι είναι;</b> Κάθε μέρα όλοι οι παίκτες λαμβάνουν την ίδια πίστα. Αλλάζει καθημερινά και παίζεται <b>μία φορά την ημέρα</b>.<br><b>Δυσκολία:</b> στο επίπεδο των τελευταίων πιστών του κόσμου 10, συμμετρική.<br><b>Ανταμοιβή:</b> δες τη διαφήμιση και ολοκλήρωσέ τη για <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 καθημερινό μάνταλα  +300 ❖ · +3 Lotus',
+  },
+  sv: {
+    g1a:'◎ <b>Nivåns mål.</b> Spräng <b>{n}</b> av symbolen som visas ovan. Nivån är klar när räknaren når noll.',
+    g1b:'➳ <b>Tillgängliga skott: {s}.</b> De är begränsade och fylls inte på. Klara nivån utan ett enda bortkastat skott så får du en <b>minnessten</b>.',
+    g1c:'✨ <b>Grundregel:</b> en grupp löses upp när <b>tre eller fler</b> klot av samma färg rör vid varandra. Fullborda den lysande gruppen nu.',
+    g1d:'✓ Målräknaren minskade. För ner den till noll för att klara nivån.',
+    g1e:'⇄ <b>Byte.</b> Tryck på nästa klot för att byta det mot det du har i handen. Det är gratis, obegränsat och kostar inget skott.',
+    g2a:'✦ <b>Andetag — det perfekta skottet.</b> Avfyrningsringen andas jämnt. Släpp <b>precis när ringen blir gyllene</b> så räknas skottet som perfekt: alla grannar vid landningspunkten spricker, oavsett färg.<br>⚠ Detta gäller <b>bara i Resa-läget</b>; Zen-läget har inget andningsfönster.',
+    g2b:'✦ <b>Särskilda krafter.</b> Ringen nere till vänster rymmer <b>Joker</b>, <b>Bomb</b> och <b>Spola tillbaka</b>. Öppna den och välj ett kort när du kör fast.',
+    gJoker2:'◈ <b>Jokern</b> stämmer klotet i handen till varje färg. Första användningen är en gåva; därefter kostar den {c} ❖.',
+    g3a:'⬢ <b>Minnessten.</b> Fås genom att klara en nivå utan ett enda bortkastat skott. Den går inte att köpa och står permanent i din zenträdgård.',
+    g3b:'✧ <b>Ljusfrö.</b> Faller vid combo på fyra eller fler. I trädgården blir var 25:e frö en önskekonstellation.',
+    gBomb:'✹ <b>Bomb.</b> Bryr sig inte om färg och rensar området kring sin landningspunkt i en enda våg. Förbered den i kraftringen när en kedja eller sten blockerar dig.',
+    gUndo:'↶ <b>Spola tillbaka.</b> Återställer brädet som det var före ditt senaste skott. Det dyker upp i kraftringen så snart klotet stannat helt — för att lugnt rätta ett feldrag.',
+    gPerfect:'✦ <b>Nu.</b> Ringen lyser gyllene — fönstret för det perfekta skottet är öppet. Släpp precis nu så spricker alla grannar vid landningspunkten, oavsett färg. <small>(endast Resa-läget)</small>',
+    perfectWhy:'✦ Du släppte medan andningsringen var gyllene; därför sprack alla grannar vid landningspunkten oavsett färg. Den här funktionen finns bara i Resa-läget.',
+    gWaste:'💭 Det skottet gick förlorat. En grupp löses bara upp när <b>tre eller fler</b> klot av samma färg rör vid varandra.',
+    zt4:'🐟 Vid <b>2000 poäng</b> kommer en <b>koi</b> till dammen i din zenträdgård, och ytterligare en för varje 2000 poäng (upp till 100). Ju större rekord, desto livligare trädgård.',
+    dailyLocked:'🌸 Den dagliga mandalan är fortfarande låst. <b>Krav:</b> klara nivå 3 i Resa-läget.',
+    dailyBody:'<b>Vad är det?</b> Varje dag får alla spelare samma bräde. Det byts dagligen och spelas <b>en gång per dag</b>.<br><b>Svårighet:</b> i nivå med de sista banorna i värld 10, symmetriskt.<br><b>Belöning:</b> se annonsen och klara den för <b>+300 ❖ · +3 lotus</b>',
+    dailyReward:'🌸 daglig mandala  +300 ❖ · +3 lotus',
+  },
+  da: {
+    g1a:'◎ <b>Banens mål.</b> Spræng <b>{n}</b> af symbolet vist ovenfor. Banen er klaret, når tælleren når nul.',
+    g1b:'➳ <b>Tilgængelige skud: {s}.</b> De er begrænsede og fyldes ikke op. Gennemfør banen uden et eneste spildt skud og få en <b>mindesten</b>.',
+    g1c:'✨ <b>Grundregel:</b> en gruppe opløses, når <b>tre eller flere</b> kugler i samme farve rører hinanden. Fuldfør den lysende gruppe nu.',
+    g1d:'✓ Måltælleren faldt. Før den ned til nul for at gennemføre banen.',
+    g1e:'⇄ <b>Byt.</b> Tryk på næste kugle for at bytte den med den i hånden. Det er gratis, ubegrænset og koster ikke et skud.',
+    g2a:'✦ <b>Åndedrag — det perfekte skud.</b> Affyringsringen ånder jævnt. Slip <b>præcis når ringen bliver gylden</b>, så tæller skuddet som perfekt: alle naboer ved landingspunktet springer, uanset farve.<br>⚠ Det gælder <b>kun i Rejse-tilstand</b>; zen-tilstanden har ikke noget åndedragsvindue.',
+    g2b:'✦ <b>Særlige kræfter.</b> Ringen nederst til venstre rummer <b>Joker</b>, <b>Bombe</b> og <b>Spol tilbage</b>. Åbn den og vælg et kort, når du sidder fast.',
+    gJoker2:'◈ <b>Jokeren</b> stemmer kuglen i hånden til enhver farve. Første brug er en gave; derefter koster den {c} ❖.',
+    g3a:'⬢ <b>Mindesten.</b> Optjenes ved at gennemføre en bane uden et eneste spildt skud. Den kan ikke købes og står permanent i din zenhave.',
+    g3b:'✧ <b>Lysfrø.</b> Falder ved combo på fire eller flere. I haven bliver hvert 25. frø til et ønskestjernebillede.',
+    gBomb:'✹ <b>Bombe.</b> Er ligeglad med farve og rydder området omkring landingspunktet i én bølge. Gør den klar i kraftringen, når en kæde eller sten blokerer dig.',
+    gUndo:'↶ <b>Spol tilbage.</b> Gendanner brættet som før dit sidste skud. Den vises i kraftringen, så snart kuglen er faldet helt til ro — til roligt at rette et fejltræk.',
+    gPerfect:'✦ <b>Nu.</b> Ringen gløder gyldent — vinduet for det perfekte skud er åbent. Slip lige nu, og alle naboer ved landingspunktet springer, uanset farve. <small>(kun Rejse-tilstand)</small>',
+    perfectWhy:'✦ Du slap, mens åndedragsringen var gylden; derfor sprang alle naboer ved landingspunktet uanset farve. Denne funktion findes kun i Rejse-tilstand.',
+    gWaste:'💭 Det skud gik til spilde. En gruppe opløses kun, når <b>tre eller flere</b> kugler i samme farve rører hinanden.',
+    zt4:'🐟 Ved <b>2000 point</b> ankommer en <b>koi</b> til dammen i din zenhave, og endnu en for hver 2000 point (op til 100). Jo større rekord, jo mere levende bliver haven.',
+    dailyLocked:'🌸 Den daglige mandala er stadig låst. <b>Krav:</b> gennemfør niveau 3 i Rejse-tilstand.',
+    dailyBody:'<b>Hvad er det?</b> Hver dag får alle spillere det samme bræt. Det skifter dagligt og spilles <b>én gang om dagen</b>.<br><b>Sværhedsgrad:</b> på niveau med de sidste baner i verden 10, symmetrisk.<br><b>Belønning:</b> se reklamen og gennemfør den for <b>+300 ❖ · +3 lotus</b>',
+    dailyReward:'🌸 daglig mandala  +300 ❖ · +3 lotus',
+  },
+  nb: {
+    g1a:'◎ <b>Målet for nivået.</b> Sprett <b>{n}</b> av symbolet som vises over. Nivået er fullført når telleren når null.',
+    g1b:'➳ <b>Tilgjengelige skudd: {s}.</b> De er begrenset og fylles ikke opp. Fullfør nivået uten et eneste bortkastet skudd og få en <b>minnestein</b>.',
+    g1c:'✨ <b>Grunnregel:</b> en gruppe løses opp når <b>tre eller flere</b> kuler av samme farge berører hverandre. Fullfør den lysende gruppen nå.',
+    g1d:'✓ Måltelleren gikk ned. Før den til null for å fullføre nivået.',
+    g1e:'⇄ <b>Bytte.</b> Trykk på neste kule for å bytte den med den du har i hånden. Det er gratis, ubegrenset og koster ikke et skudd.',
+    g2a:'✦ <b>Pust — det perfekte skuddet.</b> Utskytningsringen puster jevnt. Slipp <b>akkurat når ringen blir gyllen</b>, så teller skuddet som perfekt: alle naboer ved landingspunktet sprekker, uansett farge.<br>⚠ Dette gjelder <b>bare i Reise-modus</b>; zen-modus har ikke noe pustevindu.',
+    g2b:'✦ <b>Spesielle krefter.</b> Ringen nede til venstre inneholder <b>Joker</b>, <b>Bombe</b> og <b>Spol tilbake</b>. Åpne den og velg et kort når du står fast.',
+    gJoker2:'◈ <b>Jokeren</b> stemmer kulen i hånden til alle farger. Første bruk er en gave; deretter koster den {c} ❖.',
+    g3a:'⬢ <b>Minnestein.</b> Fås ved å fullføre et nivå uten et eneste bortkastet skudd. Den kan ikke kjøpes og står permanent i zen-hagen din.',
+    g3b:'✧ <b>Lysfrø.</b> Faller ved combo på fire eller flere. I hagen blir hver 25. frø til et ønskestjernebilde.',
+    gBomb:'✹ <b>Bombe.</b> Bryr seg ikke om farge og rydder området rundt landingspunktet i én bølge. Gjør den klar i kraftringen når en kjede eller stein blokkerer deg.',
+    gUndo:'↶ <b>Spol tilbake.</b> Gjenoppretter brettet slik det var før siste skudd. Den dukker opp i kraftringen så snart kulen har stanset helt — for rolig å rette opp et feiltrekk.',
+    gPerfect:'✦ <b>Nå.</b> Ringen gløder gyllent — vinduet for det perfekte skuddet er åpent. Slipp akkurat nå, så sprekker alle naboer ved landingspunktet, uansett farge. <small>(bare Reise-modus)</small>',
+    perfectWhy:'✦ Du slapp mens pusteringen var gyllen; derfor sprakk alle naboer ved landingspunktet uansett farge. Denne funksjonen finnes bare i Reise-modus.',
+    gWaste:'💭 Det skuddet gikk tapt. En gruppe løses bare opp når <b>tre eller flere</b> kuler av samme farge berører hverandre.',
+    zt4:'🐟 Ved <b>2000 poeng</b> kommer en <b>koi</b> til dammen i zen-hagen din, og enda en for hver 2000 poeng (opptil 100). Jo større rekord, jo mer levende blir hagen.',
+    dailyLocked:'🌸 Den daglige mandalaen er fortsatt låst. <b>Krav:</b> fullfør nivå 3 i Reise-modus.',
+    dailyBody:'<b>Hva er det?</b> Hver dag får alle spillere det samme brettet. Det byttes daglig og spilles <b>én gang per dag</b>.<br><b>Vanskelighetsgrad:</b> på nivå med de siste brettene i verden 10, symmetrisk.<br><b>Belønning:</b> se annonsen og fullfør den for <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 daglig mandala  +300 ❖ · +3 Lotus',
+  },
+  fi: {
+    g1a:'◎ <b>Tason tavoite.</b> Puhkaise <b>{n}</b> ylhäällä näkyvää symbolia. Taso on suoritettu, kun laskuri saavuttaa nollan.',
+    g1b:'➳ <b>Laukauksia käytössä: {s}.</b> Ne ovat rajalliset eivätkä täydenny. Suorita taso ilman ainuttakaan hukkalaukausta ja saat <b>muistokiven</b>.',
+    g1c:'✨ <b>Perussääntö:</b> ryhmä sulaa, kun <b>kolme tai useampi</b> samanvärinen pallo koskettaa toisiaan. Täydennä nyt hehkuva ryhmä.',
+    g1d:'✓ Tavoitelaskuri laski. Vie se nollaan suorittaaksesi tason.',
+    g1e:'⇄ <b>Vaihto.</b> Kosketa seuraavaa palloa vaihtaaksesi sen kädessä olevaan. Se on ilmaista, rajatonta eikä kuluta laukausta.',
+    g2a:'✦ <b>Hengitys — täydellinen laukaus.</b> Heittimen rengas hengittää tasaisesti. Vapauta <b>juuri sillä hetkellä, kun rengas muuttuu kultaiseksi</b>, niin laukaus on täydellinen: kaikki laskeutumispisteen naapurit puhkeavat väristä riippumatta.<br>⚠ Tämä pätee <b>vain Matka-tilassa</b>; Zen-tilassa ei ole hengitysikkunaa.',
+    g2b:'✦ <b>Erityisvoimat.</b> Vasemman alakulman renkaassa ovat <b>Jokeri</b>, <b>Pommi</b> ja <b>Kelaus</b>. Avaa se ja valitse kortti, kun jäät jumiin.',
+    gJoker2:'◈ <b>Jokeri</b> virittää kädessä olevan pallon jokaiseen väriin. Ensimmäinen käyttö on lahja; sen jälkeen se maksaa {c} ❖.',
+    g3a:'⬢ <b>Muistokivi.</b> Ansaitaan suorittamalla taso ilman ainuttakaan hukkalaukausta. Sitä ei voi ostaa, ja se on pysyvästi esillä zen-puutarhassasi.',
+    g3b:'✧ <b>Valonsiemen.</b> Putoaa neljän tai useamman comboista. Puutarhassa jokaista 25 siementä kohti syntyy toivetähdistö.',
+    gBomb:'✹ <b>Pommi.</b> Ei välitä väreistä ja raivaa laskeutumispisteen ympäristön yhdellä aallolla. Valmistele se voimarenkaassa, kun ketju tai kivi tukkii tiesi.',
+    gUndo:'↶ <b>Kelaus.</b> Palauttaa laudan viimeistä laukausta edeltäneeseen tilaan. Se ilmestyy voimarenkaaseen heti kun pallo on pysähtynyt kokonaan — rauhalliseen virheen korjaamiseen.',
+    gPerfect:'✦ <b>Nyt.</b> Rengas hehkuu kultaisena — täydellisen laukauksen ikkuna on auki. Vapauta juuri nyt, niin kaikki laskeutumispisteen naapurit puhkeavat väristä riippumatta. <small>(vain Matka-tila)</small>',
+    perfectWhy:'✦ Vapautit hengitysrenkaan ollessa kultainen; siksi kaikki laskeutumispisteen naapurit puhkesivat väristä riippumatta. Tämä ominaisuus on vain Matka-tilassa.',
+    gWaste:'💭 Tuo laukaus meni hukkaan. Ryhmä sulaa vain, kun <b>kolme tai useampi</b> samanvärinen pallo koskettaa toisiaan.',
+    zt4:'🐟 <b>2000 pisteessä</b> zen-puutarhasi lampeen saapuu <b>koi</b>, ja uusi jokaista seuraavaa 2000 pistettä kohti (enintään 100). Mitä suurempi ennätys, sitä eloisampi puutarha.',
+    dailyLocked:'🌸 Päivittäinen mandala on vielä lukittu. <b>Vaatimus:</b> suorita taso 3 Matka-tilassa.',
+    dailyBody:'<b>Mikä se on?</b> Joka päivä kaikki pelaajat saavat saman laudan. Se vaihtuu päivittäin ja sitä pelataan <b>kerran päivässä</b>.<br><b>Vaikeus:</b> maailman 10 viimeisten tasojen luokkaa, symmetrinen.<br><b>Palkinto:</b> katso mainos ja suorita se saadaksesi <b>+300 ❖ · +3 lotusta</b>',
+    dailyReward:'🌸 päivittäinen mandala  +300 ❖ · +3 lotusta',
+  },
+});
+Object.assign(I18N_COACH_V2, {
+  ar: {
+    g1a:'◎ <b>هدف المرحلة.</b> فجّر <b>{n}</b> من الرمز الظاهر في الأعلى. تكتمل المرحلة عندما يصل العدّاد إلى الصفر.',
+    g1b:'➳ <b>الطلقات المتاحة: {s}.</b> محدودة ولا تتجدّد. أنهِ المرحلة دون طلقة ضائعة واحدة لتنال <b>حجر الذكرى</b>.',
+    g1c:'✨ <b>القاعدة الأساسية:</b> تذوب المجموعة عندما تتلامس <b>ثلاث كرات أو أكثر</b> من اللون نفسه. أكمل الآن المجموعة المضيئة.',
+    g1d:'✓ انخفض عدّاد الهدف. أوصله إلى الصفر لإكمال المرحلة.',
+    g1e:'⇄ <b>التبديل.</b> المس الكرة التالية لتبديلها بالتي في يدك. مجاني وغير محدود ولا يكلّف طلقة.',
+    g2a:'✦ <b>النفَس — الطلقة المثالية.</b> تتنفّس حلقة القاذف بانتظام. أطلق <b>في اللحظة التي تتحوّل فيها الحلقة إلى الذهبي</b> فتصبح الطلقة مثالية: تنفجر كل الكرات المجاورة لنقطة الهبوط مهما كان لونها.<br>⚠ هذا يسري <b>في وضع الرحلة فقط</b>؛ وضع الزن لا يحتوي على نافذة النفَس.',
+    g2b:'✦ <b>القوى الخاصة.</b> تضم الحلقة في أسفل اليسار <b>الجوكر</b> و<b>القنبلة</b> و<b>الإرجاع</b>. افتحها واختر بطاقة كلما تعثّرت.',
+    gJoker2:'◈ <b>الجوكر</b> يجعل الكرة التي في يدك متوافقة مع كل لون. الاستخدام الأول هدية، وبعده يكلّف {c} ❖.',
+    g3a:'⬢ <b>حجر الذكرى.</b> يُنال بإكمال مرحلة دون طلقة ضائعة واحدة. لا يمكن شراؤه ويُعرض بشكل دائم في حديقة الزن الخاصة بك.',
+    g3b:'✧ <b>بذرة الضوء.</b> تسقط عند تحقيق كومبو من أربعة فأكثر. في حديقتك تتحوّل كل 25 بذرة إلى كوكبة أمنيات.',
+    gBomb:'✹ <b>القنبلة.</b> لا تفرّق بين الألوان وتنظّف محيط نقطة هبوطها بموجة واحدة. جهّزها من حلقة القوى عندما تعيقك سلسلة أو صخرة.',
+    gUndo:'↶ <b>الإرجاع.</b> يعيد اللوح إلى ما كان عليه قبل طلقتك الأخيرة. يظهر في حلقة القوى بمجرد توقّف الكرة تمامًا — لتصحيح حركة خاطئة بهدوء.',
+    gPerfect:'✦ <b>الآن.</b> الحلقة تتوهّج ذهبًا — نافذة الطلقة المثالية مفتوحة. أطلق في هذه اللحظة بالذات فتنفجر كل الكرات المجاورة لنقطة الهبوط مهما كان لونها. <small>(وضع الرحلة فقط)</small>',
+    perfectWhy:'✦ أطلقتَ بينما كانت حلقة النفَس ذهبية؛ لذلك انفجرت كل الكرات المجاورة لنقطة الهبوط بغضّ النظر عن اللون. هذه الميزة موجودة في وضع الرحلة فقط.',
+    gWaste:'💭 ضاعت هذه الطلقة. لا تذوب المجموعة إلا عندما تتلامس <b>ثلاث كرات أو أكثر</b> من اللون نفسه.',
+    zt4:'🐟 عند <b>2000 نقطة</b> تصل سمكة <b>كوي</b> إلى بركة حديقة الزن، ثم واحدة أخرى مع كل 2000 نقطة (حتى 100). كلما كبر رقمك القياسي دبّت الحياة في حديقتك.',
+    dailyLocked:'🌸 ماندالا اليوم ما زالت مقفلة. <b>الشرط:</b> أكمل المستوى 3 في وضع الرحلة.',
+    dailyBody:'<b>ما هي؟</b> يحصل جميع اللاعبين كل يوم على اللوح نفسه. يتغيّر اللوح يوميًا ويُلعب <b>مرة واحدة في اليوم</b>.<br><b>الصعوبة:</b> بمستوى المراحل الأخيرة من العالم 10، ومتماثلة.<br><b>المكافأة:</b> شاهد الإعلان وأكملها لتنال <b>+300 ❖ · +3 لوتس</b>',
+    dailyReward:'🌸 ماندالا اليوم  +300 ❖ · +3 لوتس',
+  },
+  he: {
+    g1a:'◎ <b>מטרת השלב.</b> פוצץ <b>{n}</b> מהסמל המוצג למעלה. השלב הושלם כשהמונה מגיע לאפס.',
+    g1b:'➳ <b>יריות זמינות: {s}.</b> הן מוגבלות ואינן מתחדשות. סיים את השלב בלי ירייה מבוזבזת אחת וקבל <b>אבן זיכרון</b>.',
+    g1c:'✨ <b>כלל היסוד:</b> קבוצה נמסה כאשר <b>שלושה כדורים או יותר</b> באותו צבע נוגעים זה בזה. השלם עכשיו את הקבוצה הזוהרת.',
+    g1d:'✓ מונה המטרה ירד. הורד אותו לאפס כדי להשלים את השלב.',
+    g1e:'⇄ <b>החלפה.</b> גע בכדור הבא כדי להחליף אותו עם זה שביד. חינם, ללא הגבלה ובלי לבזבז ירייה.',
+    g2a:'✦ <b>נשימה — הירייה המושלמת.</b> טבעת המשגר נושמת בקצב קבוע. שחרר <b>ברגע שהטבעת הופכת זהובה</b> והירייה תיחשב מושלמת: כל השכנים בנקודת הנחיתה מתפוצצים, בכל צבע.<br>⚠ הדבר תקף <b>רק במצב מסע</b>; במצב זן אין חלון נשימה.',
+    g2b:'✦ <b>כוחות מיוחדים.</b> הטבעת בפינה השמאלית התחתונה מכילה <b>ג\'וקר</b>, <b>פצצה</b> ו<b>הרצה לאחור</b>. פתח אותה ובחר קלף כשאתה נתקע.',
+    gJoker2:'◈ <b>הג\'וקר</b> מכוונן את הכדור שבידך לכל צבע. השימוש הראשון הוא מתנה; לאחר מכן הוא עולה {c} ❖.',
+    g3a:'⬢ <b>אבן זיכרון.</b> מתקבלת בסיום שלב בלי ירייה מבוזבזת אחת. לא ניתן לקנות אותה והיא מוצגת לצמיתות בגן הזן שלך.',
+    g3b:'✧ <b>זרע אור.</b> נופל בקומבו של ארבעה ומעלה. בגן שלך כל 25 זרעים הופכים לקבוצת כוכבי משאלה.',
+    gBomb:'✹ <b>פצצה.</b> אינה מבחינה בצבע ומנקה את האזור סביב נקודת הנחיתה בגל אחד. הכן אותה מטבעת הכוחות כששרשרת או אבן חוסמות אותך.',
+    gUndo:'↶ <b>הרצה לאחור.</b> משחזרת את הלוח כפי שהיה לפני הירייה האחרונה. מופיעה בטבעת הכוחות ברגע שהכדור נעצר לחלוטין — לתיקון רגוע של מהלך שגוי.',
+    gPerfect:'✦ <b>עכשיו.</b> הטבעת זוהרת בזהב — חלון הירייה המושלמת פתוח. שחרר בדיוק ברגע זה וכל השכנים בנקודת הנחיתה יתפוצצו, בכל צבע. <small>(מצב מסע בלבד)</small>',
+    perfectWhy:'✦ שחררת בזמן שטבעת הנשימה הייתה זהובה; לכן כל השכנים בנקודת הנחיתה התפוצצו ללא קשר לצבע. תכונה זו קיימת רק במצב מסע.',
+    gWaste:'💭 הירייה הזו בוזבזה. קבוצה נמסה רק כאשר <b>שלושה כדורים או יותר</b> באותו צבע נוגעים זה בזה.',
+    zt4:'🐟 ב־<b>2000 נקודות</b> מגיע <b>קוי</b> לבריכה שבגן הזן שלך, ועוד אחד על כל 2000 נקודות (עד 100). ככל שהשיא גדל, הגן מתעורר לחיים.',
+    dailyLocked:'🌸 המנדלה היומית עדיין נעולה. <b>דרישה:</b> סיים את שלב 3 במצב מסע.',
+    dailyBody:'<b>מה זה?</b> בכל יום כל השחקנים מקבלים את אותו הלוח. הוא מתחלף מדי יום ומשוחק <b>פעם ביום</b>.<br><b>קושי:</b> ברמת השלבים האחרונים של עולם 10, סימטרי.<br><b>פרס:</b> צפה בפרסומת וסיים אותו עבור <b>+300 ❖ · +3 לוטוס</b>',
+    dailyReward:'🌸 מנדלה יומית  +300 ❖ · +3 לוטוס',
+  },
+  hi: {
+    g1a:'◎ <b>स्तर का लक्ष्य।</b> ऊपर दिखाए गए प्रतीक के <b>{n}</b> फोड़ें। काउंटर शून्य पर पहुँचते ही स्तर पूरा हो जाता है।',
+    g1b:'➳ <b>उपलब्ध शॉट: {s}।</b> ये सीमित हैं और दोबारा नहीं भरते। बिना एक भी व्यर्थ शॉट के स्तर पूरा करें और <b>स्मृति पत्थर</b> पाएँ।',
+    g1c:'✨ <b>मूल नियम:</b> जब एक ही रंग के <b>तीन या अधिक</b> गोले आपस में छूते हैं, समूह पिघल जाता है। अब चमकते समूह को पूरा करें।',
+    g1d:'✓ लक्ष्य काउंटर घट गया। इसे शून्य तक लाकर स्तर पूरा करें।',
+    g1e:'⇄ <b>अदला-बदली।</b> अगले गोले को छूकर उसे हाथ के गोले से बदलें। यह मुफ़्त है, असीमित है और कोई शॉट खर्च नहीं होता।',
+    g2a:'✦ <b>साँस — संपूर्ण शॉट।</b> प्रक्षेपक का छल्ला एक लय में साँस लेता है। <b>जिस क्षण छल्ला सुनहरा हो</b>, उसी क्षण छोड़ें — शॉट संपूर्ण बन जाएगा: लैंडिंग बिंदु के सभी पड़ोसी, चाहे किसी भी रंग के हों, फूट जाते हैं।<br>⚠ यह <b>केवल यात्रा मोड में</b> लागू होता है; ज़ेन मोड में साँस की खिड़की नहीं होती।',
+    g2b:'✦ <b>विशेष शक्तियाँ।</b> नीचे बाईं ओर के छल्ले में <b>जोकर</b>, <b>बम</b> और <b>पीछे लौटाएँ</b> हैं। अटकने पर इसे खोलें और एक कार्ड चुनें।',
+    gJoker2:'◈ <b>जोकर</b> हाथ के गोले को हर रंग के अनुकूल बना देता है। पहला उपयोग उपहार है; उसके बाद {c} ❖ लगते हैं।',
+    g3a:'⬢ <b>स्मृति पत्थर।</b> बिना एक भी व्यर्थ शॉट के स्तर पूरा करने पर मिलता है। इसे खरीदा नहीं जा सकता और यह आपके ज़ेन बग़ीचे में स्थायी रूप से सजा रहता है।',
+    g3b:'✧ <b>प्रकाश बीज।</b> चार या अधिक के कॉम्बो पर गिरता है। बग़ीचे में हर 25 बीज एक कामना-नक्षत्र बन जाते हैं।',
+    gBomb:'✹ <b>बम।</b> रंग नहीं देखता और अपने लैंडिंग बिंदु के आसपास का क्षेत्र एक ही लहर में साफ़ कर देता है। जब शृंखला या पत्थर रास्ता रोके, शक्तियों के छल्ले से इसे तैयार करें।',
+    gUndo:'↶ <b>पीछे लौटाएँ।</b> अंतिम शॉट से पहले वाला बोर्ड लौटा देता है। गोला पूरी तरह रुकते ही यह शक्तियों के छल्ले में दिखता है — ग़लत चाल को शांति से सुधारने के लिए।',
+    gPerfect:'✦ <b>अभी।</b> छल्ला सुनहरा चमक रहा है — संपूर्ण शॉट की खिड़की खुली है। ठीक इसी क्षण छोड़ें और लैंडिंग बिंदु के सभी पड़ोसी, किसी भी रंग के हों, फूट जाएँगे। <small>(केवल यात्रा मोड)</small>',
+    perfectWhy:'✦ आपने तब छोड़ा जब साँस का छल्ला सुनहरा था; इसीलिए लैंडिंग बिंदु के सभी पड़ोसी रंग की परवाह किए बिना फूट गए। यह सुविधा केवल यात्रा मोड में है।',
+    gWaste:'💭 यह शॉट व्यर्थ गया। समूह तभी पिघलता है जब एक ही रंग के <b>तीन या अधिक</b> गोले आपस में छूते हों।',
+    zt4:'🐟 <b>2000 अंक</b> पर आपके ज़ेन बग़ीचे के तालाब में एक <b>कोइ मछली</b> आती है, और उसके बाद हर 2000 अंक पर एक और (अधिकतम 100)। रिकॉर्ड बढ़ने के साथ बग़ीचा जीवंत होता जाता है।',
+    dailyLocked:'🌸 दैनिक मंडल अभी बंद है। <b>आवश्यकता:</b> यात्रा मोड में स्तर 3 पूरा करें।',
+    dailyBody:'<b>यह क्या है?</b> हर दिन सभी खिलाड़ियों को एक ही बोर्ड मिलता है। यह रोज़ बदलता है और <b>दिन में एक बार</b> खेला जाता है।<br><b>कठिनाई:</b> दुनिया 10 के अंतिम स्तरों के बराबर, सममित।<br><b>इनाम:</b> विज्ञापन देखकर पूरा करें और पाएँ <b>+300 ❖ · +3 लोटस</b>',
+    dailyReward:'🌸 दैनिक मंडल  +300 ❖ · +3 लोटस',
+  },
+  zh: {
+    g1a:'◎ <b>关卡目标。</b>弹破上方所示符号 <b>{n}</b> 个。计数归零即通关。',
+    g1b:'➳ <b>可用发数：{s}。</b>发数有限且不会补充。全程无一发落空地通关，可获得一枚<b>记忆石</b>。',
+    g1c:'✨ <b>基本规则：</b>同色球相邻达到<b>三个或以上</b>即消融。现在把发亮的那一组补齐。',
+    g1d:'✓ 目标计数减少了。把它降到零即可通关。',
+    g1e:'⇄ <b>交换。</b>点按下一颗球，即可与手中的球对调。免费、不限次数，也不消耗发数。',
+    g2a:'✦ <b>呼吸 — 完美射击。</b>发射环会规律地呼吸。<b>在圆环转为金色的瞬间</b>松手，这一发即为完美：落点周围的所有相邻球，无论颜色一律弹破。<br>⚠ 此机制<b>仅在旅程模式中生效</b>；禅模式没有呼吸窗口。',
+    g2b:'✦ <b>特殊之力。</b>左下角的圆环内含<b>百搭</b>、<b>炸弹</b>与<b>回溯</b>。卡关时打开它并选一张卡。',
+    gJoker2:'◈ <b>百搭</b>会让手中的球契合任何颜色。首次使用免费，之后每次 {c} ❖。',
+    g3a:'⬢ <b>记忆石。</b>全程无一发落空地通关即可获得。无法购买，会长久陈列在你的禅园中。',
+    g3b:'✧ <b>光之种。</b>达成四连及以上连击时掉落。在花园中，每 25 颗种子会化为一座心愿星座。',
+    gBomb:'✹ <b>炸弹。</b>不分颜色，一波清空落点周围的区域。被锁链或石头挡住时，从特殊之力环中备好它。',
+    gUndo:'↶ <b>回溯。</b>把盘面恢复到上一发之前的状态。待球完全停稳后，它会出现在特殊之力环中 — 用来从容地修正失误。',
+    gPerfect:'✦ <b>就是现在。</b>圆环正泛金光 — 完美射击的窗口已开启。此刻松手，落点周围的所有相邻球都会弹破，不论颜色。<small>（仅限旅程模式）</small>',
+    perfectWhy:'✦ 你在呼吸环呈金色时松了手，因此落点周围的所有相邻球不论颜色都弹破了。此机制仅存在于旅程模式。',
+    gWaste:'💭 这一发落空了。只有同色球相邻达到<b>三个或以上</b>时，一组才会消融。',
+    zt4:'🐟 达到 <b>2000 分</b>时，一尾<b>锦鲤</b>会来到你禅园的池中，此后每 2000 分再添一尾（最多 100 尾）。纪录越高，花园越有生气。',
+    dailyLocked:'🌸 每日曼陀罗尚未解锁。<b>条件：</b>在旅程模式中通关第 3 关。',
+    dailyBody:'<b>这是什么？</b>每天所有玩家会拿到同一张牌面。牌面每日更换，<b>每天可玩一次</b>。<br><b>难度：</b>相当于第 10 世界的最后几关，且左右对称。<br><b>奖励：</b>观看广告并通关可得 <b>+300 ❖ · +3 莲</b>',
+    dailyReward:'🌸 每日曼陀罗  +300 ❖ · +3 莲',
+  },
+  ja: {
+    g1a:'◎ <b>レベルの目標。</b>上に表示された記号を <b>{n}個</b> 弾けさせよう。カウンターが0になればクリア。',
+    g1b:'➳ <b>使える弾数：{s}。</b>弾数は限られ、補充されない。一度も外さずにクリアすると<b>記憶の石</b>がもらえる。',
+    g1c:'✨ <b>基本ルール：</b>同じ色の球が<b>3個以上</b>つながると、そのまとまりが溶ける。今、光っているまとまりを完成させよう。',
+    g1d:'✓ 目標カウンターが減った。0にすればレベルクリア。',
+    g1e:'⇄ <b>入れ替え。</b>次の球に触れると、手持ちの球と交換できる。無料・無制限で、弾数も消費しない。',
+    g2a:'✦ <b>呼吸 — パーフェクトショット。</b>発射リングは一定のリズムで呼吸する。<b>リングが金色になった瞬間</b>に放つとパーフェクトになり、着弾点の隣接球が色に関係なくすべて弾ける。<br>⚠ これは<b>旅モード限定</b>。禅モードに呼吸の窓はない。',
+    g2b:'✦ <b>特別な力。</b>左下のリングに<b>ジョーカー</b>・<b>ボム</b>・<b>巻き戻し</b>がある。行き詰まったら開いてカードを選ぼう。',
+    gJoker2:'◈ <b>ジョーカー</b>は手持ちの球をあらゆる色に合わせる。初回は無料、以降は {c} ❖。',
+    g3a:'⬢ <b>記憶の石。</b>一度も外さずにレベルをクリアすると手に入る。購入はできず、禅の庭に永く飾られる。',
+    g3b:'✧ <b>光の種。</b>4連鎖以上で落ちてくる。庭では25粒ごとに願いの星座になる。',
+    gBomb:'✹ <b>ボム。</b>色を問わず、着弾点の周囲を一度の波で片づける。鎖や石に阻まれたら、特別な力のリングから構えよう。',
+    gUndo:'↶ <b>巻き戻し。</b>直前のショットの前の盤面に戻す。球が完全に止まると特別な力のリングに現れる — 誤った一手を静かに正すためのもの。',
+    gPerfect:'✦ <b>今。</b>リングが金色に輝いている — パーフェクトの窓が開いた。この瞬間に放てば、着弾点の隣接球が色に関係なくすべて弾ける。<small>（旅モードのみ）</small>',
+    perfectWhy:'✦ 呼吸リングが金色のときに放ったので、着弾点の隣接球が色に関係なくすべて弾けた。この機能は旅モードにのみ存在する。',
+    gWaste:'💭 このショットは外れた。同じ色の球が<b>3個以上</b>つながって初めて溶ける。',
+    zt4:'🐟 <b>2000点</b>で禅の庭の池に<b>錦鯉</b>が一匹訪れ、以後2000点ごとに一匹増える（最大100匹）。記録が伸びるほど庭は生き生きとする。',
+    dailyLocked:'🌸 デイリー曼荼羅はまだ開放されていない。<b>条件：</b>旅モードでレベル3をクリアすること。',
+    dailyBody:'<b>これは？</b>毎日、世界中のプレイヤーが同じ盤に挑む。盤は日ごとに変わり、<b>1日1回</b>だけ遊べる。<br><b>難度：</b>ワールド10の終盤と同等、左右対称。<br><b>報酬：</b>広告を見てクリアすると <b>+300 ❖ · +3 蓮</b>',
+    dailyReward:'🌸 デイリー曼荼羅  +300 ❖ · +3 蓮',
+  },
+  ko: {
+    g1a:'◎ <b>레벨 목표.</b> 위에 표시된 기호를 <b>{n}개</b> 터뜨리세요. 카운터가 0이 되면 레벨이 완료돼요.',
+    g1b:'➳ <b>남은 발수: {s}.</b> 발수는 제한되어 있고 채워지지 않아요. 한 발도 헛되이 쓰지 않고 완료하면 <b>기억의 돌</b>을 받아요.',
+    g1c:'✨ <b>기본 규칙:</b> 같은 색 구슬이 <b>세 개 이상</b> 맞닿으면 그 무리가 녹아요. 지금 빛나는 무리를 완성해 보세요.',
+    g1d:'✓ 목표 카운터가 줄었어요. 0으로 만들면 레벨이 완료돼요.',
+    g1e:'⇄ <b>교체.</b> 다음 구슬을 누르면 손에 든 구슬과 바꿀 수 있어요. 무료이고 횟수 제한이 없으며 발수도 소모하지 않아요.',
+    g2a:'✦ <b>호흡 — 완벽한 발사.</b> 발사대 고리는 일정하게 호흡해요. <b>고리가 황금빛으로 바뀌는 순간</b> 놓으면 완벽한 발사가 되어, 착지 지점의 이웃이 색과 상관없이 모두 터져요.<br>⚠ 이 기능은 <b>여정 모드에서만</b> 작동해요. 젠 모드에는 호흡 구간이 없어요.',
+    g2b:'✦ <b>특별한 힘.</b> 왼쪽 아래 고리에 <b>조커</b>, <b>폭탄</b>, <b>되감기</b>가 있어요. 막혔을 때 열어서 카드를 고르세요.',
+    gJoker2:'◈ <b>조커</b>는 손에 든 구슬을 모든 색에 맞춰요. 첫 사용은 선물이고, 이후에는 {c} ❖예요.',
+    g3a:'⬢ <b>기억의 돌.</b> 한 발도 헛되이 쓰지 않고 레벨을 완료하면 얻어요. 구매할 수 없고 젠 정원에 영구히 전시돼요.',
+    g3b:'✧ <b>빛의 씨앗.</b> 4연쇄 이상에서 떨어져요. 정원에서는 씨앗 25개마다 소원 별자리가 돼요.',
+    gBomb:'✹ <b>폭탄.</b> 색을 가리지 않고 착지 지점 주변을 한 번의 파동으로 정리해요. 사슬이나 돌에 막혔을 때 특별한 힘 고리에서 준비하세요.',
+    gUndo:'↶ <b>되감기.</b> 마지막 발사 직전의 보드를 되돌려요. 구슬이 완전히 멈추면 특별한 힘 고리에 나타나요 — 잘못된 수를 차분히 바로잡기 위한 기능이에요.',
+    gPerfect:'✦ <b>지금이에요.</b> 고리가 황금빛으로 빛나요 — 완벽한 발사 구간이 열렸어요. 바로 이 순간 놓으면 착지 지점의 이웃이 색과 상관없이 모두 터져요. <small>(여정 모드 전용)</small>',
+    perfectWhy:'✦ 호흡 고리가 황금빛일 때 놓았기 때문에 착지 지점의 이웃이 색과 상관없이 모두 터졌어요. 이 기능은 여정 모드에만 있어요.',
+    gWaste:'💭 이 발사는 헛되이 갔어요. 같은 색 구슬이 <b>세 개 이상</b> 맞닿아야 무리가 녹아요.',
+    zt4:'🐟 <b>2000점</b>에 도달하면 젠 정원 연못에 <b>코이</b> 한 마리가 찾아오고, 이후 2000점마다 한 마리씩 늘어나요(최대 100마리). 기록이 커질수록 정원이 살아나요.',
+    dailyLocked:'🌸 데일리 만다라는 아직 잠겨 있어요. <b>조건:</b> 여정 모드에서 레벨 3을 완료하세요.',
+    dailyBody:'<b>무엇인가요?</b> 매일 모든 플레이어가 같은 보드를 받아요. 보드는 날마다 바뀌고 <b>하루에 한 번</b> 플레이할 수 있어요.<br><b>난이도:</b> 월드 10 후반부 수준이며 대칭이에요.<br><b>보상:</b> 광고를 보고 완료하면 <b>+300 ❖ · +3 로터스</b>',
+    dailyReward:'🌸 데일리 만다라  +300 ❖ · +3 로터스',
+  },
+  id: {
+    g1a:'◎ <b>Sasaran level.</b> Pecahkan <b>{n}</b> simbol yang ditampilkan di atas. Level selesai saat penghitung mencapai nol.',
+    g1b:'➳ <b>Tembakan tersedia: {s}.</b> Jumlahnya terbatas dan tidak terisi ulang. Selesaikan level tanpa satu pun tembakan terbuang untuk memperoleh <b>batu kenangan</b>.',
+    g1c:'✨ <b>Aturan dasar:</b> sekelompok bola meleleh bila <b>tiga atau lebih</b> bola sewarna saling bersentuhan. Lengkapi kelompok yang bercahaya sekarang.',
+    g1d:'✓ Penghitung sasaran berkurang. Bawa ke nol untuk menyelesaikan level.',
+    g1e:'⇄ <b>Tukar.</b> Sentuh bola berikutnya untuk menukarnya dengan yang ada di tangan. Gratis, tanpa batas, dan tidak memakai tembakan.',
+    g2a:'✦ <b>Napas — Tembakan Sempurna.</b> Cincin peluncur bernapas dengan teratur. Lepaskan <b>tepat saat cincin berubah keemasan</b> dan tembakan menjadi sempurna: semua tetangga di titik pendaratan pecah, apa pun warnanya.<br>⚠ Ini berlaku <b>hanya di mode Perjalanan</b>; mode Zen tidak memiliki jendela napas.',
+    g2b:'✦ <b>Kekuatan khusus.</b> Cincin di kiri bawah berisi <b>Joker</b>, <b>Bom</b>, dan <b>Putar Balik</b>. Buka dan pilih kartu saat kamu buntu.',
+    gJoker2:'◈ <b>Joker</b> menyelaraskan bola di tangan dengan semua warna. Pemakaian pertama gratis; setelahnya {c} ❖.',
+    g3a:'⬢ <b>Batu kenangan.</b> Diperoleh dengan menyelesaikan level tanpa satu pun tembakan terbuang. Tidak bisa dibeli dan dipajang permanen di taman zenmu.',
+    g3b:'✧ <b>Benih cahaya.</b> Jatuh pada kombo empat atau lebih. Di tamanmu, setiap 25 benih menjadi rasi bintang harapan.',
+    gBomb:'✹ <b>Bom.</b> Tidak memandang warna dan membersihkan area di sekitar titik pendaratannya dalam satu gelombang. Siapkan dari cincin kekuatan saat rantai atau batu menghalangimu.',
+    gUndo:'↶ <b>Putar Balik.</b> Mengembalikan papan seperti sebelum tembakan terakhirmu. Muncul di cincin kekuatan begitu bola benar-benar berhenti — untuk memperbaiki langkah keliru dengan tenang.',
+    gPerfect:'✦ <b>Sekarang.</b> Cincin bersinar keemasan — jendela tembakan sempurna terbuka. Lepaskan tepat saat ini dan semua tetangga di titik pendaratan akan pecah, apa pun warnanya. <small>(hanya mode Perjalanan)</small>',
+    perfectWhy:'✦ Kamu melepaskan saat cincin napas berwarna emas; karena itu semua tetangga di titik pendaratan pecah tanpa memandang warna. Fitur ini hanya ada di mode Perjalanan.',
+    gWaste:'💭 Tembakan itu terbuang. Sekelompok bola hanya meleleh bila <b>tiga atau lebih</b> bola sewarna saling bersentuhan.',
+    zt4:'🐟 Pada <b>2000 poin</b>, seekor <b>koi</b> datang ke kolam taman zenmu, lalu satu lagi setiap 2000 poin (hingga 100). Makin besar rekormu, makin hidup tamanmu.',
+    dailyLocked:'🌸 Mandala Harian masih terkunci. <b>Syarat:</b> selesaikan level 3 di mode Perjalanan.',
+    dailyBody:'<b>Apa ini?</b> Setiap hari semua pemain menerima papan yang sama. Papan berganti setiap hari dan dimainkan <b>sekali sehari</b>.<br><b>Kesulitan:</b> setara level akhir dunia 10, simetris.<br><b>Hadiah:</b> tonton iklan lalu selesaikan untuk <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala harian  +300 ❖ · +3 Lotus',
+  },
+  ms: {
+    g1a:'◎ <b>Objektif tahap.</b> Pecahkan <b>{n}</b> simbol yang dipaparkan di atas. Tahap selesai apabila kaunter mencapai sifar.',
+    g1b:'➳ <b>Tembakan tersedia: {s}.</b> Jumlahnya terhad dan tidak diisi semula. Tamatkan tahap tanpa satu pun tembakan terbuang untuk memperoleh <b>batu kenangan</b>.',
+    g1c:'✨ <b>Peraturan asas:</b> sekumpulan bebola melebur apabila <b>tiga atau lebih</b> bebola sewarna bersentuhan. Lengkapkan kumpulan yang bercahaya sekarang.',
+    g1d:'✓ Kaunter objektif berkurang. Bawa ia ke sifar untuk menamatkan tahap.',
+    g1e:'⇄ <b>Tukar.</b> Sentuh bebola seterusnya untuk menukarnya dengan yang di tangan. Percuma, tanpa had dan tidak memakan tembakan.',
+    g2a:'✦ <b>Nafas — Tembakan Sempurna.</b> Gelang pelancar bernafas secara sekata. Lepaskan <b>tepat ketika gelang bertukar keemasan</b> dan tembakan menjadi sempurna: semua jiran di titik pendaratan pecah, apa jua warnanya.<br>⚠ Ini terpakai <b>hanya dalam mod Pengembaraan</b>; mod Zen tiada tetingkap nafas.',
+    g2b:'✦ <b>Kuasa khas.</b> Gelang di kiri bawah mengandungi <b>Joker</b>, <b>Bom</b> dan <b>Putar Semula</b>. Buka dan pilih kad apabila anda tersekat.',
+    gJoker2:'◈ <b>Joker</b> menyelaraskan bebola di tangan dengan setiap warna. Penggunaan pertama percuma; selepas itu {c} ❖.',
+    g3a:'⬢ <b>Batu kenangan.</b> Diperoleh dengan menamatkan tahap tanpa satu pun tembakan terbuang. Tidak boleh dibeli dan dipamerkan kekal di taman zen anda.',
+    g3b:'✧ <b>Benih cahaya.</b> Jatuh pada kombo empat atau lebih. Di taman anda, setiap 25 benih menjadi buruj hasrat.',
+    gBomb:'✹ <b>Bom.</b> Tidak mengira warna dan membersihkan kawasan sekeliling titik pendaratan dalam satu gelombang. Sediakannya dari gelang kuasa apabila rantai atau batu menghalang anda.',
+    gUndo:'↶ <b>Putar Semula.</b> Memulihkan papan seperti sebelum tembakan terakhir anda. Ia muncul dalam gelang kuasa sebaik bebola berhenti sepenuhnya — untuk membetulkan langkah silap dengan tenang.',
+    gPerfect:'✦ <b>Sekarang.</b> Gelang bersinar keemasan — tetingkap tembakan sempurna terbuka. Lepaskan tepat pada saat ini dan semua jiran di titik pendaratan akan pecah, apa jua warnanya. <small>(mod Pengembaraan sahaja)</small>',
+    perfectWhy:'✦ Anda melepaskan semasa gelang nafas berwarna emas; sebab itu semua jiran di titik pendaratan pecah tanpa mengira warna. Ciri ini hanya wujud dalam mod Pengembaraan.',
+    gWaste:'💭 Tembakan itu terbuang. Sekumpulan bebola hanya melebur apabila <b>tiga atau lebih</b> bebola sewarna bersentuhan.',
+    zt4:'🐟 Pada <b>2000 mata</b>, seekor <b>koi</b> tiba di kolam taman zen anda, dan seekor lagi setiap 2000 mata (sehingga 100). Semakin tinggi rekod anda, semakin hidup taman itu.',
+    dailyLocked:'🌸 Mandala Harian masih berkunci. <b>Syarat:</b> tamatkan tahap 3 dalam mod Pengembaraan.',
+    dailyBody:'<b>Apakah ini?</b> Setiap hari semua pemain menerima papan yang sama. Papan bertukar setiap hari dan dimainkan <b>sekali sehari</b>.<br><b>Kesukaran:</b> setara tahap akhir dunia 10, simetri.<br><b>Ganjaran:</b> tonton iklan dan tamatkannya untuk <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala harian  +300 ❖ · +3 Lotus',
+  },
+  th: {
+    g1a:'◎ <b>เป้าหมายของด่าน</b> ทำลายสัญลักษณ์ที่แสดงด้านบนให้ได้ <b>{n} ชิ้น</b> ด่านจะสำเร็จเมื่อตัวนับลดลงถึงศูนย์',
+    g1b:'➳ <b>จำนวนนัดที่มี: {s}</b> มีจำกัดและไม่เติมใหม่ หากจบด่านโดยไม่มีนัดใดสูญเปล่าเลย คุณจะได้รับ <b>หินแห่งความทรงจำ</b>',
+    g1c:'✨ <b>กฎพื้นฐาน:</b> กลุ่มจะสลายเมื่อลูกแก้วสีเดียวกัน <b>สามลูกขึ้นไป</b> มาชิดกัน ตอนนี้ลองเติมกลุ่มที่กำลังเรืองแสงให้ครบ',
+    g1d:'✓ ตัวนับเป้าหมายลดลงแล้ว ทำให้เหลือศูนย์เพื่อจบด่าน',
+    g1e:'⇄ <b>สลับ</b> แตะลูกถัดไปเพื่อสลับกับลูกที่ถืออยู่ ฟรี ไม่จำกัดจำนวน และไม่เสียนัด',
+    g2a:'✦ <b>ลมหายใจ — การยิงที่สมบูรณ์แบบ</b> วงแหวนของตัวยิงหายใจอย่างสม่ำเสมอ ปล่อย<b>ในจังหวะที่วงแหวนเปลี่ยนเป็นสีทอง</b> การยิงจะสมบูรณ์แบบ: ลูกข้างเคียงทั้งหมด ณ จุดตกจะแตก ไม่ว่าจะสีใด<br>⚠ ใช้ได้<b>เฉพาะในโหมดการเดินทาง</b> โหมดเซนไม่มีช่วงลมหายใจ',
+    g2b:'✦ <b>พลังพิเศษ</b> วงแหวนมุมล่างซ้ายมี <b>โจ๊กเกอร์</b> <b>ระเบิด</b> และ <b>ย้อนกลับ</b> เปิดขึ้นมาแล้วเลือกการ์ดเมื่อคุณติดขัด',
+    gJoker2:'◈ <b>โจ๊กเกอร์</b> ปรับลูกในมือให้เข้ากับทุกสี ใช้ครั้งแรกฟรี หลังจากนั้นครั้งละ {c} ❖',
+    g3a:'⬢ <b>หินแห่งความทรงจำ</b> ได้รับเมื่อจบด่านโดยไม่มีนัดใดสูญเปล่า ซื้อไม่ได้ และจะตั้งอยู่ในสวนเซนของคุณอย่างถาวร',
+    g3b:'✧ <b>เมล็ดแสง</b> ร่วงลงเมื่อทำคอมโบสี่ขึ้นไป ในสวนของคุณ ทุก 25 เมล็ดจะกลายเป็นกลุ่มดาวแห่งคำอธิษฐาน',
+    gBomb:'✹ <b>ระเบิด</b> ไม่เลือกสี และเคลียร์พื้นที่รอบจุดตกด้วยคลื่นเดียว เตรียมจากวงแหวนพลังเมื่อโซ่หรือหินขวางทางคุณ',
+    gUndo:'↶ <b>ย้อนกลับ</b> คืนกระดานให้เป็นเหมือนก่อนการยิงครั้งล่าสุด จะปรากฏในวงแหวนพลังเมื่อลูกหยุดนิ่งสนิทแล้ว — ไว้แก้ไขการเล่นที่ผิดพลาดอย่างใจเย็น',
+    gPerfect:'✦ <b>ตอนนี้</b> วงแหวนเปล่งประกายสีทอง — ช่วงการยิงสมบูรณ์แบบเปิดอยู่ ปล่อยในจังหวะนี้แล้วลูกข้างเคียงทั้งหมด ณ จุดตกจะแตก ไม่ว่าสีใด <small>(เฉพาะโหมดการเดินทาง)</small>',
+    perfectWhy:'✦ คุณปล่อยขณะที่วงแหวนลมหายใจเป็นสีทอง ลูกข้างเคียงทั้งหมด ณ จุดตกจึงแตกโดยไม่เลือกสี คุณสมบัตินี้มีเฉพาะในโหมดการเดินทาง',
+    gWaste:'💭 นัดนี้สูญเปล่า กลุ่มจะสลายก็ต่อเมื่อลูกแก้วสีเดียวกัน <b>สามลูกขึ้นไป</b> มาชิดกัน',
+    zt4:'🐟 เมื่อถึง <b>2000 คะแนน</b> ปลา<b>คาร์ป</b>หนึ่งตัวจะมาอยู่ในบ่อของสวนเซน และเพิ่มอีกตัวทุก 2000 คะแนน (สูงสุด 100 ตัว) ยิ่งสถิติสูง สวนยิ่งมีชีวิตชีวา',
+    dailyLocked:'🌸 แมนดาลาประจำวันยังถูกล็อกอยู่ <b>เงื่อนไข:</b> ผ่านด่าน 3 ในโหมดการเดินทาง',
+    dailyBody:'<b>คืออะไร?</b> ทุกวันผู้เล่นทุกคนจะได้กระดานเดียวกัน กระดานเปลี่ยนทุกวันและเล่นได้ <b>วันละหนึ่งครั้ง</b><br><b>ความยาก:</b> เทียบเท่าด่านท้ายของโลกที่ 10 และสมมาตร<br><b>รางวัล:</b> ดูโฆษณาแล้วเล่นให้ผ่านเพื่อรับ <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 แมนดาลาประจำวัน  +300 ❖ · +3 Lotus',
+  },
+  vi: {
+    g1a:'◎ <b>Mục tiêu màn chơi.</b> Làm vỡ <b>{n}</b> biểu tượng hiển thị phía trên. Màn chơi hoàn thành khi bộ đếm về không.',
+    g1b:'➳ <b>Số lượt bắn: {s}.</b> Có hạn và không được nạp thêm. Hoàn thành màn mà không phí một lượt nào để nhận <b>viên đá ký ức</b>.',
+    g1c:'✨ <b>Quy tắc cơ bản:</b> một nhóm sẽ tan khi <b>ba quả trở lên</b> cùng màu chạm nhau. Hãy hoàn tất nhóm đang phát sáng.',
+    g1d:'✓ Bộ đếm mục tiêu đã giảm. Đưa nó về không để hoàn thành màn chơi.',
+    g1e:'⇄ <b>Đổi chỗ.</b> Chạm vào quả kế tiếp để đổi với quả đang cầm. Miễn phí, không giới hạn và không tốn lượt bắn.',
+    g2a:'✦ <b>Hơi thở — Cú bắn hoàn hảo.</b> Vòng phóng thở đều đặn. Hãy thả <b>đúng khoảnh khắc vòng chuyển sang màu vàng kim</b> để cú bắn trở nên hoàn hảo: mọi quả lân cận tại điểm chạm đều vỡ, bất kể màu sắc.<br>⚠ Điều này <b>chỉ áp dụng trong chế độ Hành trình</b>; chế độ Zen không có cửa sổ hơi thở.',
+    g2b:'✦ <b>Sức mạnh đặc biệt.</b> Vòng ở góc dưới bên trái chứa <b>Joker</b>, <b>Bom</b> và <b>Tua lại</b>. Mở ra và chọn một thẻ khi bạn bế tắc.',
+    gJoker2:'◈ <b>Joker</b> làm quả trong tay hợp với mọi màu. Lần đầu miễn phí; sau đó tốn {c} ❖.',
+    g3a:'⬢ <b>Viên đá ký ức.</b> Nhận được khi hoàn thành màn chơi mà không phí một lượt bắn nào. Không thể mua và được trưng bày vĩnh viễn trong khu vườn Zen của bạn.',
+    g3b:'✧ <b>Hạt ánh sáng.</b> Rơi xuống khi bạn tạo combo từ bốn trở lên. Trong vườn, cứ 25 hạt sẽ thành một chòm sao ước nguyện.',
+    gBomb:'✹ <b>Bom.</b> Không phân biệt màu và dọn sạch khu vực quanh điểm chạm bằng một đợt sóng. Hãy chuẩn bị từ vòng sức mạnh khi xích hay đá chặn đường bạn.',
+    gUndo:'↶ <b>Tua lại.</b> Khôi phục bàn cờ về trạng thái trước cú bắn cuối. Nó xuất hiện trong vòng sức mạnh ngay khi quả bóng dừng hẳn — để bình tĩnh sửa một nước đi sai.',
+    gPerfect:'✦ <b>Ngay bây giờ.</b> Vòng đang rực vàng kim — cửa sổ bắn hoàn hảo đã mở. Thả đúng khoảnh khắc này và mọi quả lân cận tại điểm chạm sẽ vỡ, bất kể màu sắc. <small>(chỉ chế độ Hành trình)</small>',
+    perfectWhy:'✦ Bạn đã thả khi vòng hơi thở đang vàng kim; vì thế mọi quả lân cận tại điểm chạm đều vỡ bất kể màu. Tính năng này chỉ có trong chế độ Hành trình.',
+    gWaste:'💭 Cú bắn đó đã phí. Một nhóm chỉ tan khi <b>ba quả trở lên</b> cùng màu chạm nhau.',
+    zt4:'🐟 Ở mốc <b>2000 điểm</b>, một chú <b>cá koi</b> đến hồ trong khu vườn Zen của bạn, và thêm một chú nữa sau mỗi 2000 điểm (tối đa 100). Kỷ lục càng cao, khu vườn càng sống động.',
+    dailyLocked:'🌸 Mandala Hằng ngày vẫn đang khoá. <b>Yêu cầu:</b> hoàn thành cấp 3 trong chế độ Hành trình.',
+    dailyBody:'<b>Đây là gì?</b> Mỗi ngày tất cả người chơi nhận cùng một bàn. Bàn thay đổi hằng ngày và chơi được <b>một lần mỗi ngày</b>.<br><b>Độ khó:</b> ngang các màn cuối của Thế giới 10, đối xứng.<br><b>Phần thưởng:</b> xem quảng cáo và hoàn thành để nhận <b>+300 ❖ · +3 Lotus</b>',
+    dailyReward:'🌸 mandala hằng ngày  +300 ❖ · +3 Lotus',
+  },
+});
+for (const cvCode in I18N_COACH_V2) {
+  if (LANGS[cvCode]) Object.assign(LANGS[cvCode], I18N_COACH_V2[cvCode]);
+}
+
 function T(k, v) {
   let s = (LANGS[LANG] && LANGS[LANG][k] != null) ? LANGS[LANG][k]
     /* İngilizceye sessiz düşüş yok: paket denetimi eksik anahtarı yayın
@@ -3888,6 +4494,7 @@ const G = {
   blast: null, rewind: null, parts: [],   // 💣 sıradaki atış patlayıcı next: null,
   ripples: [], pops: [], dust: [], bursts: [],
   pendingPops: 0,
+  turnSeq: 0,        // tur mührü: gecikmeli işler yalnız kendi turunda geçerli
   combo: 0,
   zenShots: 0, zenRowPending: false,
   aiming: false, aimVec: null, aimRaw: null, pointer: null, anchor: null,
@@ -4114,7 +4721,7 @@ function startLevel(n, daily) {
   G.level = n; G.shots = L.shots;
   G.score = 0; G.dispScore = 0; G.combo = 0; G.levelCoins = 0;
   G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0;
-  G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0;
+  G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0; G.turnSeq = (G.turnSeq || 0) + 1;
   G.resolveLock = false; G.curRainbow = false;
   fillGrid(L.rows, L.colorCount, L.density, L);
   G.targetIdx = (Math.random() * L.colorCount) | 0;
@@ -4258,7 +4865,7 @@ function startZen(fresh = false) {
   const resumed = !fresh && restoreZenSession();
   if (!resumed) { G.score = 0; G.dispScore = 0; G.combo = 0; }
   if (!resumed) { G.scrollY = 0; G.scrollTarget = 0; G.topRow = 0; }
-  G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0;
+  G.fly = null; G.pops = []; G.ripples = []; resetBurstPool(); G.pendingPops = 0; G.turnSeq = (G.turnSeq || 0) + 1;
   if (!resumed) G.zenShots = 0;
   G.zenRowPending = false; G.resolveLock = false;
   G.fly = null; G.pendingPops = 0; G.guideBlock = false; G.levelWon = false; G.lockSince = 0; G.undo = null;
@@ -4490,18 +5097,39 @@ function popGroup(startKey, baseDelay) {
   if (G.combo >= 3) spawnRipple(cp.x, cp.y, PALETTE[idx].c, true);
   comboFx(G.combo, cp, order.length);
   // patlamadan sonra desteksiz kalan taşları/objeleri düşür
-  setTimeout(dropUnsupported, baseDelay + 120);
+  scheduleDrop(baseDelay + 120);
   return true;
+}
+
+/* Gecikmeli düşme çözümlemesi yalnız kendi turunda geçerlidir. Oyuncu bu arada
+   zamanı geri sardıysa iş iptal edilir — eski turun hesabı yeni tahtaya uygulanmaz. */
+function scheduleDrop(delay) {
+  const seq = (G.turnSeq = G.turnSeq || 0);
+  setTimeout(() => { if (G.turnSeq === seq && G.state === 'playing') dropUnsupported(); }, delay);
 }
 
 /* Tavana (en üst satıra) bağlı olmayan tüm objeler düşer — taşları temizlemenin tek yolu */
 function dropUnsupported() {
   if (G.grid.size === 0) return;
-  const connected = new Set();
-  const q = [];
+  let connected = new Set();
+  let q = [];
   // en üst satırdaki her şey tavana bağlıdır
   for (const [k, b] of G.grid) {
     if (b.r === G.topRow) { connected.add(k); q.push(k); }
+  }
+  /* 🛟 Güvenlik ağı: tavan satırı tahtayla uyuşmuyorsa (satır inişi, geri sarma
+     veya oturum devamından sonra) hiçbir hücre "bağlı" sayılmaz ve tüm tahta
+     bir anda erirdi. Böyle bir durumda tavan, tahtada gerçekten var olan en üst
+     satıra göre onarılır. */
+  if (!connected.size) {
+    let minR = Infinity;
+    for (const b of G.grid.values()) if (b.r < minR) minR = b.r;
+    if (minR === Infinity) return;
+    G.topRow = minR;
+    connected = new Set(); q = [];
+    for (const [k, b] of G.grid) {
+      if (b.r === minR) { connected.add(k); q.push(k); }
+    }
   }
   while (q.length) {
     const k = q.pop();
@@ -4605,7 +5233,7 @@ function attachFly() {
     G.flash = 0.42; G.flashT0 = nowB;
     Sfx.boom();
     haptic('level', 0.85);
-    setTimeout(dropUnsupported, 260);
+    scheduleDrop(260);
     G.bombArmed = false;
     UI.refresh(); UI.refreshScore();
     checkResolutionSoon();
@@ -4665,7 +5293,7 @@ function attachFly() {
         setTimeout(() => UI.toast(T('perfectWhy')), 750);
       }
       if (!popped) G.combo++; // mükemmel patlama zinciri düşürmez
-      setTimeout(dropUnsupported, 380);
+      scheduleDrop(380);
     }
   }
   if (!popped && !blasted) {
@@ -4832,25 +5460,49 @@ function snapUndo() {
   G.undo = {
     grid: [...G.grid.entries()].map(([k, b]) => [k, { ...b }]),
     score: G.score, shots: G.shots, targetLeft: G.targetLeft,
-    scroll: G.scrollTarget, cur: G.cur, next: G.next, wasted: G.levelWasted,
+    scroll: G.scrollTarget, scrollY: G.scrollY, cur: G.cur, next: G.next,
+    wasted: G.levelWasted,
+    // ⚠ Bu alanlar eksikti: tahtanın tavan satırı ve zen sayaçları geri
+    // sarılmayınca tahta ile mantık birbirinden kopuyor, sonraki çözümleme
+    // tüm tahtayı "desteksiz" sayıp eritiyordu.
+    topRow: G.topRow, zenShots: G.zenShots, zenRowPending: !!G.zenRowPending,
+    combo: G.combo, curRainbow: !!G.curRainbow, bombArmed: !!G.bombArmed,
+    flow: G.flow, flowReady: !!G.flowReady, levelCoins: G.levelCoins,
   };
 }
 function applyUndo() {
   const u = G.undo; if (!u) return false;
+  // 🔒 Tur mührü: bu turdan kalan gecikmeli işler (düşme çözümlemesi, satır
+  // inişi) artık geçersiz sayılır ve tahtaya dokunamaz.
+  G.turnSeq = (G.turnSeq || 0) + 1;
+  // Uçan top, sıradaki patlamalar ve efektler tamamen temizlenir.
+  G.fly = null; G.trail.length = 0;
+  G.pops = []; G.pendingPops = 0; G.ripples = [];
+  try { resetBurstPool(); } catch (e) {}
+  G.blast = null; G.levelWon = false; G.lockSince = 0;
   G.grid = new Map(u.grid.map(([k, b]) => [k, { ...b }]));
   G.score = u.score; G.shots = u.shots; G.targetLeft = u.targetLeft;
-  G.scrollTarget = u.scroll; G.cur = u.cur; G.next = u.next; G.levelWasted = u.wasted;
+  G.scrollTarget = u.scroll; G.scrollY = (u.scrollY !== undefined ? u.scrollY : G.scrollY);
+  G.cur = u.cur; G.next = u.next; G.levelWasted = u.wasted;
+  G.topRow = Number(u.topRow) || 0;
+  G.zenShots = Number(u.zenShots) || 0;
+  G.zenRowPending = !!u.zenRowPending;
+  G.curRainbow = !!u.curRainbow; G.bombArmed = !!u.bombArmed;
+  G.flow = Number(u.flow) || 0; G.flowReady = !!u.flowReady;
+  if (u.levelCoins !== undefined) G.levelCoins = u.levelCoins;
   G.undo = null; G.combo = 0; G.resolveLock = false;
   UI.refresh(); UI.refreshScore();
   return true;
 }
 function launch(dir) {
+  // Reddedilen atış geçmişi bozmasın: önce koşullar, sonra anlık görüntü.
+  if (G.state !== 'playing' || G.fly) return;
+  if (G.mode === 'level' && G.shots <= 0) return;
   snapUndo();   // ⏪ bu atıştan önceki durumu sakla
+  G.turnSeq = (G.turnSeq || 0) + 1;   // yeni tur mührü
   const bombNow = G.bombArmed;
   if (bombNow) G.bombArmed = false;
-  if (G.state !== 'playing' || G.fly) return;
   if (G.mode === 'level') {
-    if (G.shots <= 0) return;
     G.shots--;
   } else {
     G.zenShots++;
@@ -6916,7 +7568,9 @@ const UI = (() => {
               x:nest.x, y:nest.y, born:fedAt,
               // Yaklaşma, yerleşme, beslenme ve ayrılış ayrı nefeslerdir.
               // Kuşların "dokunup kaçması" yerine sakin bir küçük sahne yaratır.
-              arriveEnd:fedAt + 3200, eatEnd:fedAt + 13500, departEnd:fedAt + 17500, until:fedAt + 18600
+              // Kuşlar hızla iner, yuvada uzun süre kalır, doyunca ağır ağır ayrılır.
+              arriveEnd:fedAt + 1500, eatEnd:fedAt + 26000, departEnd:fedAt + 30500, until:fedAt + 32000,
+              landedAt:0, landedN:0
             };
             store.set('zx_bird_feed_at', birdNow);
             gAction = null; if (el.gBirdBtn) el.gBirdBtn.classList.remove('on');
@@ -7140,28 +7794,38 @@ const UI = (() => {
           const a = bi * TAU / Math.max(1, birds.length);
           const fedAge = now - birdFood.born;
           let tx, ty, speed;
-          if (fedAge < birdFood.arriveEnd - birdFood.born) {
-            // Yeme iniş: her kuş yuvanın farklı dalına yaklaşır.
-            tx = birdFood.x + Math.cos(a) * (9 + bi % 3 * 4);
-            ty = birdFood.y + Math.sin(a) * 4 - 4;
-            speed = 1.05;
-          } else if (fedAge < birdFood.eatEnd - birdFood.born) {
-            // Kuşlar yuvada oturur; başları yeme doğru sakince iner.
-            tx = birdFood.x + Math.cos(a) * (7 + bi % 3 * 3);
-            ty = birdFood.y + Math.sin(now * .009 + bi) * 1.5 + 1;
-            speed = 0.38;
+          // Her kuşun yuvada kendine ait bir yeri var; oraya doğrudan süzülür.
+          const seatX = birdFood.x + Math.cos(a) * (7 + bi % 3 * 3);
+          const seatY = birdFood.y + Math.sin(a) * 3 - 1;
+          if (fedAge < birdFood.eatEnd - birdFood.born) {
+            tx = seatX;
+            ty = bd.perched ? seatY + Math.sin(now * .009 + bi) * 1.2 : seatY;
+            // İniş belirgin biçimde hızlandı: kuş havada oyalanmaz, yuvaya iner.
+            speed = bd.perched ? 0.32 : 3.1;
           } else {
             // Doyan kuşlar acele etmeden yeniden göğe açılır.
+            bd.perched = false;
             tx = bd.v >= 0 ? gW + 24 : -24;
             ty = gH * (.06 + (bi % 4) * .026);
-            speed = 0.82;
+            speed = 0.9;
           }
-          bd.x += clamp(tx - bd.x, -speed, speed); bd.y += clamp(ty - bd.y, -speed * .58, speed * .58);
+          bd.x += clamp(tx - bd.x, -speed, speed); bd.y += clamp(ty - bd.y, -speed * .72, speed * .72);
+          /* 🪶 Konma anı: kuş gerçekten yerine ulaştığında konmuş sayılır.
+             Gagalama artık zamana değil, konuma bağlı — havada gagalama biter. */
+          if (!bd.perched && fedAge < birdFood.eatEnd - birdFood.born) {
+            if ((bd.x - seatX) ** 2 + (bd.y - seatY) ** 2 < 9) {
+              bd.perched = true;
+              birdFood.landedN = (birdFood.landedN || 0) + 1;
+              birdFood.landedAt = now;      // 🌳 ağaç bu anda sarsılır
+              Sfx.softNote(1560 + bi * 40, .02, .12);
+            }
+          }
         } else {
+          bd.perched = false;
           bd.x += bd.v; if (bd.x < -16) bd.x = gW + 16; if (bd.x > gW + 16) bd.x = -16;
           bd.y += Math.sin(now * 0.0007 + bd.ph) * 0.08;
         }
-        const perchedFeed = birdFood && now >= birdFood.arriveEnd && now < birdFood.eatEnd;
+        const perchedFeed = !!bd.perched;
         const flap = perchedFeed ? Math.sin(now * 0.004 + bd.ph) * 0.7 : Math.sin(now * 0.009 + bd.ph) * 3.4;
         const dir = bd.v >= 0 ? 1 : -1;
         // Uçuşta kanatlar geniş; yuvada ise kuş oturur ve başıyla yeme uzanır.
@@ -7519,8 +8183,17 @@ const UI = (() => {
       gx.translate(TX, TY);
       gx.scale(TS, TS);
       // usul salınım: ağaç kökünden 1°'lik nefes gibi sallanır
-      const feedingNest = birdFood && now >= birdFood.arriveEnd && now < birdFood.eatEnd;
-      gx.translate(34, 64); gx.rotate(Math.sin(now * 0.00045) * 0.018 + (feedingNest ? Math.sin(now * .006) * .006 : 0)); gx.translate(-34, -64);
+      const feedingNest = birdFood && birdFood.landedN > 0 && now < birdFood.eatEnd;
+      /* 🌳 Konma sarsıntısı: bir kuş yuvaya indiğinde ağaç kısa ve sönümlenen
+         bir titreşimle karşılık verir; beslenme boyunca da hafifçe salınır. */
+      let landShake = 0;
+      if (birdFood && birdFood.landedAt) {
+        const la = (now - birdFood.landedAt) / 820;
+        if (la >= 0 && la < 1) landShake = Math.sin(la * 34) * 0.030 * (1 - la) * (1 - la);
+      }
+      gx.translate(34, 64);
+      gx.rotate(Math.sin(now * 0.00045) * 0.018 + (feedingNest ? Math.sin(now * .0035) * .008 : 0) + landShake);
+      gx.translate(-34, -64);
       // taç ışıması: yaprakların ardında yumuşak nane halesi (derinlik hissi)
       const halo = gx.createRadialGradient(34, 26, 4, 34, 26, 30);
       halo.addColorStop(0, 'rgba(125,240,192,0.10)');
@@ -7621,7 +8294,7 @@ const UI = (() => {
           gx.setLineDash([2, 4]); gx.lineDashOffset = -now * .012;
           gx.beginPath(); gx.arc(nx, ny, 18 * TS + gp * 4, 0, TAU); gx.stroke(); gx.setLineDash([]);
         }
-        const nestGlow = birdFood && now < birdFood.eatEnd ? .24 + .10 * Math.sin(now * .01) : .08;
+        const nestGlow = birdFood && now < birdFood.eatEnd ? (birdFood.landedN > 0 ? .28 : .20) + .10 * Math.sin(now * .01) : .08;
         gx.fillStyle = 'rgba(255,204,122,' + nestGlow + ')';
         gx.beginPath(); gx.ellipse(nx, ny + 2, 18 * TS, 8 * TS, 0, 0, TAU); gx.fill();
         // Örülü yuva: taban, ince dallar ve yaprak gölgesi.
@@ -8740,25 +9413,22 @@ const UI = (() => {
     }
     else if (n === 2) {
       // Joker daha önce kullanıldıysa koç "jokere dokun" diye ısrar etmez.
-      coachSeq = [{ msg: T('g2a'), block: true }];
-      if (store.get('zx_joker_used', false)) coachSeq.push({ msg: T('g2b'), spot: 'skillBtn' });
-      else coachSeq.push(
-        { msg: T('g2b'), spot: 'skillBtn', until: 'powers' },
-        { msg: T('gJoker1'), until: 'joker' },
-        { msg: T('gJoker2', { c: JOKER_COST }) },
-      );
+      // Güçler yalnız tanıtılır ve halka vurgulanır; oyuncu paneli açmaya
+      // zorlanmaz — istediği an kendisi keşfeder.
+      coachSeq = [
+        { msg: T('g2a'), block: true },
+        { msg: T('g2b'), spot: 'skillBtn' },
+        { msg: T('gJoker2', { c: JOKER_COST }), spot: 'skillBtn' },
+      ];
     }
     else if (n === 3) coachSeq = [{ msg: T('g3a'), block: true }, { msg: T('g3b'), block: true }];
     else if (n === 4) coachSeq = [
-      { msg: T('gBomb'), spot: 'skillBtn', until: 'powers' },
-      { msg: T('gBombUse'), until: 'bomb' },
+      { msg: T('gBomb'), spot: 'skillBtn' },
     ];
     else if (n === 5) {
       // Gerçek bir geri sarma için atış geçmişi gerekir; eğitim bunun için zararsız bir anlık görüntü hazırlar.
-      snapUndo();
       coachSeq = [
-        { msg: T('gUndo'), spot: 'skillBtn', until: 'powers' },
-        { msg: T('gUndoUse'), until: 'undo' },
+        { msg: T('gUndo'), spot: 'skillBtn' },
       ];
     }
     else return;
